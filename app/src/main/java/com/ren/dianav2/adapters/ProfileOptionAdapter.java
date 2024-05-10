@@ -16,6 +16,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.ren.dianav2.R;
 import com.ren.dianav2.listener.CameraImagePermissionHandler;
+import com.ren.dianav2.listener.ThemeHandler;
 import com.ren.dianav2.models.OptionItem;
 import com.ren.dianav2.screens.LoginScreen;
 
@@ -25,11 +26,14 @@ public class ProfileOptionAdapter extends RecyclerView.Adapter<ProfileOptionView
     private Context context;
     private List<OptionItem> options;
     private CameraImagePermissionHandler permissionHandler;
+    private ThemeHandler themeHandler;
 
-    public ProfileOptionAdapter(Context context, List<OptionItem> options, CameraImagePermissionHandler permissionHandler) {
+    public ProfileOptionAdapter(Context context, List<OptionItem> options, CameraImagePermissionHandler permissionHandler,
+                                ThemeHandler themeHandler) {
         this.context = context;
         this.options = options;
         this.permissionHandler = permissionHandler;
+        this.themeHandler = themeHandler;
     }
 
     @NonNull
@@ -52,6 +56,7 @@ public class ProfileOptionAdapter extends RecyclerView.Adapter<ProfileOptionView
                 case 1:
                     break;
                 case 2:
+                    themeHandler.chooseTheme();
                     break;
                 case 3:
                     break;
