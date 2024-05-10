@@ -1,5 +1,6 @@
 package com.ren.dianav2.fragments;
 
+import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.Bundle;
 
@@ -13,11 +14,14 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.Button;
+import android.widget.Toast;
 
 import com.ren.dianav2.R;
 import com.ren.dianav2.adapters.RecentChatAdapter;
 import com.ren.dianav2.adapters.SavedChatAdapter;
 import com.ren.dianav2.models.ChatItem;
+import com.ren.dianav2.screens.ChatScreen;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -43,6 +47,7 @@ public class ChatFragment extends Fragment {
     private SavedChatAdapter savedChatAdapter;
     private List<ChatItem> chatItems;
     private List<ChatItem> savedChatItems;
+    private Button btnOption1;
 
     public ChatFragment() {
         // Required empty public constructor
@@ -84,6 +89,7 @@ public class ChatFragment extends Fragment {
 
         recyclerViewChat = view.findViewById(R.id.rv_recent);
         recyclerViewSaved = view.findViewById(R.id.rv_saved);
+        btnOption1 = view.findViewById(R.id.btn_option1);
 
         recyclerViewChat.setHasFixedSize(true);
         recyclerViewChat.setLayoutManager(new LinearLayoutManager(getContext(),
@@ -100,6 +106,8 @@ public class ChatFragment extends Fragment {
 
         savedChatAdapter = new SavedChatAdapter(getContext(), savedChatItems);
         recyclerViewSaved.setAdapter(savedChatAdapter);
+
+        setButtonListeners(view);
 
         return view;
     }
@@ -126,5 +134,22 @@ public class ChatFragment extends Fragment {
         savedChatItems.add(new ChatItem(R.drawable.save_icon, "Java code explanation"));
         savedChatItems.add(new ChatItem(R.drawable.save_icon, "Resolution of mathematical exercises"));
         savedChatItems.add(new ChatItem(R.drawable.save_icon, "Example of how to use your brain"));
+    }
+
+    private void setButtonListeners(View view) {
+        Button button1 = view.findViewById(R.id.btn_option1);
+        Button button2 = view.findViewById(R.id.btn_option2);
+
+        button1.setOnClickListener(v -> onClickButton(button1));
+        button2.setOnClickListener(v -> onClickButton(button2));
+    }
+
+    private void onClickButton(Button button) {
+        if (button.getId() == R.id.btn_option1) {
+            Intent intent = new Intent(getContext(), ChatScreen.class);
+            startActivity(intent);
+        } else if (button.getId() == R.id.btn_option2) {
+            Toast.makeText(getContext(), "Search chat", Toast.LENGTH_SHORT).show();
+        }
     }
 }
