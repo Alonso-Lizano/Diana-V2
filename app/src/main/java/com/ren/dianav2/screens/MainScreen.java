@@ -49,6 +49,7 @@ public class MainScreen extends AppCompatActivity {
         onClickItemBottomNavigation(bottomNavigationView);
     }
 
+
     private void onClickItemBottomNavigation(BottomNavigationView navigationView) {
         navigationView.setOnItemSelectedListener(item -> {
 
@@ -80,5 +81,16 @@ public class MainScreen extends AppCompatActivity {
 
     private void showMessage(String message) {
         Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void onBackPressed() {
+        Fragment currentFragment = getSupportFragmentManager().findFragmentByTag(currentFragmentTag);
+        if (currentFragment instanceof ChatFragment || currentFragment instanceof ProfileFragment) {
+            replaceFragment(new HomeFragment(), "home");
+            bottomNavigationView.setSelectedItemId(R.id.home);
+        } else {
+            super.onBackPressed();
+        }
     }
 }

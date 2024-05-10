@@ -22,6 +22,7 @@ import com.ren.dianav2.models.Item;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -74,7 +75,6 @@ public class HomeFragment extends Fragment {
             mParam1 = getArguments().getString(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
-
         changeStatusBarColor();
     }
 
@@ -83,7 +83,6 @@ public class HomeFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_home, container, false);
-
         recyclerViewItem = view.findViewById(R.id.rv_explore);
         recyclerViewChat = view.findViewById(R.id.rv_recent_chat);
 
@@ -107,13 +106,13 @@ public class HomeFragment extends Fragment {
     }
 
     private void changeStatusBarColor() {
-        Window window = getActivity().getWindow();
+        Window window = requireActivity().getWindow();
         window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
         int nightModeFlags = getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
         if (nightModeFlags == Configuration.UI_MODE_NIGHT_YES) {
-            window.setStatusBarColor(ContextCompat.getColor(getActivity(), R.color.sky_blue));
+            window.setStatusBarColor(ContextCompat.getColor(requireActivity(), R.color.sky_blue));
         } else {
-            window.setStatusBarColor(ContextCompat.getColor(getActivity(), R.color.blue));
+            window.setStatusBarColor(ContextCompat.getColor(requireActivity(), R.color.blue));
         }
     }
 
