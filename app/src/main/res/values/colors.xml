@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+
+    <color name="blue">#2A4ED1</color>
+    <color name="black_variant_1">#27282C</color>
+    <color name="sky_blue">#56ABE9</color>
+
+    <color name="button_color">#2A4ED1</color>
+    <color name="icon_color">#2A4ED1</color>
+    <color name="text_color">#2A4ED1</color>
+
+    <color name="card_view_color">#2A4ED1</color>
+
+    <color name="bottom_navigation_color">#FFFFFFFF</color>
+
+    <color name="item_text_color">#2A4ED1</color>
+
+    <color name="card_view_bg_color">#FFFFFFFF</color>
+
+    <color name="item_chat_icon_color">#2A4ED1</color>
+
+    <color name="text_color_chat">#2A4ED1</color>
+</resources>
