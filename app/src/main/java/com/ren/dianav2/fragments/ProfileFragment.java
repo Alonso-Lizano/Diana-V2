@@ -1,21 +1,34 @@
 package com.ren.dianav2.fragments;
 
+import static android.app.Activity.RESULT_OK;
+
+import android.Manifest;
+import android.content.ContentValues;
+import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.content.res.Configuration;
+import android.net.Uri;
 import android.os.Bundle;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.provider.MediaStore;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.ImageView;
 
 import com.ren.dianav2.R;
 import com.ren.dianav2.adapters.ProfileOptionAdapter;
+import com.ren.dianav2.listener.CameraImagePermissionHandler;
 import com.ren.dianav2.models.OptionItem;
 
 import java.util.ArrayList;
@@ -26,12 +39,16 @@ import java.util.List;
  * Use the {@link ProfileFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class ProfileFragment extends Fragment {
+public class ProfileFragment extends Fragment implements CameraImagePermissionHandler {
 
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
+    private static final String[] REQUIRED_PERMISSIONS = new String[]{
+            Manifest.permission.READ_MEDIA_IMAGES,
+            Manifest.permission.CAMERA
+    };
 
     // TODO: Rename and change types of parameters
     private String mParam1;
@@ -39,6 +56,11 @@ public class ProfileFragment extends Fragment {
     private RecyclerView recyclerView;
     private ProfileOptionAdapter adapter;
     private List<OptionItem> optionItems;
+    private boolean isStorageImagePermitted = false;
+    private boolean isCameraPermitted = false;
+    private String TAG = "Permission";
+    private Uri uri;
+    private ImageView ivProfile;
 
     public ProfileFragment() {
         // Required empty public constructor
@@ -78,13 +100,14 @@ public class ProfileFragment extends Fragment {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_profile, container, false);
         recyclerView = view.findViewById(R.id.rv_option);
+        ivProfile = view.findViewById(R.id.iv_profile);
 
         recyclerView.setHasFixedSize(true);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false));
 
         addDataToList();
 
-        adapter = new ProfileOptionAdapter(getContext(), optionItems);
+        adapter = new ProfileOptionAdapter(getContext(), optionItems, this);
         recyclerView.setAdapter(adapter);
         return view;
     }
@@ -111,4 +134,83 @@ public class ProfileFragment extends Fragment {
             window.setStatusBarColor(ContextCompat.getColor(getActivity(), R.color.blue));
         }
     }
+
+    @Override
+    public void requestStorageImageAndCameraPermission() {
+        if (!isStorageImagePermitted) {
+            requestStorageImagePermission();
+        }
+        if (isCameraPermitted) {
+            openCamera();
+        } else {
+            requestPermissionsCamera();
+        }
+    }
+
+    public void openCamera() {
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(MediaStore.Images.Media.TITLE, "New Picture");
+        contentValues.put(MediaStore.Images.Media.DESCRIPTION, "Captured by User name");
+        uri = requireContext().getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+                contentValues);
+        Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        intent.putExtra(MediaStore.EXTRA_OUTPUT, uri);
+        launcherCamera.launch(intent);
+    }
+
+
+    public void requestStorageImagePermission() {
+        if (ContextCompat.checkSelfPermission(requireContext(), REQUIRED_PERMISSIONS[0]) ==
+                PackageManager.PERMISSION_GRANTED) {
+            Log.d(TAG, REQUIRED_PERMISSIONS[0] + "Granted");
+            isStorageImagePermitted = true;
+            requestPermissionsCamera();
+        } else {
+            requestPermissionLauncherStorageImages.launch(REQUIRED_PERMISSIONS[0]);
+        }
+    }
+
+    private void requestPermissionsCamera() {
+        if (ContextCompat.checkSelfPermission(requireContext(), REQUIRED_PERMISSIONS[1]) ==
+                PackageManager.PERMISSION_GRANTED) {
+            Log.d(TAG, REQUIRED_PERMISSIONS[1] + "Granted");
+            isCameraPermitted = true;
+        } else {
+            requestPermissionLauncherCamera.launch(REQUIRED_PERMISSIONS[1]);
+        }
+    }
+
+    private final ActivityResultLauncher<String> requestPermissionLauncherStorageImages =
+            registerForActivityResult(new ActivityResultContracts.RequestPermission(),
+                    isGranted -> {
+                        if (isGranted) {
+                            Log.d(TAG, REQUIRED_PERMISSIONS[0] + "Granted");
+                            isStorageImagePermitted = true;
+                        } else {
+                            Log.d(TAG, REQUIRED_PERMISSIONS[0] + "Denied");
+                            isStorageImagePermitted = false;
+                        }
+                        requestPermissionsCamera();
+                    });
+
+    private final ActivityResultLauncher<String> requestPermissionLauncherCamera =
+            registerForActivityResult(new ActivityResultContracts.RequestPermission(),
+                    isGranted -> {
+                        if (isGranted) {
+                            Log.d(TAG, REQUIRED_PERMISSIONS[1] + "Granted");
+                            isCameraPermitted = true;
+                        } else {
+                            Log.d(TAG, REQUIRED_PERMISSIONS[1] + "Denied");
+                            isCameraPermitted = false;
+                        }
+                    });
+
+    private final ActivityResultLauncher<Intent> launcherCamera =
+            registerForActivityResult(new ActivityResultContracts.StartActivityForResult(),
+                    o -> {
+                        if (o.getResultCode() == RESULT_OK) {
+                            ivProfile.setImageURI(uri);
+                        }
+                    });
+
 }
