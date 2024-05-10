@@ -88,10 +88,12 @@ public class HomeFragment extends Fragment {
         recyclerViewChat = view.findViewById(R.id.rv_recent_chat);
 
         recyclerViewItem.setHasFixedSize(true);
-        recyclerViewItem.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));
+        recyclerViewItem.setLayoutManager(new LinearLayoutManager(getContext(),
+                LinearLayoutManager.HORIZONTAL, false));
 
         recyclerViewChat.setHasFixedSize(true);
-        recyclerViewChat.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false));
+        recyclerViewChat.setLayoutManager(new LinearLayoutManager(getContext(),
+                LinearLayoutManager.VERTICAL, false));
 
         addDataToList();
 

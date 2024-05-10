@@ -22,4 +22,6 @@
     <color name="item_chat_icon_color">#2A4ED1</color>
 
     <color name="text_color_chat">#2A4ED1</color>
+
+    <color name="item_profile_text_color">#FF000000</color>
 </resources>

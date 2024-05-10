@@ -10,6 +10,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -54,15 +55,19 @@ public class ProfileOptionAdapter extends RecyclerView.Adapter<ProfileOptionView
                     permissionHandler.requestStorageImageAndCameraPermission();
                     break;
                 case 1:
+                    Toast.makeText(context, "It doesn't work yet", Toast.LENGTH_SHORT).show();
                     break;
                 case 2:
                     themeHandler.chooseTheme();
                     break;
                 case 3:
+                    Toast.makeText(context, "It doesn't work yet :(", Toast.LENGTH_SHORT).show();
                     break;
                 case 4:
+                    Toast.makeText(context, "It doesn't work yet :((", Toast.LENGTH_SHORT).show();
                     break;
                 case 5:
+                    Toast.makeText(context, "It doesn't work yet :(((", Toast.LENGTH_SHORT).show();
                     break;
                 case 6:
                     Intent intent = new Intent(context, LoginScreen.class);

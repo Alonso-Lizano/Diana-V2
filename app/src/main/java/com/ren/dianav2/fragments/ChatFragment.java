@@ -5,6 +5,8 @@ import android.os.Bundle;
 
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.view.LayoutInflater;
 import android.view.View;
@@ -13,6 +15,12 @@ import android.view.Window;
 import android.view.WindowManager;
 
 import com.ren.dianav2.R;
+import com.ren.dianav2.adapters.RecentChatAdapter;
+import com.ren.dianav2.adapters.SavedChatAdapter;
+import com.ren.dianav2.models.ChatItem;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -29,6 +37,12 @@ public class ChatFragment extends Fragment {
     // TODO: Rename and change types of parameters
     private String mParam1;
     private String mParam2;
+    private RecyclerView recyclerViewChat;
+    private RecentChatAdapter recentChatAdapter;
+    private RecyclerView recyclerViewSaved;
+    private SavedChatAdapter savedChatAdapter;
+    private List<ChatItem> chatItems;
+    private List<ChatItem> savedChatItems;
 
     public ChatFragment() {
         // Required empty public constructor
@@ -66,7 +80,28 @@ public class ChatFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_chat, container, false);
+        View view = inflater.inflate(R.layout.fragment_chat, container, false);
+
+        recyclerViewChat = view.findViewById(R.id.rv_recent);
+        recyclerViewSaved = view.findViewById(R.id.rv_saved);
+
+        recyclerViewChat.setHasFixedSize(true);
+        recyclerViewChat.setLayoutManager(new LinearLayoutManager(getContext(),
+                LinearLayoutManager.VERTICAL, false));
+
+        recyclerViewSaved.setHasFixedSize(true);
+        recyclerViewSaved.setLayoutManager(new LinearLayoutManager(getContext(),
+                LinearLayoutManager.VERTICAL, false));
+
+        addDataToList();
+
+        recentChatAdapter = new RecentChatAdapter(getContext(), chatItems);
+        recyclerViewChat.setAdapter(recentChatAdapter);
+
+        savedChatAdapter = new SavedChatAdapter(getContext(), savedChatItems);
+        recyclerViewSaved.setAdapter(savedChatAdapter);
+
+        return view;
     }
 
     private void changeStatusBarColor() {
@@ -78,5 +113,18 @@ public class ChatFragment extends Fragment {
         } else {
             window.setStatusBarColor(ContextCompat.getColor(getActivity(), R.color.white));
         }
+    }
+
+    private void addDataToList() {
+        chatItems = new ArrayList<>();
+        savedChatItems = new ArrayList<>();
+
+        chatItems.add(new ChatItem(R.drawable.round_chat_24, "Java code explanation"));
+        chatItems.add(new ChatItem(R.drawable.round_chat_24, "Resolution of mathematical exercises"));
+        chatItems.add(new ChatItem(R.drawable.round_chat_24, "Example of how to use your brain"));
+
+        savedChatItems.add(new ChatItem(R.drawable.save_icon, "Java code explanation"));
+        savedChatItems.add(new ChatItem(R.drawable.save_icon, "Resolution of mathematical exercises"));
+        savedChatItems.add(new ChatItem(R.drawable.save_icon, "Example of how to use your brain"));
     }
 }

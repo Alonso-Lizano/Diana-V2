@@ -15,4 +15,6 @@
     <color name="item_chat_icon_color">#56ABE9</color>
 
     <color name="text_color_chat">#FFFFFFFF</color>
+
+    <color name="item_profile_text_color">#FFFFFFFF</color>
 </resources>
