@@ -1,11 +1,16 @@
 package com.ren.dianav2.screens;
 
+import android.content.res.Configuration;
 import android.os.Bundle;
+import android.os.Handler;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
@@ -71,7 +76,35 @@ public class MainScreen extends AppCompatActivity {
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
         fragmentTransaction.replace(R.id.frame_layout, fragment, tag);
         fragmentTransaction.commit();
+
+        Handler handler = new Handler();
+        handler.postDelayed(() -> {
+            switch (tag) {
+                case "home":
+                    if (isDarkTheme()) {
+                        onChangeStatusBarColor(R.color.sky_blue);
+                    } else {
+                        onChangeStatusBarColor(R.color.blue);
+                    }
+                    break;
+                case "chat":
+                    if (isDarkTheme()) {
+                        onChangeStatusBarColor(R.color.black_variant_1);
+                    } else {
+                        onChangeStatusBarColor(R.color.white);
+                    }
+                    break;
+                case "profile":
+                    if (isDarkTheme()) {
+                        onChangeStatusBarColor(R.color.sky_blue);
+                    } else {
+                        onChangeStatusBarColor(R.color.blue);
+                    }
+                    break;
+            }
+        }, 100);
     }
+
 
     @Override
     protected void onSaveInstanceState(@NonNull Bundle outState) {
@@ -92,5 +125,16 @@ public class MainScreen extends AppCompatActivity {
         } else {
             super.onBackPressed();
         }
+    }
+
+    private boolean isDarkTheme() {
+        int nightModeFlags = getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
+        return nightModeFlags == Configuration.UI_MODE_NIGHT_YES;
+    }
+
+    private void onChangeStatusBarColor(int color) {
+        Window window = this.getWindow();
+        window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+        window.setStatusBarColor(ContextCompat.getColor(this, color));
     }
 }

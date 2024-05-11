@@ -8,7 +8,6 @@ import android.text.TextWatcher;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -23,7 +22,7 @@ import androidx.core.view.WindowInsetsCompat;
 
 import com.ren.dianav2.R;
 
-public class ChatScreen extends AppCompatActivity {
+public class ImageChatScreen extends AppCompatActivity {
 
     private TextView welcomeText;
     private EditText messageEditText;
@@ -36,7 +35,7 @@ public class ChatScreen extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.chat_screen);
+        setContentView(R.layout.image_chat_screen);
 
         welcomeText = findViewById(R.id.welcome_text);
         messageEditText = findViewById(R.id.message_edit_text);

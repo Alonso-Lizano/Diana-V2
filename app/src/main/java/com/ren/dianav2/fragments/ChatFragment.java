@@ -78,7 +78,6 @@ public class ChatFragment extends Fragment {
             mParam1 = getArguments().getString(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
-        changeStatusBarColor();
     }
 
     @Override
@@ -110,17 +109,6 @@ public class ChatFragment extends Fragment {
         setButtonListeners(view);
 
         return view;
-    }
-
-    private void changeStatusBarColor() {
-        Window window = getActivity().getWindow();
-        window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
-        int nightModeFlags = getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
-        if (nightModeFlags == Configuration.UI_MODE_NIGHT_YES) {
-            window.setStatusBarColor(ContextCompat.getColor(getActivity(), R.color.black_variant_1));
-        } else {
-            window.setStatusBarColor(ContextCompat.getColor(getActivity(), R.color.white));
-        }
     }
 
     private void addDataToList() {

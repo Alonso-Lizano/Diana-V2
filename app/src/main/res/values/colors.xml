@@ -35,4 +35,7 @@
     
     <color name="text_color_hint">#6C757D</color>
     <color name="cursor_drawable_hint">#6C757D</color>
+
+    <color name="ia_message_bg_color">#D9D9D9</color>
+    <color name="user_message_bg_color">#2A4ED1</color>
 </resources>

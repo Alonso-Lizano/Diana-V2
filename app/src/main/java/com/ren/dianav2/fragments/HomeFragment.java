@@ -75,7 +75,6 @@ public class HomeFragment extends Fragment {
             mParam1 = getArguments().getString(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
-        changeStatusBarColor();
     }
 
     @Override
@@ -105,25 +104,18 @@ public class HomeFragment extends Fragment {
         return view;
     }
 
-    private void changeStatusBarColor() {
-        Window window = requireActivity().getWindow();
-        window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
-        int nightModeFlags = getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
-        if (nightModeFlags == Configuration.UI_MODE_NIGHT_YES) {
-            window.setStatusBarColor(ContextCompat.getColor(requireActivity(), R.color.sky_blue));
-        } else {
-            window.setStatusBarColor(ContextCompat.getColor(requireActivity(), R.color.blue));
-        }
-    }
-
     private void addDataToList() {
         items = new ArrayList<>();
         chatItems = new ArrayList<>();
 
-        items.add(new Item(R.drawable.assistant, "Assistant",
-                "Select an assistant to start chatting with"));
-        items.add(new Item(R.drawable.round_image_24, "Images", "Search for images"));
-        items.add(new Item(R.drawable.round_code_24, "Code", "Search for code"));
+        items.add(new Item(R.drawable.assistant, "Diana",
+                "Hi, I'm Diana, You can talk with me"));
+        items.add(new Item(R.drawable.assistant, "Assistant 1",
+                "Hi, I am your math assistant."));
+        items.add(new Item(R.drawable.assistant, "Assistant 2",
+                "Hello, I am your financial assistant"));
+        items.add(new Item(R.drawable.round_image_24, "Images",
+                "Hello, talk to me to get images"));
 
         chatItems.add(new ChatItem(R.drawable.round_chat_24, "Java code explanation"));
         chatItems.add(new ChatItem(R.drawable.round_chat_24, "Resolution of mathematical exercises"));

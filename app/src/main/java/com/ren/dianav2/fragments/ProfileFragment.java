@@ -94,7 +94,6 @@ public class ProfileFragment extends Fragment implements CameraImagePermissionHa
             mParam1 = getArguments().getString(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
-        changeStatusBarColor();
     }
 
     @Override
@@ -125,17 +124,6 @@ public class ProfileFragment extends Fragment implements CameraImagePermissionHa
         optionItems.add(new OptionItem("Privacy", R.drawable.round_arrow_forward_ios_24));
         optionItems.add(new OptionItem("Add account", R.drawable.round_arrow_forward_ios_24));
         optionItems.add(new OptionItem("Logout", R.drawable.round_arrow_forward_ios_24));
-    }
-
-    private void changeStatusBarColor() {
-        Window window = getActivity().getWindow();
-        window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
-        int nightModeFlags = getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
-        if (nightModeFlags == Configuration.UI_MODE_NIGHT_YES) {
-            window.setStatusBarColor(ContextCompat.getColor(getActivity(), R.color.sky_blue));
-        } else {
-            window.setStatusBarColor(ContextCompat.getColor(getActivity(), R.color.blue));
-        }
     }
 
     @Override
