@@ -1,5 +1,6 @@
 package com.ren.dianav2.screens;
 
+import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.Build;
 import android.os.Bundle;
@@ -10,17 +11,26 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.widget.EditText;
 import android.widget.ImageButton;
-import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
-import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.ren.dianav2.R;
+import com.ren.dianav2.adapters.MessageAdapter;
+import com.ren.dianav2.helpers.RequestManager;
+import com.ren.dianav2.listener.IImageClick;
+import com.ren.dianav2.listener.IImageResponse;
+import com.ren.dianav2.models.Message;
+import com.ren.dianav2.models.request.images.ImageRequest;
+import com.ren.dianav2.models.response.images.ImageData;
+import com.ren.dianav2.models.response.images.ImageResponse;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class ImageChatScreen extends AppCompatActivity {
 
@@ -31,6 +41,11 @@ public class ImageChatScreen extends AppCompatActivity {
     private ImageButton microphoneBtn;
     private ImageButton ibBack;
     private ImageButton ibMore;
+    private List<Message> messages;
+    private LinearLayoutManager linearLayoutManager;
+    private RecyclerView rvImageChat;
+    private MessageAdapter messageAdapter;
+    private RequestManager requestManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,22 +61,44 @@ public class ImageChatScreen extends AppCompatActivity {
         ibBack = findViewById(R.id.ib_back);
         ibMore = findViewById(R.id.ib_more);
 
+        rvImageChat = findViewById(R.id.rv_image_chat);
+
+        messages = new ArrayList<>();
+
         //Visibility button
         sendButton.setVisibility(View.GONE);
 
-        onClickBackButton(ibBack);
-        onEditTextChange(messageEditText);
+        //Set recycler view
+        messageAdapter = new MessageAdapter(this, messages, imageClick);
+        rvImageChat.setAdapter(messageAdapter);
+        rvImageChat.setHasFixedSize(true);
+        linearLayoutManager = new LinearLayoutManager(this);
+        linearLayoutManager.setStackFromEnd(true);
+        rvImageChat.setLayoutManager(linearLayoutManager);
+
+        //init request manager
+        requestManager = new RequestManager(this);
+
+        onSendButtonClick(sendButton);
+        onBackButtonClick(ibBack);
+        onChangeEditText(messageEditText);
         changeStatusBarColor();
         changeNavigationBarColor();
     }
 
-    private void onClickBackButton(ImageButton button) {
+    private void onSendButtonClick(ImageButton sendButton) {
+        sendButton.setOnClickListener(v -> {
+            sendMessage();
+        });
+    }
+
+    private void onBackButtonClick(ImageButton button) {
         button.setOnClickListener(v -> {
             finish();
         });
     }
 
-    private void onEditTextChange(EditText editText) {
+    private void onChangeEditText(EditText editText) {
         editText.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -118,4 +155,57 @@ public class ImageChatScreen extends AppCompatActivity {
         int currentNightMode = getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
         return currentNightMode == Configuration.UI_MODE_NIGHT_YES;
     }
+
+    private final IImageResponse iImageResponse = new IImageResponse() {
+        @Override
+        public void didFetch(ImageResponse imageResponse, String msg) {
+            if (imageResponse != null && imageResponse.data != null && !imageResponse.data.isEmpty())  {
+                ImageData imageData = imageResponse.data.get(0);
+                String imageUrl = imageData.url;
+                Message messageObject = new Message(false, true, imageUrl);
+                messages.add(messageObject);
+                messageAdapter.notifyItemInserted(messages.size() - 1);
+                rvImageChat.getRecycledViewPool().clear();
+                rvImageChat.smoothScrollToPosition(messages.size() - 1);
+            }
+        }
+
+        @Override
+        public void didError(String msg) {
+            showMessage(msg);
+        }
+    };
+
+    private void showMessage(String msg) {
+        Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
+    }
+
+
+    private void sendMessage() {
+        String message = messageEditText.getText().toString().trim();
+        if (!message.isEmpty()) {
+            Message messageObject = new Message(true, false, message);
+            messages.add(messageObject);
+            welcomeText.setVisibility(View.GONE);
+            messageAdapter.notifyItemInserted(messages.size() - 1);
+            rvImageChat.getRecycledViewPool().clear();
+            rvImageChat.smoothScrollToPosition(messages.size() - 1);
+
+            ImageRequest imageRequest = new ImageRequest();
+            imageRequest.n = 1;
+            imageRequest.prompt = message;
+            imageRequest.size = "1024x1024";
+
+            requestManager.generateImage(imageRequest, iImageResponse);
+
+            messageEditText.setText("");
+        }
+    }
+
+    private final IImageClick imageClick = index -> {
+        Intent intent = new Intent(this, ImageScreen.class);
+        intent.putExtra("imageUrl", index);
+        startActivity(intent);
+    };
+
 }
