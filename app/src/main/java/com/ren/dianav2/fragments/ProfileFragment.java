@@ -42,16 +42,12 @@ import java.util.List;
  * Use the {@link ProfileFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class ProfileFragment extends Fragment implements CameraImagePermissionHandler, ThemeHandler {
+public class ProfileFragment extends Fragment implements ThemeHandler {
 
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
-    private static final String[] REQUIRED_PERMISSIONS = new String[]{
-            Manifest.permission.READ_MEDIA_IMAGES,
-            Manifest.permission.CAMERA
-    };
 
     // TODO: Rename and change types of parameters
     private String mParam1;
@@ -59,9 +55,6 @@ public class ProfileFragment extends Fragment implements CameraImagePermissionHa
     private RecyclerView recyclerView;
     private ProfileOptionAdapter adapter;
     private List<OptionItem> optionItems;
-    private boolean isStorageImagePermitted = false;
-    private boolean isCameraPermitted = false;
-    private String TAG = "Permission";
     private Uri uri;
     private ImageView ivProfile;
 
@@ -109,7 +102,7 @@ public class ProfileFragment extends Fragment implements CameraImagePermissionHa
 
         addDataToList();
 
-        adapter = new ProfileOptionAdapter(getContext(), optionItems, this, this);
+        adapter = new ProfileOptionAdapter(getContext(), optionItems, this);
         recyclerView.setAdapter(adapter);
         return view;
     }
@@ -125,84 +118,6 @@ public class ProfileFragment extends Fragment implements CameraImagePermissionHa
         optionItems.add(new OptionItem("Add account", R.drawable.round_arrow_forward_ios_24));
         optionItems.add(new OptionItem("Logout", R.drawable.round_arrow_forward_ios_24));
     }
-
-    @Override
-    public void requestStorageImageAndCameraPermission() {
-        if (!isStorageImagePermitted) {
-            requestStorageImagePermission();
-        }
-        if (isCameraPermitted) {
-            openCamera();
-        } else {
-            requestPermissionsCamera();
-        }
-    }
-
-    public void openCamera() {
-        ContentValues contentValues = new ContentValues();
-        contentValues.put(MediaStore.Images.Media.TITLE, "New Picture");
-        contentValues.put(MediaStore.Images.Media.DESCRIPTION, "Captured by User name");
-        uri = requireContext().getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
-                contentValues);
-        Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        intent.putExtra(MediaStore.EXTRA_OUTPUT, uri);
-        launcherCamera.launch(intent);
-    }
-
-
-    public void requestStorageImagePermission() {
-        if (ContextCompat.checkSelfPermission(requireContext(), REQUIRED_PERMISSIONS[0]) ==
-                PackageManager.PERMISSION_GRANTED) {
-            Log.d(TAG, REQUIRED_PERMISSIONS[0] + "Granted");
-            isStorageImagePermitted = true;
-            requestPermissionsCamera();
-        } else {
-            requestPermissionLauncherStorageImages.launch(REQUIRED_PERMISSIONS[0]);
-        }
-    }
-
-    private void requestPermissionsCamera() {
-        if (ContextCompat.checkSelfPermission(requireContext(), REQUIRED_PERMISSIONS[1]) ==
-                PackageManager.PERMISSION_GRANTED) {
-            Log.d(TAG, REQUIRED_PERMISSIONS[1] + "Granted");
-            isCameraPermitted = true;
-        } else {
-            requestPermissionLauncherCamera.launch(REQUIRED_PERMISSIONS[1]);
-        }
-    }
-
-    private final ActivityResultLauncher<String> requestPermissionLauncherStorageImages =
-            registerForActivityResult(new ActivityResultContracts.RequestPermission(),
-                    isGranted -> {
-                        if (isGranted) {
-                            Log.d(TAG, REQUIRED_PERMISSIONS[0] + "Granted");
-                            isStorageImagePermitted = true;
-                        } else {
-                            Log.d(TAG, REQUIRED_PERMISSIONS[0] + "Denied");
-                            isStorageImagePermitted = false;
-                        }
-                        requestPermissionsCamera();
-                    });
-
-    private final ActivityResultLauncher<String> requestPermissionLauncherCamera =
-            registerForActivityResult(new ActivityResultContracts.RequestPermission(),
-                    isGranted -> {
-                        if (isGranted) {
-                            Log.d(TAG, REQUIRED_PERMISSIONS[1] + "Granted");
-                            isCameraPermitted = true;
-                        } else {
-                            Log.d(TAG, REQUIRED_PERMISSIONS[1] + "Denied");
-                            isCameraPermitted = false;
-                        }
-                    });
-
-    private final ActivityResultLauncher<Intent> launcherCamera =
-            registerForActivityResult(new ActivityResultContracts.StartActivityForResult(),
-                    o -> {
-                        if (o.getResultCode() == RESULT_OK) {
-                            ivProfile.setImageURI(uri);
-                        }
-                    });
 
     @Override
     public void chooseTheme() {

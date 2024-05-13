@@ -1,13 +1,18 @@
 package com.ren.dianav2.screens;
 
+import android.app.Dialog;
 import android.content.res.Configuration;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
@@ -109,10 +114,27 @@ public class ChatScreen extends AppCompatActivity {
         changeStatusBarColor();
         changeNavigationBarColor();
         onSendButtonClick(sendButton);
+        onClickMoreButton(ibMore);
     }
 
     private void onClickBackButton(ImageButton button) {
         button.setOnClickListener(v -> finish());
+    }
+
+    private void onClickMoreButton(ImageButton button) {
+        button.setOnClickListener(v -> showDialog());
+    }
+
+    private void showDialog() {
+        final Dialog dialog = new Dialog(this);
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        dialog.setContentView(R.layout.bottom_sheet);
+        dialog.setCancelable(true);
+        dialog.show();
+        dialog.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        dialog.getWindow().getAttributes().windowAnimations = R.style.bottom_sheet_animation;
+        dialog.getWindow().setGravity(Gravity.BOTTOM);
     }
 
     private void onEditTextChange(EditText editText) {

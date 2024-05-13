@@ -34,5 +34,9 @@
     <style name="color_image_background" parent="Theme.DianaV2">
         <item name="android:tint">@color/white</item>
     </style>
-
+    
+    <style name="bottom_sheet_animation" parent="Theme.DianaV2">
+        <item name="android:windowEnterAnimation">@anim/slide_in_bottom</item>
+        <item name="android:windowExitAnimation">@anim/slide_out_bottom</item>
+    </style>
 </resources>

@@ -1,7 +1,5 @@
 package com.ren.dianav2.adapters;
 
-import static androidx.activity.result.ActivityResultCallerKt.registerForActivityResult;
-
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -19,6 +17,7 @@ import com.ren.dianav2.R;
 import com.ren.dianav2.listener.CameraImagePermissionHandler;
 import com.ren.dianav2.listener.ThemeHandler;
 import com.ren.dianav2.models.OptionItem;
+import com.ren.dianav2.screens.EditProfileScreen;
 import com.ren.dianav2.screens.LoginScreen;
 
 import java.util.List;
@@ -26,14 +25,12 @@ import java.util.List;
 public class ProfileOptionAdapter extends RecyclerView.Adapter<ProfileOptionViewHolder> {
     private Context context;
     private List<OptionItem> options;
-    private CameraImagePermissionHandler permissionHandler;
     private ThemeHandler themeHandler;
+    private Intent intent;
 
-    public ProfileOptionAdapter(Context context, List<OptionItem> options, CameraImagePermissionHandler permissionHandler,
-                                ThemeHandler themeHandler) {
+    public ProfileOptionAdapter(Context context, List<OptionItem> options, ThemeHandler themeHandler) {
         this.context = context;
         this.options = options;
-        this.permissionHandler = permissionHandler;
         this.themeHandler = themeHandler;
     }
 
@@ -52,7 +49,8 @@ public class ProfileOptionAdapter extends RecyclerView.Adapter<ProfileOptionView
         holder.itemView.setOnClickListener(v -> {
             switch (position) {
                 case 0:
-                    permissionHandler.requestStorageImageAndCameraPermission();
+                    intent = new Intent(context, EditProfileScreen.class);
+                    context.startActivity(intent);
                     break;
                 case 1:
                     Toast.makeText(context, "It doesn't work yet", Toast.LENGTH_SHORT).show();
