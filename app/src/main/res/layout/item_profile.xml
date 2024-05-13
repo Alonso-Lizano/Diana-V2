@@ -9,6 +9,7 @@
         android:layout_centerVertical="true"
         android:layout_marginStart="20dp"
         android:fontFamily="@font/poppins_bold"
+        android:textColor="@color/item_profile_text_color"
         android:text="Option"
         android:textSize="20sp" />
 

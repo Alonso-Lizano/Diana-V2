@@ -19,4 +19,10 @@
     <style name="color_background_profile" parent="Theme.DianaV2">
         <item name="android:background">@color/black_variant_1</item>
     </style>
+    <style name="color_background_chat_screen" parent="Theme.DianaV2">
+        <item name="android:background">@color/black_variant_1</item>
+    </style>
+    <style name="color_image_background" parent="Theme.DianaV2">
+        <item name="android:tint">@color/black_variant_1</item>
+    </style>
 </resources>

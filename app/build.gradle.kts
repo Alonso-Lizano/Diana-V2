@@ -39,4 +39,7 @@ dependencies {
     androidTestImplementation(libs.espresso.core)
 
     implementation(libs.animatoo)
+    implementation(libs.retrofit)
+    implementation(libs.converter.gson)
+    implementation(libs.picasso)
 }

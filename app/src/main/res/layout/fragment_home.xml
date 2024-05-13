@@ -14,7 +14,7 @@
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/cl"
             android:layout_width="match_parent"
-            android:layout_height="280dp"
+            android:layout_height="220dp"
             android:background="@drawable/home_bg"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -25,7 +25,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="20dp"
-                android:layout_marginTop="50dp"
+                android:layout_marginTop="20dp"
                 android:fontFamily="@font/poppins_extrabold"
                 android:text="WELCOME, "
                 android:textColor="@color/white"
@@ -66,7 +66,7 @@
                 android:id="@+id/searchViewContainer"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="30dp"
+                android:layout_marginTop="20dp"
                 app:cardCornerRadius="10dp"
                 app:cardElevation="4dp"
                 app:layout_constraintEnd_toEndOf="@id/card_view"
@@ -98,18 +98,19 @@
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_margin="20dp">
+                android:layout_marginStart="20dp"
+                android:layout_marginEnd="20dp"
+                android:layout_marginTop="10dp">
 
                 <TextView
                     android:id="@+id/tv_explore"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-
-                    android:layout_marginTop="20dp"
                     android:fontFamily="@font/poppins_extrabold"
                     android:text="Explore"
                     android:textColor="@color/text_color"
-                    android:textSize="30sp"
+                    android:textSize="20sp"
+                    android:layout_marginTop="20dp"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />
 
@@ -135,11 +136,11 @@
                     android:id="@+id/tv_recent"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="20dp"
                     android:fontFamily="@font/poppins_extrabold"
                     android:text="Recent chats"
                     android:textColor="@color/text_color"
-                    android:textSize="30sp"
+                    android:textSize="20sp"
+                    android:layout_marginTop="10dp"
                     app:layout_constraintStart_toStartOf="@id/tv_explore"
                     app:layout_constraintTop_toBottomOf="@id/rv_explore" />
 

@@ -6,7 +6,9 @@
     <color name="blue">#2A4ED1</color>
     <color name="black_variant_1">#27282C</color>
     <color name="sky_blue">#56ABE9</color>
-
+    <color name="gray">#6C757D</color>
+    <color name="white_variant">#E5E5E5</color>
+    
     <color name="button_color">#2A4ED1</color>
     <color name="icon_color">#2A4ED1</color>
     <color name="text_color">#2A4ED1</color>
@@ -22,4 +24,18 @@
     <color name="item_chat_icon_color">#2A4ED1</color>
 
     <color name="text_color_chat">#2A4ED1</color>
+
+    <color name="item_profile_text_color">#FF000000</color>
+
+    <color name="back_icon_color_chat">#2A4ED1</color>
+
+    <color name="icon_color_chat">#2A4ED1</color>
+
+    <color name="card_view_bg_chat">#2A4ED1</color>
+    
+    <color name="text_color_hint">#6C757D</color>
+    <color name="cursor_drawable_hint">#6C757D</color>
+
+    <color name="ia_message_bg_color">#D9D9D9</color>
+    <color name="user_message_bg_color">#2A4ED1</color>
 </resources>

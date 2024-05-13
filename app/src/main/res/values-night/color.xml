@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <color name="white_variant">#E5E5E5</color>
+
     <color name="button_color">#FFFFFFFF</color>
     <color name="icon_color">#FFFFFFFF</color>
     <color name="text_color">#56ABE9</color>
@@ -15,4 +17,15 @@
     <color name="item_chat_icon_color">#56ABE9</color>
 
     <color name="text_color_chat">#FFFFFFFF</color>
+
+    <color name="item_profile_text_color">#FFFFFFFF</color>
+
+    <color name="back_icon_color_chat">#56ABE9</color>
+
+    <color name="icon_color_chat">#56ABE9</color>
+
+    <color name="card_view_bg_chat">#56ABE9</color>
+
+    <color name="text_color_hint">#E5E5E5</color>
+    <color name="cursor_drawable_hint">#E5E5E5</color>
 </resources>

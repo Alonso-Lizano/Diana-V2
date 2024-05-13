@@ -3,13 +3,11 @@ package com.ren.dianav2.fragments;
 import static android.app.Activity.RESULT_OK;
 
 import android.Manifest;
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.ContentValues;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
-import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 
@@ -36,7 +34,6 @@ import com.ren.dianav2.listener.CameraImagePermissionHandler;
 import com.ren.dianav2.listener.ThemeHandler;
 import com.ren.dianav2.models.OptionItem;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -97,7 +94,6 @@ public class ProfileFragment extends Fragment implements CameraImagePermissionHa
             mParam1 = getArguments().getString(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
-        changeStatusBarColor();
     }
 
     @Override
@@ -130,28 +126,11 @@ public class ProfileFragment extends Fragment implements CameraImagePermissionHa
         optionItems.add(new OptionItem("Logout", R.drawable.round_arrow_forward_ios_24));
     }
 
-    private void changeStatusBarColor() {
-        Window window = getActivity().getWindow();
-        window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
-        int nightModeFlags = getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
-        if (nightModeFlags == Configuration.UI_MODE_NIGHT_YES) {
-            window.setStatusBarColor(ContextCompat.getColor(getActivity(), R.color.sky_blue));
-        } else {
-            window.setStatusBarColor(ContextCompat.getColor(getActivity(), R.color.blue));
-        }
-    }
-
-
-
     @Override
     public void requestStorageImageAndCameraPermission() {
         if (!isStorageImagePermitted) {
             requestStorageImagePermission();
         }
-        else{
-            openGallery();
-        }
-
         if (isCameraPermitted) {
             openCamera();
         } else {
@@ -176,7 +155,6 @@ public class ProfileFragment extends Fragment implements CameraImagePermissionHa
                 PackageManager.PERMISSION_GRANTED) {
             Log.d(TAG, REQUIRED_PERMISSIONS[0] + "Granted");
             isStorageImagePermitted = true;
-            openGallery();
             requestPermissionsCamera();
         } else {
             requestPermissionLauncherStorageImages.launch(REQUIRED_PERMISSIONS[0]);
@@ -199,41 +177,12 @@ public class ProfileFragment extends Fragment implements CameraImagePermissionHa
                         if (isGranted) {
                             Log.d(TAG, REQUIRED_PERMISSIONS[0] + "Granted");
                             isStorageImagePermitted = true;
-                            openGallery();
                         } else {
                             Log.d(TAG, REQUIRED_PERMISSIONS[0] + "Denied");
                             isStorageImagePermitted = false;
                         }
-
                         requestPermissionsCamera();
                     });
-
-    public void openGallery() {
-        Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-        launcherGallery.launch(intent);
-    }
-
-  private final ActivityResultLauncher<Intent> launcherGallery =
-          registerForActivityResult(new ActivityResultContracts.StartActivityForResult(),
-                  result -> {
-                      if (result.getResultCode() == RESULT_OK) {
-                          Uri selectedImageUri = result.getData().getData();
-                          try {
-                              Bitmap bitmap = MediaStore.Images.Media.getBitmap(requireContext().getContentResolver(), selectedImageUri);
-                              ivProfile.setImageBitmap(bitmap);
-                              Log.d(TAG, "Bitmap loaded successfully!");
-
-                              // Optional: Save the bitmap to internal storage
-                              // saveImageToInternalStorage(bitmap); // Uncomment if needed
-                          } catch (IOException e) {
-                              Log.e(TAG, "Failed to load image: ", e);
-                          }
-                      }
-                  });
-
-
-
-
 
     private final ActivityResultLauncher<String> requestPermissionLauncherCamera =
             registerForActivityResult(new ActivityResultContracts.RequestPermission(),

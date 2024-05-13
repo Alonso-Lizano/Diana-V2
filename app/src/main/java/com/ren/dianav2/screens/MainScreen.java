@@ -1,11 +1,16 @@
 package com.ren.dianav2.screens;
 
+import android.content.res.Configuration;
 import android.os.Bundle;
+import android.os.Handler;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
@@ -15,14 +20,22 @@ import androidx.fragment.app.FragmentTransaction;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.ren.dianav2.R;
+import com.ren.dianav2.assistants.models.Tool;
+import com.ren.dianav2.assistants.models.request.AssistantRequest;
+import com.ren.dianav2.assistants.models.response.AssistantResponse;
 import com.ren.dianav2.fragments.ChatFragment;
 import com.ren.dianav2.fragments.HomeFragment;
 import com.ren.dianav2.fragments.ProfileFragment;
+import com.ren.dianav2.helpers.RequestManager;
+import com.ren.dianav2.listener.IAssistantResponse;
+
+import java.util.ArrayList;
 
 public class MainScreen extends AppCompatActivity {
 
     private BottomNavigationView bottomNavigationView;
     private String currentFragmentTag;
+    private RequestManager requestManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,6 +51,8 @@ public class MainScreen extends AppCompatActivity {
 
         bottomNavigationView = findViewById(R.id.bottom_navigation);
 
+        requestManager = new RequestManager(this);
+
         if (savedInstanceState != null) {
             currentFragmentTag = savedInstanceState.getString("current_fragment_tag");
             replaceFragment(getSupportFragmentManager().findFragmentByTag(currentFragmentTag)
@@ -46,8 +61,11 @@ public class MainScreen extends AppCompatActivity {
             replaceFragment(new HomeFragment(), "home");
         }
 
+        //createAssistant(requestManager);
+
         onClickItemBottomNavigation(bottomNavigationView);
     }
+
 
     private void onClickItemBottomNavigation(BottomNavigationView navigationView) {
         navigationView.setOnItemSelectedListener(item -> {
@@ -70,7 +88,35 @@ public class MainScreen extends AppCompatActivity {
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
         fragmentTransaction.replace(R.id.frame_layout, fragment, tag);
         fragmentTransaction.commit();
+
+        Handler handler = new Handler();
+        handler.postDelayed(() -> {
+            switch (tag) {
+                case "home":
+                    if (isDarkTheme()) {
+                        onChangeStatusBarColor(R.color.sky_blue);
+                    } else {
+                        onChangeStatusBarColor(R.color.blue);
+                    }
+                    break;
+                case "chat":
+                    if (isDarkTheme()) {
+                        onChangeStatusBarColor(R.color.black_variant_1);
+                    } else {
+                        onChangeStatusBarColor(R.color.white);
+                    }
+                    break;
+                case "profile":
+                    if (isDarkTheme()) {
+                        onChangeStatusBarColor(R.color.sky_blue);
+                    } else {
+                        onChangeStatusBarColor(R.color.blue);
+                    }
+                    break;
+            }
+        }, 100);
     }
+
 
     @Override
     protected void onSaveInstanceState(@NonNull Bundle outState) {
@@ -81,4 +127,53 @@ public class MainScreen extends AppCompatActivity {
     private void showMessage(String message) {
         Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
     }
+
+    @Override
+    public void onBackPressed() {
+        Fragment currentFragment = getSupportFragmentManager().findFragmentByTag(currentFragmentTag);
+        if (currentFragment instanceof ChatFragment || currentFragment instanceof ProfileFragment) {
+            replaceFragment(new HomeFragment(), "home");
+            bottomNavigationView.setSelectedItemId(R.id.home);
+        } else {
+            super.onBackPressed();
+        }
+    }
+
+    private boolean isDarkTheme() {
+        int nightModeFlags = getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
+        return nightModeFlags == Configuration.UI_MODE_NIGHT_YES;
+    }
+
+    private void onChangeStatusBarColor(int color) {
+        Window window = this.getWindow();
+        window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+        window.setStatusBarColor(ContextCompat.getColor(this, color));
+    }
+
+    private void createAssistant(RequestManager requestManager) {
+        Tool tool = new Tool();
+        tool.type = "code_interpreter";
+        AssistantRequest assistantRequest = new AssistantRequest();
+        assistantRequest.name = "Finance Tutor";
+        assistantRequest.instructions = "You are a personal finance tutor. When asked a question, " +
+                "write and run Python code to answer the question.";
+        assistantRequest.tools = new ArrayList<>();
+        assistantRequest.tools.add(tool);
+        assistantRequest.model = "gpt-3.5-turbo";
+        assistantRequest.description = "Second Assistant";
+
+        requestManager.createAssistant("assistants=v2", assistantRequest, iAssistantResponse);
+    }
+
+    private final IAssistantResponse iAssistantResponse = new IAssistantResponse() {
+        @Override
+        public void didFetch(AssistantResponse assistantResponse, String msg) {
+            showMessage("Assistant created with ID: " + assistantResponse.id);
+        }
+
+        @Override
+        public void didError(String msg) {
+            showMessage("Error " + msg);
+        }
+    };
 }

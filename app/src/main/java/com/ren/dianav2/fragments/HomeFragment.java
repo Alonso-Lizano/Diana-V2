@@ -1,5 +1,6 @@
 package com.ren.dianav2.fragments;
 
+import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.Bundle;
 
@@ -13,15 +14,23 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.Toast;
 
 import com.ren.dianav2.R;
 import com.ren.dianav2.adapters.ExplorerAdapter;
 import com.ren.dianav2.adapters.RecentChatAdapter;
+import com.ren.dianav2.assistants.models.response.AssistantData;
+import com.ren.dianav2.assistants.models.response.ListAssistantResponse;
+import com.ren.dianav2.helpers.RequestManager;
+import com.ren.dianav2.listener.IAssistantClickListener;
+import com.ren.dianav2.listener.IListAssistantResponse;
 import com.ren.dianav2.models.ChatItem;
 import com.ren.dianav2.models.Item;
+import com.ren.dianav2.screens.ChatScreen;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -44,6 +53,8 @@ public class HomeFragment extends Fragment {
     private RecentChatAdapter recentChatAdapter;
     private List<Item> items;
     private List<ChatItem> chatItems;
+    private List<AssistantData> dataList;
+    private RequestManager requestManager;
 
     public HomeFragment() {
         // Required empty public constructor
@@ -74,8 +85,6 @@ public class HomeFragment extends Fragment {
             mParam1 = getArguments().getString(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
-
-        changeStatusBarColor();
     }
 
     @Override
@@ -83,19 +92,22 @@ public class HomeFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_home, container, false);
-
         recyclerViewItem = view.findViewById(R.id.rv_explore);
         recyclerViewChat = view.findViewById(R.id.rv_recent_chat);
 
+        requestManager = new RequestManager(requireContext());
+
         recyclerViewItem.setHasFixedSize(true);
-        recyclerViewItem.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));
+        recyclerViewItem.setLayoutManager(new LinearLayoutManager(getContext(),
+                LinearLayoutManager.HORIZONTAL, false));
 
         recyclerViewChat.setHasFixedSize(true);
-        recyclerViewChat.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false));
+        recyclerViewChat.setLayoutManager(new LinearLayoutManager(getContext(),
+                LinearLayoutManager.VERTICAL, false));
 
         addDataToList();
 
-        exploreAdapter = new ExplorerAdapter(getContext(), items);
+        exploreAdapter = new ExplorerAdapter(getContext(), items, dataList, listener);
         recyclerViewItem.setAdapter(exploreAdapter);
 
         recentChatAdapter = new RecentChatAdapter(getContext(), chatItems);
@@ -104,28 +116,45 @@ public class HomeFragment extends Fragment {
         return view;
     }
 
-    private void changeStatusBarColor() {
-        Window window = getActivity().getWindow();
-        window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
-        int nightModeFlags = getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
-        if (nightModeFlags == Configuration.UI_MODE_NIGHT_YES) {
-            window.setStatusBarColor(ContextCompat.getColor(getActivity(), R.color.sky_blue));
-        } else {
-            window.setStatusBarColor(ContextCompat.getColor(getActivity(), R.color.blue));
-        }
-    }
-
     private void addDataToList() {
         items = new ArrayList<>();
+        dataList = new ArrayList<>();
         chatItems = new ArrayList<>();
 
-        items.add(new Item(R.drawable.assistant, "Assistant",
-                "Select an assistant to start chatting with"));
-        items.add(new Item(R.drawable.round_image_24, "Images", "Search for images"));
-        items.add(new Item(R.drawable.round_code_24, "Code", "Search for code"));
+        items.add(new Item(R.drawable.assistant, "Diana",
+                "Hi, I'm Diana, You can talk with me"));
+        items.add(new Item(R.drawable.round_image_24, "Images",
+                "Hello, talk to me to get images"));
+
+        requestManager.getListAssistant("assistants=v2", iListAssistantResponse);
 
         chatItems.add(new ChatItem(R.drawable.round_chat_24, "Java code explanation"));
         chatItems.add(new ChatItem(R.drawable.round_chat_24, "Resolution of mathematical exercises"));
         chatItems.add(new ChatItem(R.drawable.round_chat_24, "Example of how to use your brain"));
+    }
+
+    private final IListAssistantResponse iListAssistantResponse = new IListAssistantResponse() {
+        @Override
+        public void didFetch(ListAssistantResponse listAssistantResponse, String msg) {
+            if (listAssistantResponse != null && listAssistantResponse.data != null) {
+                dataList.addAll(listAssistantResponse.data);
+                exploreAdapter.notifyDataSetChanged();
+            }
+        }
+
+        @Override
+        public void didError(String msg) {
+            showMessage("Error with list assistant: " + msg);
+        }
+    };
+
+    private final IAssistantClickListener listener = id -> {
+        Intent intent = new Intent(HomeFragment.this.getContext(), ChatScreen.class);
+        intent.putExtra("id", id);
+        startActivity(intent);
+    };
+
+    private void showMessage(String msg) {
+        Toast.makeText(getContext(), msg, Toast.LENGTH_SHORT).show();
     }
 }
