@@ -1,7 +1,5 @@
 <resources>
     <string name="app_name">Diana V2</string>
-    <string name="api_key">Bearer sk-proj-dqOk09sdgHXpnlYD9WHKT3BlbkFJGThwr4YtSpRCGBEPXifd</string>
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="api_key">Bearer sk-proj-xmSvFXkgiMCwgcKeYX2iT3BlbkFJ2SleaEDeWPy7wS8fQCsk</string>
 
 </resources>

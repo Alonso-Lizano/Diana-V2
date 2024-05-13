@@ -20,14 +20,22 @@ import androidx.fragment.app.FragmentTransaction;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.ren.dianav2.R;
+import com.ren.dianav2.assistants.models.Tool;
+import com.ren.dianav2.assistants.models.request.AssistantRequest;
+import com.ren.dianav2.assistants.models.response.AssistantResponse;
 import com.ren.dianav2.fragments.ChatFragment;
 import com.ren.dianav2.fragments.HomeFragment;
 import com.ren.dianav2.fragments.ProfileFragment;
+import com.ren.dianav2.helpers.RequestManager;
+import com.ren.dianav2.listener.IAssistantResponse;
+
+import java.util.ArrayList;
 
 public class MainScreen extends AppCompatActivity {
 
     private BottomNavigationView bottomNavigationView;
     private String currentFragmentTag;
+    private RequestManager requestManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,6 +51,8 @@ public class MainScreen extends AppCompatActivity {
 
         bottomNavigationView = findViewById(R.id.bottom_navigation);
 
+        requestManager = new RequestManager(this);
+
         if (savedInstanceState != null) {
             currentFragmentTag = savedInstanceState.getString("current_fragment_tag");
             replaceFragment(getSupportFragmentManager().findFragmentByTag(currentFragmentTag)
@@ -50,6 +60,8 @@ public class MainScreen extends AppCompatActivity {
         } else {
             replaceFragment(new HomeFragment(), "home");
         }
+
+        //createAssistant(requestManager);
 
         onClickItemBottomNavigation(bottomNavigationView);
     }
@@ -137,4 +149,31 @@ public class MainScreen extends AppCompatActivity {
         window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
         window.setStatusBarColor(ContextCompat.getColor(this, color));
     }
+
+    private void createAssistant(RequestManager requestManager) {
+        Tool tool = new Tool();
+        tool.type = "code_interpreter";
+        AssistantRequest assistantRequest = new AssistantRequest();
+        assistantRequest.name = "Finance Tutor";
+        assistantRequest.instructions = "You are a personal finance tutor. When asked a question, " +
+                "write and run Python code to answer the question.";
+        assistantRequest.tools = new ArrayList<>();
+        assistantRequest.tools.add(tool);
+        assistantRequest.model = "gpt-3.5-turbo";
+        assistantRequest.description = "Second Assistant";
+
+        requestManager.createAssistant("assistants=v2", assistantRequest, iAssistantResponse);
+    }
+
+    private final IAssistantResponse iAssistantResponse = new IAssistantResponse() {
+        @Override
+        public void didFetch(AssistantResponse assistantResponse, String msg) {
+            showMessage("Assistant created with ID: " + assistantResponse.id);
+        }
+
+        @Override
+        public void didError(String msg) {
+            showMessage("Error " + msg);
+        }
+    };
 }

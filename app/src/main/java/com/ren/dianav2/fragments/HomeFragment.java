@@ -1,5 +1,6 @@
 package com.ren.dianav2.fragments;
 
+import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.Bundle;
 
@@ -13,12 +14,19 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.Toast;
 
 import com.ren.dianav2.R;
 import com.ren.dianav2.adapters.ExplorerAdapter;
 import com.ren.dianav2.adapters.RecentChatAdapter;
+import com.ren.dianav2.assistants.models.response.AssistantData;
+import com.ren.dianav2.assistants.models.response.ListAssistantResponse;
+import com.ren.dianav2.helpers.RequestManager;
+import com.ren.dianav2.listener.IAssistantClickListener;
+import com.ren.dianav2.listener.IListAssistantResponse;
 import com.ren.dianav2.models.ChatItem;
 import com.ren.dianav2.models.Item;
+import com.ren.dianav2.screens.ChatScreen;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -45,6 +53,8 @@ public class HomeFragment extends Fragment {
     private RecentChatAdapter recentChatAdapter;
     private List<Item> items;
     private List<ChatItem> chatItems;
+    private List<AssistantData> dataList;
+    private RequestManager requestManager;
 
     public HomeFragment() {
         // Required empty public constructor
@@ -85,6 +95,8 @@ public class HomeFragment extends Fragment {
         recyclerViewItem = view.findViewById(R.id.rv_explore);
         recyclerViewChat = view.findViewById(R.id.rv_recent_chat);
 
+        requestManager = new RequestManager(requireContext());
+
         recyclerViewItem.setHasFixedSize(true);
         recyclerViewItem.setLayoutManager(new LinearLayoutManager(getContext(),
                 LinearLayoutManager.HORIZONTAL, false));
@@ -95,7 +107,7 @@ public class HomeFragment extends Fragment {
 
         addDataToList();
 
-        exploreAdapter = new ExplorerAdapter(getContext(), items);
+        exploreAdapter = new ExplorerAdapter(getContext(), items, dataList, listener);
         recyclerViewItem.setAdapter(exploreAdapter);
 
         recentChatAdapter = new RecentChatAdapter(getContext(), chatItems);
@@ -106,19 +118,43 @@ public class HomeFragment extends Fragment {
 
     private void addDataToList() {
         items = new ArrayList<>();
+        dataList = new ArrayList<>();
         chatItems = new ArrayList<>();
 
         items.add(new Item(R.drawable.assistant, "Diana",
                 "Hi, I'm Diana, You can talk with me"));
-        items.add(new Item(R.drawable.assistant, "Assistant 1",
-                "Hi, I am your math assistant."));
-        items.add(new Item(R.drawable.assistant, "Assistant 2",
-                "Hello, I am your financial assistant"));
         items.add(new Item(R.drawable.round_image_24, "Images",
                 "Hello, talk to me to get images"));
+
+        requestManager.getListAssistant("assistants=v2", iListAssistantResponse);
 
         chatItems.add(new ChatItem(R.drawable.round_chat_24, "Java code explanation"));
         chatItems.add(new ChatItem(R.drawable.round_chat_24, "Resolution of mathematical exercises"));
         chatItems.add(new ChatItem(R.drawable.round_chat_24, "Example of how to use your brain"));
+    }
+
+    private final IListAssistantResponse iListAssistantResponse = new IListAssistantResponse() {
+        @Override
+        public void didFetch(ListAssistantResponse listAssistantResponse, String msg) {
+            if (listAssistantResponse != null && listAssistantResponse.data != null) {
+                dataList.addAll(listAssistantResponse.data);
+                exploreAdapter.notifyDataSetChanged();
+            }
+        }
+
+        @Override
+        public void didError(String msg) {
+            showMessage("Error with list assistant: " + msg);
+        }
+    };
+
+    private final IAssistantClickListener listener = id -> {
+        Intent intent = new Intent(HomeFragment.this.getContext(), ChatScreen.class);
+        intent.putExtra("id", id);
+        startActivity(intent);
+    };
+
+    private void showMessage(String msg) {
+        Toast.makeText(getContext(), msg, Toast.LENGTH_SHORT).show();
     }
 }

@@ -13,6 +13,9 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.ren.dianav2.R;
+import com.ren.dianav2.assistants.models.response.AssistantData;
+import com.ren.dianav2.assistants.models.response.ListAssistantResponse;
+import com.ren.dianav2.listener.IAssistantClickListener;
 import com.ren.dianav2.models.Item;
 import com.ren.dianav2.screens.ChatScreen;
 import com.ren.dianav2.screens.ImageChatScreen;
@@ -24,10 +27,15 @@ public class ExplorerAdapter extends RecyclerView.Adapter<ExplorerViewHolder> {
     private Context context;
     private List<Item> items;
     private Intent intent;
+    private List<AssistantData> dataList;
+    private IAssistantClickListener clickListener;
 
-    public ExplorerAdapter(Context context, List<Item> items) {
+    public ExplorerAdapter(Context context, List<Item> items, List<AssistantData> dataList,
+                            IAssistantClickListener clickListener) {
         this.context = context;
         this.items = items;
+        this.dataList = dataList;
+        this.clickListener = clickListener;
     }
 
     @NonNull
@@ -39,9 +47,19 @@ public class ExplorerAdapter extends RecyclerView.Adapter<ExplorerViewHolder> {
 
     @Override
     public void onBindViewHolder(@NonNull ExplorerViewHolder holder, int position) {
-        holder.getIvAssistant().setImageResource(items.get(position).getIvAssistant());
-        holder.getTvTitle().setText(items.get(position).getTvTitle());
-        holder.getTvDescription().setText(items.get(position).getTvDescription());
+        if (position < items.size()) {
+            holder.getIvAssistant().setImageResource(items.get(position).getIvAssistant());
+            holder.getTvTitle().setText(items.get(position).getTvTitle());
+            holder.getTvDescription().setText(items.get(position).getTvDescription());
+        } else {
+            int dataIndex = position - items.size();
+            if (dataIndex < dataList.size()) {
+                holder.getIvAssistant().setImageResource(dataList.get(dataIndex).image);
+                holder.getTvTitle().setText(dataList.get(dataIndex).name);
+                holder.getTvDescription().setText(String.valueOf(dataList.get(dataIndex).description));
+            }
+        }
+
         holder.itemView.setOnClickListener(v -> {
             switch (position) {
                 case 0:
@@ -49,22 +67,25 @@ public class ExplorerAdapter extends RecyclerView.Adapter<ExplorerViewHolder> {
                     context.startActivity(intent);
                     break;
                 case 1:
-                    Toast.makeText(context, "It doesn't work yet :(", Toast.LENGTH_SHORT).show();
-                    break;
-                case 2:
-                    Toast.makeText(context, "It doesn't work yet :((", Toast.LENGTH_SHORT).show();
-                    break;
-                case 3:
                     intent = new Intent(context, ImageChatScreen.class);
                     context.startActivity(intent);
+                    break;
+                case 2:
+                case 3:
+                    if (position - items.size() < dataList.size()) {
+                        clickListener.onAssistantClicked(dataList.get(position - items.size()).id);
+                    } else {
+                        Toast.makeText(context, "Assistant data is not available", Toast.LENGTH_SHORT).show();
+                    }
                     break;
             }
         });
     }
 
+
     @Override
     public int getItemCount() {
-        return items.size();
+        return items.size() + (dataList != null ? dataList.size() : 0);
     }
 }
 

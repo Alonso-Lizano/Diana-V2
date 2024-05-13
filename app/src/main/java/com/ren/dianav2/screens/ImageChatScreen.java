@@ -87,9 +87,7 @@ public class ImageChatScreen extends AppCompatActivity {
     }
 
     private void onSendButtonClick(ImageButton sendButton) {
-        sendButton.setOnClickListener(v -> {
-            sendMessage();
-        });
+        sendButton.setOnClickListener(v -> sendMessage());
     }
 
     private void onBackButtonClick(ImageButton button) {
@@ -172,7 +170,7 @@ public class ImageChatScreen extends AppCompatActivity {
 
         @Override
         public void didError(String msg) {
-            showMessage(msg);
+            showMessage("Error getting image" + msg);
         }
     };
 

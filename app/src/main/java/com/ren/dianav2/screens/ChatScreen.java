@@ -3,8 +3,10 @@ package com.ren.dianav2.screens;
 import android.content.res.Configuration;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
@@ -13,6 +15,7 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -20,8 +23,33 @@ import androidx.core.content.ContextCompat;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.ren.dianav2.R;
+import com.ren.dianav2.adapters.MessageAdapter;
+import com.ren.dianav2.assistants.models.request.MessageRequest;
+import com.ren.dianav2.assistants.models.request.RunRequest;
+import com.ren.dianav2.assistants.models.request.ThreadRequest;
+import com.ren.dianav2.assistants.models.response.Content;
+import com.ren.dianav2.assistants.models.response.ListMessageResponse;
+import com.ren.dianav2.assistants.models.response.MessageResponse;
+import com.ren.dianav2.assistants.models.response.RunResponse;
+import com.ren.dianav2.assistants.models.response.RunStatusResponse;
+import com.ren.dianav2.assistants.models.response.Text;
+import com.ren.dianav2.assistants.models.response.ThreadResponse;
+import com.ren.dianav2.helpers.RequestManager;
+import com.ren.dianav2.listener.IListMessageResponse;
+import com.ren.dianav2.listener.IMessageResponse;
+import com.ren.dianav2.listener.IRunResponse;
+import com.ren.dianav2.listener.IRunStatusResponse;
+import com.ren.dianav2.listener.IThreadResponse;
+import com.ren.dianav2.models.Message;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 public class ChatScreen extends AppCompatActivity {
 
@@ -32,6 +60,13 @@ public class ChatScreen extends AppCompatActivity {
     private ImageButton microphoneBtn;
     private ImageButton ibBack;
     private ImageButton ibMore;
+    private RequestManager requestManager;
+    private String idAssistant;
+    private List<Message> messages;
+    private RecyclerView rvTextChat;
+    private MessageAdapter messageAdapter;
+    private LinearLayoutManager linearLayoutManager;
+    private String idThread;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,19 +82,37 @@ public class ChatScreen extends AppCompatActivity {
         ibBack = findViewById(R.id.ib_back);
         ibMore = findViewById(R.id.ib_more);
 
+        rvTextChat = findViewById(R.id.rv_chat);
+
+        messages = new ArrayList<>();
+
+        requestManager = new RequestManager(this);
+
+        idAssistant = getIntent().getStringExtra("id");
         //Visibility button
         sendButton.setVisibility(View.GONE);
+
+        //Setup recycler view
+        messageAdapter = new MessageAdapter(this, messages, null);
+        rvTextChat.setAdapter(messageAdapter);
+        rvTextChat.setHasFixedSize(true);
+        linearLayoutManager = new LinearLayoutManager(this);
+        linearLayoutManager.setStackFromEnd(true);
+        rvTextChat.setLayoutManager(linearLayoutManager);
+
+        //Init Thread request
+        ThreadRequest threadRequest = new ThreadRequest();
+        requestManager.createThread("assistants=v2", threadRequest, iThreadResponse);
 
         onClickBackButton(ibBack);
         onEditTextChange(messageEditText);
         changeStatusBarColor();
         changeNavigationBarColor();
+        onSendButtonClick(sendButton);
     }
 
     private void onClickBackButton(ImageButton button) {
-        button.setOnClickListener(v -> {
-            finish();
-        });
+        button.setOnClickListener(v -> finish());
     }
 
     private void onEditTextChange(EditText editText) {
@@ -119,4 +172,97 @@ public class ChatScreen extends AppCompatActivity {
         int currentNightMode = getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
         return currentNightMode == Configuration.UI_MODE_NIGHT_YES;
     }
+
+    private void onSendButtonClick(ImageButton sendButton) {
+        sendButton.setOnClickListener(v -> sendMessage());
+    }
+
+    private void sendMessage() {
+        String question = messageEditText.getText().toString().trim();
+        if (!question.isEmpty()) {
+            MessageRequest messageRequest = new MessageRequest("user", question);
+            requestManager.createMessage("assistants=v2", idThread, messageRequest, iMessageResponse);
+            messageEditText.setText("");
+        }
+
+    }
+
+    private void showMessage(String msg) {
+        Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
+    }
+
+    private final IThreadResponse iThreadResponse = new IThreadResponse() {
+        @Override
+        public void didFetch(ThreadResponse threadResponse, String msg) {
+            idThread = threadResponse.id;
+            Log.d("CHAT SCREEN", "Response Thread id: " + idThread);
+            showMessage("Thread created with ID: " + idThread);
+        }
+
+        @Override
+        public void didError(String msg) {
+            showMessage("Error: " + msg);
+        }
+    };
+
+    private final IMessageResponse iMessageResponse = new IMessageResponse() {
+        @Override
+        public void didFetch(MessageResponse messageResponse, String msg) {
+            showMessage("Message added to thread");
+            RunRequest runRequest = new RunRequest(idAssistant);
+            requestManager.createRun("assistants=v2", idThread, runRequest, iRunResponse);
+        }
+
+        @Override
+        public void didError(String msg) {
+            showMessage("Error creating message: " + msg);
+        }
+    };
+
+    private final IRunResponse iRunResponse = new IRunResponse() {
+        @Override
+        public void didFetch(RunResponse runResponse, String msg) {
+            requestManager.getRunStatus("assistants=v2", idThread, runResponse.id, iRunStateResponse);
+        }
+
+        @Override
+        public void didError(String msg) {
+            showMessage("Error with run: " + msg);
+        }
+    };
+
+    private final IRunStatusResponse iRunStateResponse = new IRunStatusResponse() {
+        @Override
+        public void didFetch(RunStatusResponse runResponse, String msg) {
+            if ("completed".equals(runResponse.status)) {
+                requestManager.getListMessage("assistants=v2", idThread, iListMessageResponse);
+            } else {
+                new Handler().postDelayed(() -> requestManager.getRunStatus(
+                        "assistants=v2", idThread, runResponse.id, this), 500);
+                showMessage(runResponse.status);
+                Log.d("CHAT SCREEN", "Run status: " + runResponse.last_error);
+            }
+        }
+
+        @Override
+        public void didError(String msg) {
+            showMessage("Error with run status: " + msg);
+        }
+    };
+
+    private final IListMessageResponse iListMessageResponse = new IListMessageResponse() {
+        @Override
+        public void didFetch(ListMessageResponse listMessageResponse, String msg) {
+            List<MessageResponse> message = listMessageResponse.data.stream()
+                    .filter(assistantMessage -> assistantMessage.role.equals("assistant"))
+                    .collect(Collectors.toList());
+            showMessage("Assistant message: " + message);
+            Log.d("CHAT SCREEN", "Assistant message: " + message);
+        }
+
+        @Override
+        public void didError(String msg) {
+            showMessage("Error with list message: " + msg);
+        }
+    };
 }
