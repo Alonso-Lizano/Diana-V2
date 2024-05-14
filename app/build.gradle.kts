@@ -43,6 +43,7 @@ dependencies {
     implementation(libs.retrofit)
     implementation(libs.converter.gson)
     implementation(libs.picasso)
+    implementation(libs.lottie)
 
     //Firebase
     implementation(platform(libs.firebase.bom))

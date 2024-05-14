@@ -1,6 +1,7 @@
 package com.ren.dianav2.screens;
 
 import android.app.Dialog;
+import android.content.Intent;
 import android.content.res.Configuration;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
@@ -118,8 +119,10 @@ public class ChatScreen extends AppCompatActivity {
         changeNavigationBarColor();
         onSendButtonClick(sendButton);
         onClickMoreButton(ibMore);
+        onClickMicButton(micButton);
     }
 
+    //---------------------------- INIT ONCLICK ----------------------------------//
     private void onClickBackButton(ImageButton button) {
         button.setOnClickListener(v -> finish());
     }
@@ -127,6 +130,15 @@ public class ChatScreen extends AppCompatActivity {
     private void onClickMoreButton(ImageButton button) {
         button.setOnClickListener(v -> showDialog());
     }
+
+    private void onClickMicButton(ImageButton button) {
+        button.setOnClickListener(v -> {
+            Intent intent = new Intent(this, VoiceChatScreen.class);
+            startActivity(intent);
+        });
+    }
+
+    //---------------------------- FINISH ONCLICK ----------------------------------//
 
 
     //---------------------------- INIT DIALOGS ----------------------------------//
