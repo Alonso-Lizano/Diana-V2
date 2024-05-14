@@ -18,6 +18,7 @@
             android:layout_height="wrap_content"
             android:fontFamily="@font/poppins_bold"
             android:text="Options"
+            android:textColor="@color/text_color"
             android:textSize="25sp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
@@ -28,11 +29,12 @@
             android:layout_width="50dp"
             android:layout_height="50dp"
             android:layout_marginEnd="10dp"
-            android:background="@drawable/back_arrow_bg"
+            android:background="@drawable/bottom_sheet_back_arrow_bg"
             android:src="@drawable/round_close_24"
             app:layout_constraintBottom_toBottomOf="@id/tv_option"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="@id/tv_option" />
+            app:layout_constraintTop_toTopOf="@id/tv_option"
+            app:tint="@color/bottom_sheet_cancel_button_color" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -46,7 +48,8 @@
         <ImageView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:src="@drawable/round_add_24" />
+            android:src="@drawable/round_add_24"
+            app:tint="@color/bottom_sheet_icon_color" />
 
         <TextView
             android:layout_width="wrap_content"
@@ -68,7 +71,8 @@
         <ImageView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:src="@drawable/outline_edit_24" />
+            android:src="@drawable/outline_edit_24"
+            app:tint="@color/bottom_sheet_icon_color" />
 
         <TextView
             android:layout_width="wrap_content"
@@ -88,9 +92,10 @@
         android:padding="10dp">
 
         <ImageView
-            android:layout_width="24dp"
-            android:layout_height="24dp"
-            android:src="@drawable/save_icon" />
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/outline_marker_24"
+            app:tint="@color/bottom_sheet_icon_color" />
 
         <TextView
             android:layout_width="wrap_content"
@@ -112,7 +117,8 @@
         <ImageView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:src="@drawable/outline_delete_24" />
+            android:src="@drawable/outline_delete_24"
+            app:tint="@color/red" />
 
         <TextView
             android:layout_width="wrap_content"
@@ -120,6 +126,7 @@
             android:layout_marginStart="30dp"
             android:fontFamily="@font/poppins"
             android:text="Delete"
+            android:textColor="@color/red"
             android:textSize="16sp" />
 
     </LinearLayout>

@@ -25,8 +25,8 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 import com.ren.dianav2.R;
-import com.ren.dianav2.listener.CameraImagePermissionHandler;
-import com.ren.dianav2.listener.GalleryPermissionHandler;
+import com.ren.dianav2.listener.ICameraImagePermissionHandler;
+import com.ren.dianav2.listener.IGalleryPermissionHandler;
 
 public class EditProfileScreen extends AppCompatActivity {
 
@@ -77,7 +77,7 @@ public class EditProfileScreen extends AppCompatActivity {
     }
     //---------------------------- INIT PERMISSIONS ----------------------------------//
 
-    private final CameraImagePermissionHandler cameraImagePermissionHandler = () -> {
+    private final ICameraImagePermissionHandler cameraImagePermissionHandler = () -> {
         if (!isStorageImagePermitted) {
             requestStorageImagePermission();
         }
@@ -88,7 +88,7 @@ public class EditProfileScreen extends AppCompatActivity {
         }
     };
 
-    private final GalleryPermissionHandler galleryPermissionHandler = () -> {
+    private final IGalleryPermissionHandler galleryPermissionHandler = () -> {
         if (!isStorageImagePermitted) {
             requestStorageImagePermission();
         }

@@ -28,4 +28,10 @@
 
     <color name="text_color_hint">#E5E5E5</color>
     <color name="cursor_drawable_hint">#E5E5E5</color>
+
+    <color name="bottom_sheet_icon_color">#56ABE9</color>
+
+    <color name="bottom_sheet_cancel_button_color">#6C757D</color>"
+
+    <color name="bottom_sheet_button_color">#56ABE9</color>
 </resources>

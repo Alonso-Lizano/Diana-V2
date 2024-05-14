@@ -1,37 +1,22 @@
 package com.ren.dianav2.fragments;
 
-import static android.app.Activity.RESULT_OK;
-
-import android.Manifest;
 import android.app.AlertDialog;
-import android.content.ContentValues;
-import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.content.res.Configuration;
 import android.net.Uri;
 import android.os.Bundle;
 
-import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatDelegate;
-import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import android.provider.MediaStore;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.Window;
-import android.view.WindowManager;
 import android.widget.ImageView;
 
 import com.ren.dianav2.R;
 import com.ren.dianav2.adapters.ProfileOptionAdapter;
-import com.ren.dianav2.listener.CameraImagePermissionHandler;
-import com.ren.dianav2.listener.ThemeHandler;
+import com.ren.dianav2.listener.IThemeHandler;
 import com.ren.dianav2.models.OptionItem;
 
 import java.util.ArrayList;
@@ -42,7 +27,7 @@ import java.util.List;
  * Use the {@link ProfileFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class ProfileFragment extends Fragment implements ThemeHandler {
+public class ProfileFragment extends Fragment implements IThemeHandler {
 
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER

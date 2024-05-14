@@ -1,5 +1,5 @@
 package com.ren.dianav2.listener;
 
-public interface CameraImagePermissionHandler {
+public interface ICameraImagePermissionHandler {
     void requestStorageImageAndCameraPermission();
 }

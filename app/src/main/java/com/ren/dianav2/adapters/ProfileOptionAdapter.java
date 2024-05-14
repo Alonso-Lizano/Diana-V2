@@ -14,8 +14,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.ren.dianav2.R;
-import com.ren.dianav2.listener.CameraImagePermissionHandler;
-import com.ren.dianav2.listener.ThemeHandler;
+import com.ren.dianav2.listener.IThemeHandler;
 import com.ren.dianav2.models.OptionItem;
 import com.ren.dianav2.screens.EditProfileScreen;
 import com.ren.dianav2.screens.LoginScreen;
@@ -25,10 +24,10 @@ import java.util.List;
 public class ProfileOptionAdapter extends RecyclerView.Adapter<ProfileOptionViewHolder> {
     private Context context;
     private List<OptionItem> options;
-    private ThemeHandler themeHandler;
+    private IThemeHandler themeHandler;
     private Intent intent;
 
-    public ProfileOptionAdapter(Context context, List<OptionItem> options, ThemeHandler themeHandler) {
+    public ProfileOptionAdapter(Context context, List<OptionItem> options, IThemeHandler themeHandler) {
         this.context = context;
         this.options = options;
         this.themeHandler = themeHandler;

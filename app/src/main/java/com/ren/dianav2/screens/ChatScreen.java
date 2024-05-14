@@ -19,6 +19,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -72,6 +73,8 @@ public class ChatScreen extends AppCompatActivity {
     private MessageAdapter messageAdapter;
     private LinearLayoutManager linearLayoutManager;
     private String idThread;
+    private Dialog mainDialog;
+    private Dialog changeNameDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -125,17 +128,66 @@ public class ChatScreen extends AppCompatActivity {
         button.setOnClickListener(v -> showDialog());
     }
 
+
+    //---------------------------- INIT DIALOGS ----------------------------------//
     private void showDialog() {
-        final Dialog dialog = new Dialog(this);
-        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
-        dialog.setContentView(R.layout.bottom_sheet);
-        dialog.setCancelable(true);
-        dialog.show();
-        dialog.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-        dialog.getWindow().getAttributes().windowAnimations = R.style.bottom_sheet_animation;
-        dialog.getWindow().setGravity(Gravity.BOTTOM);
+        mainDialog = new Dialog(this);
+        mainDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        mainDialog.setContentView(R.layout.bottom_sheet);
+
+        LinearLayout option1 = mainDialog.findViewById(R.id.ll_option_1);
+        LinearLayout option2 = mainDialog.findViewById(R.id.ll_option_2);
+        LinearLayout option3 = mainDialog.findViewById(R.id.ll_option_3);
+        LinearLayout option4 = mainDialog.findViewById(R.id.ll_option_4);
+
+        option1.setOnClickListener(v -> onClickOption(option1));
+        option2.setOnClickListener(v -> onClickOption(option2));
+        option3.setOnClickListener(v -> onClickOption(option3));
+        option4.setOnClickListener(v -> onClickOption(option4));
+
+        mainDialog.setCancelable(true);
+        mainDialog.show();
+        mainDialog.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        mainDialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        mainDialog.getWindow().getAttributes().windowAnimations = R.style.bottom_sheet_animation;
+        mainDialog.getWindow().setGravity(Gravity.BOTTOM);
     }
+
+    private void onClickOption(LinearLayout linearLayout) {
+        int id = linearLayout.getId();
+        if (id == R.id.ll_option_1) {
+            showMessage("It doesn't work yet :(");
+        } else if (id == R.id.ll_option_2) {
+            if (mainDialog != null && mainDialog.isShowing()) {
+                mainDialog.dismiss();
+            }
+            showChangeNameDialog();
+
+        } else if (id == R.id.ll_option_3){
+            showMessage("It doesn't work yet :((");
+        } else {
+            showMessage("Where is your honor trash");
+        }
+    }
+
+    private void showChangeNameDialog() {
+        changeNameDialog = new Dialog(this);
+        changeNameDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        changeNameDialog.setContentView(R.layout.bottom_sheet_change_name);
+        changeNameDialog.setCancelable(true);
+        changeNameDialog.show();
+        changeNameDialog.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        changeNameDialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        changeNameDialog.getWindow().getAttributes().windowAnimations = R.style.bottom_sheet_animation;
+        changeNameDialog.getWindow().setGravity(Gravity.BOTTOM);
+        changeNameDialog.setOnDismissListener(dialog -> {
+            if (mainDialog != null && !mainDialog.isShowing()) {
+                mainDialog.show();
+            }
+        });
+    }
+
+    //---------------------------- FINISH DIALOGS ----------------------------------//
 
     private void onEditTextChange(EditText editText) {
         editText.addTextChangedListener(new TextWatcher() {

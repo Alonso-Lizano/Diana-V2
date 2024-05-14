@@ -1,5 +1,5 @@
 package com.ren.dianav2.listener;
 
-public interface GalleryPermissionHandler {
+public interface IGalleryPermissionHandler {
     void requestGalleryPermission();
 }
