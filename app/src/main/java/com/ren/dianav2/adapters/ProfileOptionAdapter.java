@@ -1,5 +1,7 @@
 package com.ren.dianav2.adapters;
 
+import static android.app.PendingIntent.getActivity;
+
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -13,6 +15,11 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.facebook.login.LoginManager;
+import com.google.android.gms.auth.api.signin.GoogleSignIn;
+import com.google.android.gms.auth.api.signin.GoogleSignInClient;
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
+import com.google.firebase.auth.FirebaseAuth;
 import com.ren.dianav2.R;
 import com.ren.dianav2.listener.IThemeHandler;
 import com.ren.dianav2.models.OptionItem;
@@ -67,13 +74,31 @@ public class ProfileOptionAdapter extends RecyclerView.Adapter<ProfileOptionView
                     Toast.makeText(context, "It doesn't work yet :(((", Toast.LENGTH_SHORT).show();
                     break;
                 case 6:
-                    Intent intent = new Intent(context, LoginScreen.class);
-                    context.startActivity(intent);
-                    ((Activity) context).finish();
+                    signOut();
                     break;
             }
         });
     }
+
+    public void signOut() {
+        // Firebase sign out
+        FirebaseAuth.getInstance().signOut();
+
+        // Facebook sign out
+        LoginManager.getInstance().logOut();
+
+        //Google sign out
+        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                .requestEmail()
+                .build();
+        GoogleSignInClient mGoogleSignInClient = GoogleSignIn.getClient(context, gso);
+        mGoogleSignInClient.signOut();
+
+        Intent intent = new Intent(context, LoginScreen.class);
+        context.startActivity(intent);
+        ((Activity) context).finish();
+    }
+
 
     @Override
     public int getItemCount() {

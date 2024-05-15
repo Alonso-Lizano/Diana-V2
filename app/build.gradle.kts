@@ -53,4 +53,7 @@ dependencies {
     implementation(libs.firebase.auth)
     implementation(libs.play.services.auth)
 
+    //Facebook
+    implementation(libs.facebook.android.sdk)
+
 }

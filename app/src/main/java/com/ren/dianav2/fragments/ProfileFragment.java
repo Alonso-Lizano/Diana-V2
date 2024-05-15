@@ -13,11 +13,15 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.TextView;
 
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.ren.dianav2.R;
 import com.ren.dianav2.adapters.ProfileOptionAdapter;
 import com.ren.dianav2.listener.IThemeHandler;
 import com.ren.dianav2.models.OptionItem;
+import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -40,8 +44,10 @@ public class ProfileFragment extends Fragment implements IThemeHandler {
     private RecyclerView recyclerView;
     private ProfileOptionAdapter adapter;
     private List<OptionItem> optionItems;
-    private Uri uri;
     private ImageView ivProfile;
+    private TextView tvUsername;
+    private FirebaseAuth mAuth;
+    private FirebaseUser currentUser;
 
     public ProfileFragment() {
         // Required empty public constructor
@@ -72,6 +78,8 @@ public class ProfileFragment extends Fragment implements IThemeHandler {
             mParam1 = getArguments().getString(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
+        mAuth = FirebaseAuth.getInstance();
+        currentUser = mAuth.getCurrentUser();
     }
 
     @Override
@@ -81,6 +89,7 @@ public class ProfileFragment extends Fragment implements IThemeHandler {
         View view = inflater.inflate(R.layout.fragment_profile, container, false);
         recyclerView = view.findViewById(R.id.rv_option);
         ivProfile = view.findViewById(R.id.iv_profile);
+        tvUsername = view.findViewById(R.id.tv_user_name);
 
         recyclerView.setHasFixedSize(true);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false));
@@ -89,6 +98,13 @@ public class ProfileFragment extends Fragment implements IThemeHandler {
 
         adapter = new ProfileOptionAdapter(getContext(), optionItems, this);
         recyclerView.setAdapter(adapter);
+
+        if (currentUser != null) {
+            String username = currentUser.getDisplayName();
+            String profile = currentUser.getPhotoUrl().toString();
+            tvUsername.setText(username);
+            Picasso.get().load(profile).into(ivProfile);
+        }
         return view;
     }
 

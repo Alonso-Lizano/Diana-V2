@@ -14,8 +14,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.ren.dianav2.R;
 import com.ren.dianav2.adapters.ExplorerAdapter;
 import com.ren.dianav2.adapters.RecentChatAdapter;
@@ -27,6 +31,7 @@ import com.ren.dianav2.listener.IListAssistantResponse;
 import com.ren.dianav2.models.ChatItem;
 import com.ren.dianav2.models.Item;
 import com.ren.dianav2.screens.ChatScreen;
+import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -55,6 +60,10 @@ public class HomeFragment extends Fragment {
     private List<ChatItem> chatItems;
     private List<AssistantData> dataList;
     private RequestManager requestManager;
+    private TextView tvUsername;
+    private ImageView ivProfile;
+    private FirebaseAuth mAuth;
+    private FirebaseUser currentUser;
 
     public HomeFragment() {
         // Required empty public constructor
@@ -85,6 +94,9 @@ public class HomeFragment extends Fragment {
             mParam1 = getArguments().getString(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
+        mAuth = FirebaseAuth.getInstance();
+        currentUser = mAuth.getCurrentUser();
+
     }
 
     @Override
@@ -94,6 +106,8 @@ public class HomeFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_home, container, false);
         recyclerViewItem = view.findViewById(R.id.rv_explore);
         recyclerViewChat = view.findViewById(R.id.rv_recent_chat);
+        tvUsername = view.findViewById(R.id.tv_username);
+        ivProfile = view.findViewById(R.id.iv_profile);
 
         requestManager = new RequestManager(requireContext());
 
@@ -112,6 +126,23 @@ public class HomeFragment extends Fragment {
 
         recentChatAdapter = new RecentChatAdapter(getContext(), chatItems);
         recyclerViewChat.setAdapter(recentChatAdapter);
+
+        if (currentUser != null) {
+            String username = currentUser.getDisplayName();
+            String profile = currentUser.getPhotoUrl().toString();
+            tvUsername.setText(username);
+            Picasso.get().load(profile).into(ivProfile);
+        }
+
+        /*Bundle bundle = getArguments();
+        if (bundle != null) {
+            String username = bundle.getString("username");
+            tvUsername.setText(username);
+            String profile = bundle.getString("profilePictureUrl");
+            if (profile != null) {
+                Picasso.get().load(profile).into(ivProfile);
+            }
+        }*/
 
         return view;
     }
@@ -153,6 +184,8 @@ public class HomeFragment extends Fragment {
         intent.putExtra("id", id);
         startActivity(intent);
     };
+
+
 
     private void showMessage(String msg) {
         Toast.makeText(getContext(), msg, Toast.LENGTH_SHORT).show();

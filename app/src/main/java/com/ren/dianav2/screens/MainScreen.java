@@ -58,12 +58,29 @@ public class MainScreen extends AppCompatActivity {
             replaceFragment(getSupportFragmentManager().findFragmentByTag(currentFragmentTag)
                     , currentFragmentTag);
         } else {
+            //HomeFragment homeFragment = getHomeFragment();
             replaceFragment(new HomeFragment(), "home");
         }
 
         //createAssistant(requestManager);
 
         onClickItemBottomNavigation(bottomNavigationView);
+    }
+
+    @NonNull
+    private HomeFragment getHomeFragment() {
+        HomeFragment homeFragment = new HomeFragment();
+        Bundle extra = getIntent().getExtras();
+        if (extra != null) {
+            String username = extra.getString("username");
+            String profilePicture = extra.getString("profilePictureUrl");
+
+            Bundle bundle = new Bundle();
+            bundle.putString("username", username);
+            bundle.putString("profilePictureUrl", profilePicture);
+            homeFragment.setArguments(bundle);
+        }
+        return homeFragment;
     }
 
 

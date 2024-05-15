@@ -25,4 +25,8 @@
     <style name="color_image_background" parent="Theme.DianaV2">
         <item name="android:tint">@color/black_variant_1</item>
     </style>
+
+    <style name="voice_chat_background" parent="Theme.DianaV2">
+        <item name="android:background">@color/black_variant_1</item>
+    </style>
 </resources>

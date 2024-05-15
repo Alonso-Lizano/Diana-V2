@@ -15,13 +15,17 @@ import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.Toast;
 
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.ren.dianav2.R;
 import com.ren.dianav2.adapters.RecentChatAdapter;
 import com.ren.dianav2.adapters.SavedChatAdapter;
 import com.ren.dianav2.models.ChatItem;
 import com.ren.dianav2.screens.ChatScreen;
+import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -48,7 +52,9 @@ public class ChatFragment extends Fragment {
     private List<ChatItem> chatItems;
     private List<ChatItem> savedChatItems;
     private Button btnOption1;
-
+    private FirebaseAuth mAuth;
+    private FirebaseUser currentUser;
+    private ImageView ivProfile;
     public ChatFragment() {
         // Required empty public constructor
     }
@@ -78,6 +84,8 @@ public class ChatFragment extends Fragment {
             mParam1 = getArguments().getString(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
+        mAuth = FirebaseAuth.getInstance();
+        currentUser = mAuth.getCurrentUser();
     }
 
     @Override
@@ -89,6 +97,7 @@ public class ChatFragment extends Fragment {
         recyclerViewChat = view.findViewById(R.id.rv_recent);
         recyclerViewSaved = view.findViewById(R.id.rv_saved);
         btnOption1 = view.findViewById(R.id.btn_option1);
+        ivProfile = view.findViewById(R.id.iv_profile);
 
         recyclerViewChat.setHasFixedSize(true);
         recyclerViewChat.setLayoutManager(new LinearLayoutManager(getContext(),
@@ -107,6 +116,11 @@ public class ChatFragment extends Fragment {
         recyclerViewSaved.setAdapter(savedChatAdapter);
 
         setButtonListeners(view);
+        
+        if (currentUser != null) {
+            String profile = currentUser.getPhotoUrl().toString();
+            Picasso.get().load(profile).into(ivProfile);
+        }
 
         return view;
     }

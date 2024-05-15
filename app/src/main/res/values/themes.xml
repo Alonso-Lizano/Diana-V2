@@ -45,4 +45,7 @@
         <item name="android:windowExitAnimation">@anim/slide_out_bottom</item>
     </style>
 
+    <style name="voice_chat_background" parent="Theme.DianaV2">
+        <item name="android:background">@color/white</item>
+    </style>
 </resources>

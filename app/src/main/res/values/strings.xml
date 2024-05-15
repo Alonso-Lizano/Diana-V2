@@ -3,4 +3,9 @@
     <string name="api_key">Bearer sk-proj-xmSvFXkgiMCwgcKeYX2iT3BlbkFJ2SleaEDeWPy7wS8fQCsk</string>
 
     <string name="default_web_client_id">149208891133-a62mmn30v8ec0pc8e55ies151031s54c.apps.googleusercontent.com</string>
+
+
+    <string name="facebook_app_id">1162959638176136</string>
+    <string name="fb_login_protocol_scheme">fb1234</string>
+    <string name="facebook_client_token">56789</string>
 </resources>
