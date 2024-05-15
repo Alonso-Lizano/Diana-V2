@@ -227,6 +227,7 @@ public class LoginScreen extends AppCompatActivity {
                         Log.d(FACEBOOK_TAG, "signInWithCredential:success");
                         currentUser = mAuth.getCurrentUser();
                         updateUI(currentUser);
+                        showMessage("Login success");
                         Log.d("FACEBOOK NAME", "NAME " + currentUser.getDisplayName());
                         Log.d("FACEBOOK PHOTO", "PHOTO " + currentUser.getPhotoUrl().toString());
                     } else {

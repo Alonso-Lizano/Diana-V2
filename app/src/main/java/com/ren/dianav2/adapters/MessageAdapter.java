@@ -84,10 +84,12 @@ public class MessageAdapter extends RecyclerView.Adapter {
 class RightMessageViewHolder extends RecyclerView.ViewHolder {
 
     public TextView tvShowMessage;
+    public ImageView ivUser;
 
     public RightMessageViewHolder(@NonNull View itemView) {
         super(itemView);
         tvShowMessage = itemView.findViewById(R.id.tv_show_message);
+        ivUser = itemView.findViewById(R.id.iv_user);
     }
 }
 

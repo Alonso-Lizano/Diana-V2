@@ -134,16 +134,6 @@ public class HomeFragment extends Fragment {
             Picasso.get().load(profile).into(ivProfile);
         }
 
-        /*Bundle bundle = getArguments();
-        if (bundle != null) {
-            String username = bundle.getString("username");
-            tvUsername.setText(username);
-            String profile = bundle.getString("profilePictureUrl");
-            if (profile != null) {
-                Picasso.get().load(profile).into(ivProfile);
-            }
-        }*/
-
         return view;
     }
 
@@ -184,8 +174,6 @@ public class HomeFragment extends Fragment {
         intent.putExtra("id", id);
         startActivity(intent);
     };
-
-
 
     private void showMessage(String msg) {
         Toast.makeText(getContext(), msg, Toast.LENGTH_SHORT).show();

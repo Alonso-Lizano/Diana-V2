@@ -37,12 +37,15 @@
     <color name="text_color_hint">#6C757D</color>
     <color name="cursor_drawable_hint">#6C757D</color>
 
-    <color name="ia_message_bg_color">#D9D9D9</color>
-    <color name="user_message_bg_color">#2A4ED1</color>
-
     <color name="bottom_sheet_icon_color">#2A4ED1</color>
 
     <color name="bottom_sheet_cancel_button_color">#FFFFFFFF</color>
 
     <color name="bottom_sheet_button_color">#2A4ED1</color>
+
+    <color name="user_chat_bubble_bg_color">#1670F6</color>
+    <color name="text_color_chat_bubble">#FFFFFFFF</color>
+
+    <color name="assistant_chat_bubble_bg_color">#F2F7FF</color>"
+    <color name="assistant_text_color_chat_bubble">#2A4ED1</color>
 </resources>

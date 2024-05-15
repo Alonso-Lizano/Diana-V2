@@ -34,4 +34,10 @@
     <color name="bottom_sheet_cancel_button_color">#6C757D</color>"
 
     <color name="bottom_sheet_button_color">#56ABE9</color>
+
+    <color name="user_chat_bubble_bg_color">#56ABE9</color>
+    <color name="text_color_chat_bubble">#FFFFFFFF</color>
+
+    <color name="assistant_chat_bubble_bg_color">#FF000000</color>"
+    <color name="assistant_text_color_chat_bubble">#FFFFFFFF</color>
 </resources>

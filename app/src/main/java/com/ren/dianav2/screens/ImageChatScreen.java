@@ -1,16 +1,23 @@
 package com.ren.dianav2.screens;
 
+import android.app.Dialog;
 import android.content.Intent;
 import android.content.res.Configuration;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.view.Gravity;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -46,6 +53,9 @@ public class ImageChatScreen extends AppCompatActivity {
     private RecyclerView rvImageChat;
     private MessageAdapter messageAdapter;
     private RequestManager requestManager;
+    private Dialog mainDialog;
+    private Dialog changeNameDialog;
+    private TextView tvText;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,6 +67,7 @@ public class ImageChatScreen extends AppCompatActivity {
         sendButton = findViewById(R.id.send_btn);
         micButton = findViewById(R.id.mic_btn);
         microphoneBtn = findViewById(R.id.microphone_icon);
+        tvText = findViewById(R.id.tv_text);
 
         ibBack = findViewById(R.id.ib_back);
         ibMore = findViewById(R.id.ib_more);
@@ -84,6 +95,7 @@ public class ImageChatScreen extends AppCompatActivity {
         onChangeEditText(messageEditText);
         changeStatusBarColor();
         changeNavigationBarColor();
+        onClickMoreButton(ibMore);
     }
 
     private void onSendButtonClick(ImageButton sendButton) {
@@ -94,6 +106,10 @@ public class ImageChatScreen extends AppCompatActivity {
         button.setOnClickListener(v -> {
             finish();
         });
+    }
+
+    private void onClickMoreButton(ImageButton button) {
+        button.setOnClickListener(v -> showDialog());
     }
 
     private void onChangeEditText(EditText editText) {
@@ -153,6 +169,83 @@ public class ImageChatScreen extends AppCompatActivity {
         int currentNightMode = getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
         return currentNightMode == Configuration.UI_MODE_NIGHT_YES;
     }
+
+    //---------------------------- INIT DIALOGS ----------------------------------//
+    private void showDialog() {
+        mainDialog = new Dialog(this);
+        mainDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        mainDialog.setContentView(R.layout.bottom_sheet);
+
+        LinearLayout option1 = mainDialog.findViewById(R.id.ll_option_1);
+        LinearLayout option2 = mainDialog.findViewById(R.id.ll_option_2);
+        LinearLayout option3 = mainDialog.findViewById(R.id.ll_option_3);
+        LinearLayout option4 = mainDialog.findViewById(R.id.ll_option_4);
+
+        option1.setOnClickListener(v -> onClickOption(option1));
+        option2.setOnClickListener(v -> onClickOption(option2));
+        option3.setOnClickListener(v -> onClickOption(option3));
+        option4.setOnClickListener(v -> onClickOption(option4));
+
+        mainDialog.setCancelable(true);
+        mainDialog.show();
+        mainDialog.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        mainDialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        mainDialog.getWindow().getAttributes().windowAnimations = R.style.bottom_sheet_animation;
+        mainDialog.getWindow().setGravity(Gravity.BOTTOM);
+    }
+
+    private void onClickOption(LinearLayout linearLayout) {
+        int id = linearLayout.getId();
+        if (id == R.id.ll_option_1) {
+            showMessage("It doesn't work yet :(");
+        } else if (id == R.id.ll_option_2) {
+            if (mainDialog != null && mainDialog.isShowing()) {
+                mainDialog.dismiss();
+            }
+            showChangeNameDialog();
+
+        } else if (id == R.id.ll_option_3){
+            showMessage("It doesn't work yet :((");
+        } else {
+            showMessage("Where is your honor trash");
+        }
+    }
+
+    private void showChangeNameDialog() {
+        String title = tvText.getText().toString().trim();
+
+        changeNameDialog = new Dialog(this);
+        changeNameDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        changeNameDialog.setContentView(R.layout.bottom_sheet_change_name);
+
+        EditText etName = changeNameDialog.findViewById(R.id.et_name);
+        Button btnSave = changeNameDialog.findViewById(R.id.button_save);
+
+        etName.setText(title);
+        btnSave.setOnClickListener(v -> {
+            String name = etName.getText().toString().trim();
+            if (!name.isEmpty()) {
+                tvText.setText(name);
+                changeNameDialog.dismiss();
+            } else {
+                etName.setText(title);
+            }
+        });
+
+        changeNameDialog.setCancelable(true);
+        changeNameDialog.show();
+        changeNameDialog.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        changeNameDialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        changeNameDialog.getWindow().getAttributes().windowAnimations = R.style.bottom_sheet_animation;
+        changeNameDialog.getWindow().setGravity(Gravity.BOTTOM);
+        changeNameDialog.setOnDismissListener(dialog -> {
+            if (mainDialog != null && !mainDialog.isShowing()) {
+                mainDialog.show();
+            }
+        });
+    }
+
+    //---------------------------- FINISH DIALOGS ----------------------------------//
 
     private final IImageResponse iImageResponse = new IImageResponse() {
         @Override

@@ -33,8 +33,11 @@ import androidx.core.view.WindowInsetsCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.ren.dianav2.R;
 import com.ren.dianav2.adapters.MessageAdapter;
+import com.ren.dianav2.adapters.ReinforcedMessageAdapter;
 import com.ren.dianav2.assistants.models.request.MessageRequest;
 import com.ren.dianav2.assistants.models.request.RunRequest;
 import com.ren.dianav2.assistants.models.request.ThreadRequest;
@@ -52,6 +55,7 @@ import com.ren.dianav2.listener.IRunResponse;
 import com.ren.dianav2.listener.IRunStatusResponse;
 import com.ren.dianav2.listener.IThreadResponse;
 import com.ren.dianav2.models.Message;
+import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -69,13 +73,15 @@ public class ChatScreen extends AppCompatActivity {
     private ImageButton ibMore;
     private RequestManager requestManager;
     private String idAssistant;
-    private List<Message> messages;
+    private List<MessageRequest> messages;
     private RecyclerView rvTextChat;
-    private MessageAdapter messageAdapter;
+    private ReinforcedMessageAdapter messageAdapter;
     private LinearLayoutManager linearLayoutManager;
     private String idThread;
     private Dialog mainDialog;
     private Dialog changeNameDialog;
+    private FirebaseAuth mAuth;
+    private FirebaseUser currentUser;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -93,6 +99,9 @@ public class ChatScreen extends AppCompatActivity {
 
         rvTextChat = findViewById(R.id.rv_chat);
 
+        mAuth = FirebaseAuth.getInstance();
+        currentUser = mAuth.getCurrentUser();
+
         messages = new ArrayList<>();
 
         requestManager = new RequestManager(this);
@@ -102,7 +111,7 @@ public class ChatScreen extends AppCompatActivity {
         sendButton.setVisibility(View.GONE);
 
         //Setup recycler view
-        messageAdapter = new MessageAdapter(this, messages, null);
+        messageAdapter = new ReinforcedMessageAdapter(this, messages, currentUser);
         rvTextChat.setAdapter(messageAdapter);
         rvTextChat.setHasFixedSize(true);
         linearLayoutManager = new LinearLayoutManager(this);
@@ -267,6 +276,11 @@ public class ChatScreen extends AppCompatActivity {
         String question = messageEditText.getText().toString().trim();
         if (!question.isEmpty()) {
             MessageRequest messageRequest = new MessageRequest("user", question);
+            messages.add(messageRequest);
+            welcomeText.setVisibility(View.GONE);
+            messageAdapter.notifyItemInserted(messages.size() - 1);
+            rvTextChat.getRecycledViewPool().clear();
+            rvTextChat.smoothScrollToPosition(messages.size() - 1);
             requestManager.createMessage("assistants=v2", idThread, messageRequest, iMessageResponse);
             messageEditText.setText("");
         }
@@ -342,7 +356,10 @@ public class ChatScreen extends AppCompatActivity {
             List<MessageResponse> message = listMessageResponse.data.stream()
                     .filter(assistantMessage -> assistantMessage.role.equals("assistant"))
                     .collect(Collectors.toList());
-            showMessage("Assistant message: " + message);
+            MessageRequest assistantMessageRequest = new MessageRequest("assistant", message.get(0).content.get(0).text.value);
+            messages.add(assistantMessageRequest);
+            messageAdapter.notifyItemInserted(messages.size() - 1);
+            rvTextChat.smoothScrollToPosition(messages.size() - 1);
             Log.d("CHAT SCREEN", "Assistant message: " + message);
         }
 

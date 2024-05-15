@@ -25,7 +25,8 @@
             android:paddingRight="7dp"
             android:paddingBottom="10dp"
             android:text="Solve your doubts with Diana"
-            android:textSize="14sp"/>
+            android:textSize="14sp"
+            android:textColor="@color/text_color_chat_bubble"/>
 
         <androidx.cardview.widget.CardView
             android:id="@+id/card_view"
