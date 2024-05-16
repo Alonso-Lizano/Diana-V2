@@ -48,7 +48,7 @@
                     android:layout_marginTop="20dp"
                     android:layout_marginEnd="16dp"
                     android:fontFamily="@font/poppins"
-                    android:text="Email"
+                    android:text="@string/email"
                     android:textColor="@color/text_color"
                     android:textSize="18sp" />
 
@@ -61,7 +61,7 @@
                     android:layout_marginEnd="50dp"
                     android:background="@drawable/edit_text_bg"
                     android:fontFamily="@font/poppins"
-                    android:hint="Enter your email"
+                    android:hint="@string/enter_your_email"
                     android:inputType="textEmailAddress"
                     android:padding="15dp"
                     android:textColor="@color/text_color"
@@ -75,7 +75,7 @@
                     android:layout_marginTop="20dp"
                     android:layout_marginEnd="16dp"
                     android:fontFamily="@font/poppins"
-                    android:text="Password"
+                    android:text="@string/password"
                     android:textColor="@color/text_color"
                     android:textSize="18sp" />
 
@@ -88,7 +88,7 @@
                     android:layout_marginEnd="50dp"
                     android:background="@drawable/edit_text_bg"
                     android:fontFamily="@font/poppins"
-                    android:hint="Enter your password"
+                    android:hint="@string/enter_your_password"
                     android:inputType="textPassword"
                     android:padding="15dp"
                     android:textColor="@color/text_color"
@@ -102,7 +102,7 @@
                     android:layout_marginTop="10dp"
                     android:layout_marginEnd="50dp"
                     android:fontFamily="@font/poppins"
-                    android:text="Have you forgotten your password?"
+                    android:text="@string/forgot_password"
                     android:textColor="@color/text_color" />
 
                 <Button
@@ -115,7 +115,7 @@
                     android:background="@drawable/button_login_bg"
                     android:fontFamily="@font/poppins_extrabold"
                     android:padding="10dp"
-                    android:text="ENTER"
+                    android:text="@string/enter"
                     android:textColor="@color/white"
                     android:textSize="20sp"
                     app:backgroundTint="@null" />
@@ -126,7 +126,7 @@
                     android:layout_gravity="center_horizontal"
                     android:layout_marginTop="10dp"
                     android:fontFamily="@font/poppins"
-                    android:text="Or access through"
+                    android:text="@string/or_access_through"
                     android:textColor="@color/text_color" />
 
                 <LinearLayout
@@ -189,7 +189,6 @@
                     </androidx.cardview.widget.CardView>
 
                 </LinearLayout>
-
 
             </LinearLayout>
 

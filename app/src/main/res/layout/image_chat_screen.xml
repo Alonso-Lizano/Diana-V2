@@ -24,7 +24,7 @@
                 android:layout_height="40dp"
                 android:layout_marginStart="30dp"
                 android:background="@drawable/back_arrow_bg"
-                android:contentDescription="Back"
+                android:contentDescription="@string/content_description_back"
                 android:src="@drawable/round_arrow_back_ios_24"
                 app:layout_constraintBottom_toBottomOf="@id/card_view"
                 app:layout_constraintStart_toStartOf="parent"
@@ -56,7 +56,7 @@
                 android:layout_height="40dp"
                 android:layout_marginEnd="30dp"
                 android:background="@drawable/back_arrow_bg"
-                android:contentDescription="More"
+                android:contentDescription="@string/content_description_more"
                 android:src="@drawable/baseline_more_horiz_24"
                 app:layout_constraintBottom_toBottomOf="@id/card_view"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -69,13 +69,12 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="10dp"
                 android:fontFamily="@font/poppins"
-                android:text="Ask me whatever you want..."
+                android:text="@string/ask_me_whatever"
                 android:textColor="@color/white"
                 android:textSize="16sp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/card_view" />
-
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -93,7 +92,7 @@
             android:layout_centerInParent="true"
             android:fontFamily="@font/poppins"
             android:gravity="center"
-            android:text="Welcome to Diana"
+            android:text="@string/welcome_to_diana"
             android:textSize="28dp" />
 
         <RelativeLayout
@@ -116,7 +115,7 @@
                     android:layout_height="wrap_content"
                     android:autofillHints="Message"
                     android:background="@drawable/et_bg_message"
-                    android:hint="Write something..."
+                    android:hint="@string/write_something"
                     android:inputType="text"
                     android:padding="15dp" />
 
@@ -151,7 +150,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:background="?attr/selectableItemBackgroundBorderless"
-                    android:contentDescription="Send"
+                    android:contentDescription="@string/content_description_send"
                     android:padding="8dp"
                     android:src="@drawable/round_send_24"
                     app:tint="@color/white" />
@@ -161,7 +160,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:background="?attr/selectableItemBackgroundBorderless"
-                    android:contentDescription="Mic"
+                    android:contentDescription="@string/content_description_mic"
                     android:padding="8dp"
                     android:src="@drawable/round_headphones_24"
                     app:tint="@color/white" />

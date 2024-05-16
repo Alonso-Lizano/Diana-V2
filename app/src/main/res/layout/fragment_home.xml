@@ -27,7 +27,7 @@
                 android:layout_marginStart="20dp"
                 android:layout_marginTop="20dp"
                 android:fontFamily="@font/poppins_extrabold"
-                android:text="WELCOME, "
+                android:text="@string/welcome"
                 android:textColor="@color/white"
                 android:textSize="30sp"
                 app:layout_constraintStart_toStartOf="parent"
@@ -38,7 +38,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:fontFamily="@font/poppins_extrabold"
-                android:text="USER NAME"
+                android:text="@string/username"
                 android:textColor="@color/white"
                 android:textSize="30sp"
                 app:layout_constraintStart_toStartOf="@id/tv_welcome"
@@ -80,7 +80,7 @@
                     android:focusable="true"
                     app:iconifiedByDefault="false"
                     app:queryBackground="@null"
-                    app:queryHint="Ask what you want" />
+                    app:queryHint="@string/ask_hint" />
 
             </androidx.cardview.widget.CardView>
 
@@ -107,7 +107,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:fontFamily="@font/poppins_extrabold"
-                    android:text="Explore"
+                    android:text="@string/explore"
                     android:textColor="@color/text_color"
                     android:textSize="20sp"
                     android:layout_marginTop="20dp"
@@ -118,7 +118,7 @@
                     android:id="@+id/tv_see_all"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="See all"
+                    android:text="@string/see_all"
                     android:textColor="@color/text_color"
                     app:layout_constraintBottom_toBottomOf="@id/tv_recent"
                     app:layout_constraintEnd_toEndOf="parent"
@@ -137,7 +137,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:fontFamily="@font/poppins_extrabold"
-                    android:text="Recent chats"
+                    android:text="@string/recent_chats"
                     android:textColor="@color/text_color"
                     android:textSize="20sp"
                     android:layout_marginTop="10dp"

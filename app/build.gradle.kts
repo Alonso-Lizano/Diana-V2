@@ -30,11 +30,15 @@ android {
 }
 
 dependencies {
-
     implementation(libs.appcompat)
     implementation(libs.material)
     implementation(libs.activity)
     implementation(libs.constraintlayout)
+    implementation(fileTree(mapOf(
+            "dir" to "libs",
+            "include" to listOf("*.aar", "*.jar"),
+            "exclude" to listOf<String>()
+    )))
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
@@ -45,15 +49,14 @@ dependencies {
     implementation(libs.picasso)
     implementation(libs.lottie)
 
-    //Firebase
+    // Firebase
     implementation(platform(libs.firebase.bom))
     implementation(libs.firebase.analytics)
 
-    //Firebase auth
+    // Firebase auth
     implementation(libs.firebase.auth)
     implementation(libs.play.services.auth)
 
-    //Facebook
+    // Facebook
     implementation(libs.facebook.android.sdk)
-
 }

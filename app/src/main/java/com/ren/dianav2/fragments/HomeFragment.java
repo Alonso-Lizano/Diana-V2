@@ -38,18 +38,16 @@ import java.util.List;
 import java.util.Objects;
 
 /**
- * A simple {@link Fragment} subclass.
- * Use the {@link HomeFragment#newInstance} factory method to
- * create an instance of this fragment.
+ * Un {@link Fragment} simple que muestra una lista de exploración y chats recientes.
+ * Método de construccion {@link HomeFragment#newInstance} para crear una instancia de este fragmento.
  */
 public class HomeFragment extends Fragment {
 
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
+    // parámetros de inicialización del fragmento, p. ej., ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
 
-    // TODO: Rename and change types of parameters
+    // TODO: Renombrar y cambiar tipos de parámetros
     private String mParam1;
     private String mParam2;
     private RecyclerView recyclerViewItem;
@@ -66,18 +64,18 @@ public class HomeFragment extends Fragment {
     private FirebaseUser currentUser;
 
     public HomeFragment() {
-        // Required empty public constructor
+        // Constructor público requerido
     }
 
     /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
+     * Metodo de construccion para crear una nueva instancia de
+     * este fragmento utilizando los parámetros proporcionados.
      *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment HomeFragment.
+     * @param param1 Parámetro 1.
+     * @param param2 Parámetro 2.
+     * @return Una nueva instancia del fragmento HomeFragment.
      */
-    // TODO: Rename and change types and number of parameters
+    // TODO: Renombrar y cambiar tipos y número de parámetros
     public static HomeFragment newInstance(String param1, String param2) {
         HomeFragment fragment = new HomeFragment();
         Bundle args = new Bundle();
@@ -96,13 +94,12 @@ public class HomeFragment extends Fragment {
         }
         mAuth = FirebaseAuth.getInstance();
         currentUser = mAuth.getCurrentUser();
-
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
+        // Infla el diseño para este fragmento
         View view = inflater.inflate(R.layout.fragment_home, container, false);
         recyclerViewItem = view.findViewById(R.id.rv_explore);
         recyclerViewChat = view.findViewById(R.id.rv_recent_chat);
@@ -137,21 +134,24 @@ public class HomeFragment extends Fragment {
         return view;
     }
 
+    /**
+     * Agrega datos a las listas de elementos y chats.
+     */
     private void addDataToList() {
         items = new ArrayList<>();
         dataList = new ArrayList<>();
         chatItems = new ArrayList<>();
 
-        items.add(new Item(R.drawable.assistant, "Diana",
-                "Hi, I'm Diana, You can talk with me"));
-        items.add(new Item(R.drawable.round_image_24, "Images",
-                "Hello, talk to me to get images"));
+        items.add(new Item(R.drawable.assistant, getString(R.string.diana_name),
+                getString(R.string.diana_description)));
+        items.add(new Item(R.drawable.round_image_24, getString(R.string.images_title),
+                getString(R.string.images_description)));
 
         requestManager.getListAssistant("assistants=v2", iListAssistantResponse);
 
-        chatItems.add(new ChatItem(R.drawable.round_chat_24, "Java code explanation"));
-        chatItems.add(new ChatItem(R.drawable.round_chat_24, "Resolution of mathematical exercises"));
-        chatItems.add(new ChatItem(R.drawable.round_chat_24, "Example of how to use your brain"));
+        chatItems.add(new ChatItem(R.drawable.round_chat_24, getString(R.string.java_code_explanation)));
+        chatItems.add(new ChatItem(R.drawable.round_chat_24, getString(R.string.math_exercises_resolution)));
+        chatItems.add(new ChatItem(R.drawable.round_chat_24, getString(R.string.use_your_brain_example)));
     }
 
     private final IListAssistantResponse iListAssistantResponse = new IListAssistantResponse() {

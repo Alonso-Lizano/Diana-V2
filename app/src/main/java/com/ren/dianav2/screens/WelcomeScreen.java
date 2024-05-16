@@ -12,6 +12,9 @@ import androidx.core.view.WindowInsetsCompat;
 
 import com.ren.dianav2.R;
 
+/**
+ * Pantalla de bienvenida que muestra un botón para ingresar a la aplicación.
+ */
 public class WelcomeScreen extends AppCompatActivity {
 
     private Button buttonEnter;
@@ -27,13 +30,16 @@ public class WelcomeScreen extends AppCompatActivity {
             return insets;
         });
 
-
-
         buttonEnter = findViewById(R.id.button_enter);
 
         onClickButtonEnter(buttonEnter);
     }
 
+    /**
+     * Configura el evento de clic para el botón de entrada.
+     *
+     * @param button el botón de entrada
+     */
     private void onClickButtonEnter(Button button) {
         button.setOnClickListener(v -> {
             Intent intent = new Intent(this, LoginScreen.class);

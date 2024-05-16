@@ -62,6 +62,55 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+import android.app.Dialog;
+import android.content.Intent;
+import android.content.res.Configuration;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
+import android.os.Build;
+import android.os.Bundle;
+import android.os.Handler;
+import android.util.Log;
+import android.view.Gravity;
+import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
+import android.widget.EditText;
+import android.widget.ImageButton;
+import android.widget.LinearLayout;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.ren.dianav2.R;
+import com.ren.dianav2.adapters.ReinforcedMessageAdapter;
+import com.ren.dianav2.assistants.models.request.MessageRequest;
+import com.ren.dianav2.assistants.models.request.RunRequest;
+import com.ren.dianav2.assistants.models.request.ThreadRequest;
+import com.ren.dianav2.assistants.models.response.MessageResponse;
+import com.ren.dianav2.assistants.models.response.RunResponse;
+import com.ren.dianav2.assistants.models.response.RunStatusResponse;
+import com.ren.dianav2.assistants.models.response.ThreadResponse;
+import com.ren.dianav2.helpers.RequestManager;
+import com.ren.dianav2.listener.IMessageResponse;
+import com.ren.dianav2.listener.IRunResponse;
+import com.ren.dianav2.listener.IRunStatusResponse;
+import com.ren.dianav2.listener.IListMessageResponse;
+import com.ren.dianav2.listener.IThreadResponse;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
+
+/**
+ * La actividad principal de la pantalla de chat.
+ */
 public class ChatScreen extends AppCompatActivity {
 
     private TextView welcomeText;
@@ -107,10 +156,10 @@ public class ChatScreen extends AppCompatActivity {
         requestManager = new RequestManager(this);
 
         idAssistant = getIntent().getStringExtra("id");
-        //Visibility button
+        // Visibilidad del botón
         sendButton.setVisibility(View.GONE);
 
-        //Setup recycler view
+        // Configuración del RecyclerView
         messageAdapter = new ReinforcedMessageAdapter(this, messages, currentUser);
         rvTextChat.setAdapter(messageAdapter);
         rvTextChat.setHasFixedSize(true);
@@ -118,7 +167,7 @@ public class ChatScreen extends AppCompatActivity {
         linearLayoutManager.setStackFromEnd(true);
         rvTextChat.setLayoutManager(linearLayoutManager);
 
-        //Init Thread request
+        // Inicializar la solicitud de hilo
         ThreadRequest threadRequest = new ThreadRequest();
         requestManager.createThread("assistants=v2", threadRequest, iThreadResponse);
 
@@ -131,15 +180,30 @@ public class ChatScreen extends AppCompatActivity {
         onClickMicButton(micButton);
     }
 
-    //---------------------------- INIT ONCLICK ----------------------------------//
+    //---------------------------- INICIO ONCLICK ----------------------------------//
+    /**
+     * Configura el evento de clic para el botón de retroceso.
+     *
+     * @param button el botón de retroceso
+     */
     private void onClickBackButton(ImageButton button) {
         button.setOnClickListener(v -> finish());
     }
 
+    /**
+     * Configura el evento de clic para el botón "más".
+     *
+     * @param button el botón "más"
+     */
     private void onClickMoreButton(ImageButton button) {
         button.setOnClickListener(v -> showDialog());
     }
 
+    /**
+     * Configura el evento de clic para el botón del micrófono.
+     *
+     * @param button el botón del micrófono
+     */
     private void onClickMicButton(ImageButton button) {
         button.setOnClickListener(v -> {
             Intent intent = new Intent(this, VoiceChatScreen.class);
@@ -147,10 +211,9 @@ public class ChatScreen extends AppCompatActivity {
         });
     }
 
-    //---------------------------- FINISH ONCLICK ----------------------------------//
-
-
-    //---------------------------- INIT DIALOGS ----------------------------------//
+    /**
+     * Muestra el diálogo principal.
+     */
     private void showDialog() {
         mainDialog = new Dialog(this);
         mainDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
@@ -174,6 +237,11 @@ public class ChatScreen extends AppCompatActivity {
         mainDialog.getWindow().setGravity(Gravity.BOTTOM);
     }
 
+    /**
+     * Maneja el evento de clic en una opción del diálogo.
+     *
+     * @param linearLayout el layout de la opción clicada
+     */
     private void onClickOption(LinearLayout linearLayout) {
         int id = linearLayout.getId();
         if (id == R.id.ll_option_1) {
@@ -184,13 +252,16 @@ public class ChatScreen extends AppCompatActivity {
             }
             showChangeNameDialog();
 
-        } else if (id == R.id.ll_option_3){
+        } else if (id == R.id.ll_option_3) {
             showMessage("It doesn't work yet :((");
         } else {
             showMessage("Where is your honor trash");
         }
     }
 
+    /**
+     * Muestra el diálogo para cambiar el nombre.
+     */
     private void showChangeNameDialog() {
         changeNameDialog = new Dialog(this);
         changeNameDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
@@ -207,19 +278,23 @@ public class ChatScreen extends AppCompatActivity {
             }
         });
     }
+    
 
-    //---------------------------- FINISH DIALOGS ----------------------------------//
-
+    /**
+     * Configura el evento de cambio de texto en el campo de edición de mensajes.
+     *
+     * @param editText el campo de edición de mensajes
+     */
     private void onEditTextChange(EditText editText) {
         editText.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
+                // No se necesita implementar
             }
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-
+                // No se necesita implementar
             }
 
             @Override
@@ -237,6 +312,9 @@ public class ChatScreen extends AppCompatActivity {
         });
     }
 
+    /**
+     * Cambia el color de la barra de estado.
+     */
     private void changeStatusBarColor() {
         Window window = this.getWindow();
         window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
@@ -248,7 +326,9 @@ public class ChatScreen extends AppCompatActivity {
         }
     }
 
-
+    /**
+     * Cambia el color de la barra de navegación.
+     */
     private void changeNavigationBarColor() {
         if (isDarkModeEnabled()) {
             setNavigationBarColor(ContextCompat.getColor(this, R.color.black_variant_1));
@@ -257,21 +337,39 @@ public class ChatScreen extends AppCompatActivity {
         }
     }
 
+    /**
+     * Establece el color de la barra de navegación.
+     *
+     * @param color el color a establecer
+     */
     private void setNavigationBarColor(int color) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             getWindow().setNavigationBarColor(color);
         }
     }
 
+    /**
+     * Comprueba si el modo oscuro está habilitado.
+     *
+     * @return true si el modo oscuro está habilitado, false de lo contrario
+     */
     private boolean isDarkModeEnabled() {
         int currentNightMode = getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
         return currentNightMode == Configuration.UI_MODE_NIGHT_YES;
     }
 
+    /**
+     * Configura el evento de clic para el botón de envío.
+     *
+     * @param sendButton el botón de envío
+     */
     private void onSendButtonClick(ImageButton sendButton) {
         sendButton.setOnClickListener(v -> sendMessage());
     }
 
+    /**
+     * Envía un mensaje.
+     */
     private void sendMessage() {
         String question = messageEditText.getText().toString().trim();
         if (!question.isEmpty()) {
@@ -284,9 +382,13 @@ public class ChatScreen extends AppCompatActivity {
             requestManager.createMessage("assistants=v2", idThread, messageRequest, iMessageResponse);
             messageEditText.setText("");
         }
-
     }
 
+    /**
+     * Muestra un mensaje.
+     *
+     * @param msg el mensaje a mostrar
+     */
     private void showMessage(String msg) {
         Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
     }

@@ -39,7 +39,6 @@ import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
-import com.google.firebase.Firebase;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.AuthResult;
@@ -53,6 +52,9 @@ import org.json.JSONException;
 
 import java.util.Arrays;
 
+/**
+ * Clase que representa la pantalla de inicio de sesión de la aplicación.
+ */
 public class LoginScreen extends AppCompatActivity {
     private static final String FACEBOOK_TAG = "FacebookAuth";
     private static final String GOOGLE_TAG = "GoogleAuth";
@@ -81,23 +83,24 @@ public class LoginScreen extends AppCompatActivity {
         ivGoogle = findViewById(R.id.iv_google);
         ivFacebook = findViewById(R.id.iv_facebook);
 
-        //Init google
+        // Inicializar Google Sign-In
         configureGoogleSignIn();
 
         mAuth = FirebaseAuth.getInstance();
 
-        //Init facebook
+        // Inicializar Facebook Sign-In
         callbackManager = CallbackManager.Factory.create();
-
         AppEventsLogger.activateApp(this.getApplication());
         changeBottomNavigationBar();
 
         onClickButtonEnter(buttonEnter);
         onClickGoogle(ivGoogle);
         onClickFacebook(ivFacebook);
-
     }
 
+    /**
+     * Cambia el color de la barra de navegación inferior según el tema.
+     */
     private void changeBottomNavigationBar() {
         int nightModeFlags = getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
         if (nightModeFlags == Configuration.UI_MODE_NIGHT_YES) {
@@ -107,6 +110,11 @@ public class LoginScreen extends AppCompatActivity {
         }
     }
 
+    /**
+     * Configura el listener para el botón de entrada.
+     *
+     * @param button el botón de entrada
+     */
     private void onClickButtonEnter(Button button) {
         button.setOnClickListener(v -> {
             Intent intent = new Intent(this, MainScreen.class);
@@ -115,10 +123,20 @@ public class LoginScreen extends AppCompatActivity {
         });
     }
 
+    /**
+     * Configura el listener para el inicio de sesión con Google.
+     *
+     * @param imageView la vista de imagen de Google
+     */
     private void onClickGoogle(ImageView imageView) {
         imageView.setOnClickListener(v -> signIn());
     }
 
+    /**
+     * Configura el listener para el inicio de sesión con Facebook.
+     *
+     * @param imageView la vista de imagen de Facebook
+     */
     private void onClickFacebook(ImageView imageView) {
         imageView.setOnClickListener(v -> {
             LoginManager.getInstance().logInWithReadPermissions(this, Arrays.asList("email", "public_profile"));
@@ -160,7 +178,9 @@ public class LoginScreen extends AppCompatActivity {
         callbackManager.onActivityResult(requestCode, resultCode, data);
     }
 
-    //---------------------------- INIT GOOGLE SIGN ------------------------------------//
+    /**
+     * Configura Google Sign-In.
+     */
     private void configureGoogleSignIn() {
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                 .requestIdToken(getString(R.string.default_web_client_id))
@@ -170,6 +190,11 @@ public class LoginScreen extends AppCompatActivity {
         mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
     }
 
+    /**
+     * Autentica con Firebase usando el token de Google.
+     *
+     * @param idToken el token de identificación de Google
+     */
     private void firebaseAuthWithGoogle(String idToken) {
         AuthCredential credential = GoogleAuthProvider.getCredential(idToken, null);
         mAuth.signInWithCredential(credential)
@@ -177,18 +202,19 @@ public class LoginScreen extends AppCompatActivity {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (task.isSuccessful()) {
-                            // Sign in success, update UI with the signed-in user's information
                             Log.d(GOOGLE_TAG, "signInWithCredential:success");
                             currentUser = mAuth.getCurrentUser();
                             updateUI(currentUser);
                         } else {
-                            // If sign in fails, display a message to the user.
                             Log.w(GOOGLE_TAG, "signInWithCredential:failure", task.getException());
                         }
                     }
                 });
     }
 
+    /**
+     * Inicia el proceso de inicio de sesión con Google.
+     */
     private void signIn() {
         Intent signInIntent = mGoogleSignInClient.getSignInIntent();
         activityResultLauncher.launch(signInIntent);
@@ -212,10 +238,11 @@ public class LoginScreen extends AppCompatActivity {
             }
     );
 
-    //---------------------------- FINISH GOOGLE SIGN ----------------------------------//
-
-    //---------------------------- INIT FACEBOOK SIGN ----------------------------------//
-
+    /**
+     * Maneja el token de acceso de Facebook.
+     *
+     * @param token el token de acceso de Facebook
+     */
     private void handleFacebookAccessToken(AccessToken token) {
         Log.d(FACEBOOK_TAG, "handleFacebookAccessToken:" + token);
 
@@ -223,22 +250,21 @@ public class LoginScreen extends AppCompatActivity {
         mAuth.signInWithCredential(credential)
                 .addOnCompleteListener(this, task -> {
                     if (task.isSuccessful()) {
-                        // Sign in success, update UI with the signed-in user's information
                         Log.d(FACEBOOK_TAG, "signInWithCredential:success");
                         currentUser = mAuth.getCurrentUser();
                         updateUI(currentUser);
                         showMessage("Login success");
-                        Log.d("FACEBOOK NAME", "NAME " + currentUser.getDisplayName());
-                        Log.d("FACEBOOK PHOTO", "PHOTO " + currentUser.getPhotoUrl().toString());
                     } else {
-                        // If sign in fails, display a message to the user.
                         Log.w(FACEBOOK_TAG, "signInWithCredential:failure", task.getException());
                     }
                 });
     }
 
-    //---------------------------- FINISH FACEBOOK SIGN ----------------------------------//
-
+    /**
+     * Actualiza la UI después del inicio de sesión.
+     *
+     * @param user el usuario autenticado
+     */
     private void updateUI(FirebaseUser user) {
         if (user != null) {
             Intent intent = new Intent(this, MainScreen.class);
@@ -251,9 +277,12 @@ public class LoginScreen extends AppCompatActivity {
         }
     }
 
-
+    /**
+     * Muestra un mensaje en la pantalla.
+     *
+     * @param message el mensaje a mostrar
+     */
     private void showMessage(String message) {
         Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
     }
-
 }
