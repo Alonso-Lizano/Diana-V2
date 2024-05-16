@@ -30,6 +30,9 @@ import com.ren.dianav2.models.Message;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * La actividad principal de la pantalla de visualización de imágenes.
+ */
 public class ImageScreen extends AppCompatActivity {
 
     private final static int REQUEST_CODE = 1;
@@ -55,6 +58,11 @@ public class ImageScreen extends AppCompatActivity {
         onClickBackButton(ibBack);
     }
 
+    /**
+     * Configura el evento de clic para el botón de descarga.
+     *
+     * @param button el botón de descarga
+     */
     private void onClickDownloadButton(ImageButton button) {
         button.setOnClickListener(v -> {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
@@ -70,6 +78,9 @@ public class ImageScreen extends AppCompatActivity {
         });
     }
 
+    /**
+     * Solicita permisos de almacenamiento.
+     */
     private void requestStoragePermission() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             ActivityCompat.requestPermissions(ImageScreen.this,
@@ -92,6 +103,9 @@ public class ImageScreen extends AppCompatActivity {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
     }
 
+    /**
+     * Guarda la imagen en el almacenamiento externo.
+     */
     private void saveImage() {
         String imageUrl = getIntent().getStringExtra("imageUrl");
         if (imageUrl != null) {
@@ -108,13 +122,22 @@ public class ImageScreen extends AppCompatActivity {
         } else {
             showMessage("Could not get image URL");
         }
-
     }
 
+    /**
+     * Configura el evento de clic para el botón de retroceso.
+     *
+     * @param button el botón de retroceso
+     */
     private void onClickBackButton(ImageButton button) {
         button.setOnClickListener(v -> finish());
     }
 
+    /**
+     * Reemplaza el fragmento actual con un nuevo fragmento.
+     *
+     * @param fragment el nuevo fragmento a mostrar
+     */
     private void replaceFragment(Fragment fragment) {
         FragmentManager fragmentManager = getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
@@ -126,6 +149,11 @@ public class ImageScreen extends AppCompatActivity {
         fragmentTransaction.commit();
     }
 
+    /**
+     * Muestra un mensaje.
+     *
+     * @param message el mensaje a mostrar
+     */
     private void showMessage(String message) {
         Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
     }

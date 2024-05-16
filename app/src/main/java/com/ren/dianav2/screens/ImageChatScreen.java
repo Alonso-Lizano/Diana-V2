@@ -39,6 +39,9 @@ import com.ren.dianav2.models.response.images.ImageResponse;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * La actividad principal de la pantalla de chat de imágenes.
+ */
 public class ImageChatScreen extends AppCompatActivity {
 
     private TextView welcomeText;
@@ -76,10 +79,10 @@ public class ImageChatScreen extends AppCompatActivity {
 
         messages = new ArrayList<>();
 
-        //Visibility button
+        // Visibilidad del botón
         sendButton.setVisibility(View.GONE);
 
-        //Set recycler view
+        // Configuración del RecyclerView
         messageAdapter = new MessageAdapter(this, messages, imageClick);
         rvImageChat.setAdapter(messageAdapter);
         rvImageChat.setHasFixedSize(true);
@@ -87,7 +90,7 @@ public class ImageChatScreen extends AppCompatActivity {
         linearLayoutManager.setStackFromEnd(true);
         rvImageChat.setLayoutManager(linearLayoutManager);
 
-        //init request manager
+        // Inicializar el request manager
         requestManager = new RequestManager(this);
 
         onSendButtonClick(sendButton);
@@ -98,30 +101,48 @@ public class ImageChatScreen extends AppCompatActivity {
         onClickMoreButton(ibMore);
     }
 
+    /**
+     * Configura el evento de clic para el botón de envío.
+     *
+     * @param sendButton el botón de envío
+     */
     private void onSendButtonClick(ImageButton sendButton) {
         sendButton.setOnClickListener(v -> sendMessage());
     }
 
+    /**
+     * Configura el evento de clic para el botón de retroceso.
+     *
+     * @param button el botón de retroceso
+     */
     private void onBackButtonClick(ImageButton button) {
-        button.setOnClickListener(v -> {
-            finish();
-        });
+        button.setOnClickListener(v -> finish());
     }
 
+    /**
+     * Configura el evento de clic para el botón "más".
+     *
+     * @param button el botón "más"
+     */
     private void onClickMoreButton(ImageButton button) {
         button.setOnClickListener(v -> showDialog());
     }
 
+    /**
+     * Configura el evento de cambio de texto en el campo de edición de mensajes.
+     *
+     * @param editText el campo de edición de mensajes
+     */
     private void onChangeEditText(EditText editText) {
         editText.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
+                // No se necesita implementar
             }
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-
+                // No se necesita implementar
             }
 
             @Override
@@ -139,6 +160,9 @@ public class ImageChatScreen extends AppCompatActivity {
         });
     }
 
+    /**
+     * Cambia el color de la barra de estado.
+     */
     private void changeStatusBarColor() {
         Window window = this.getWindow();
         window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
@@ -150,7 +174,9 @@ public class ImageChatScreen extends AppCompatActivity {
         }
     }
 
-
+    /**
+     * Cambia el color de la barra de navegación.
+     */
     private void changeNavigationBarColor() {
         if (isDarkModeEnabled()) {
             setNavigationBarColor(ContextCompat.getColor(this, R.color.black_variant_1));
@@ -159,18 +185,31 @@ public class ImageChatScreen extends AppCompatActivity {
         }
     }
 
+    /**
+     * Establece el color de la barra de navegación.
+     *
+     * @param color el color a establecer
+     */
     private void setNavigationBarColor(int color) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             getWindow().setNavigationBarColor(color);
         }
     }
 
+    /**
+     * Comprueba si el modo oscuro está habilitado.
+     *
+     * @return true si el modo oscuro está habilitado, false de lo contrario
+     */
     private boolean isDarkModeEnabled() {
         int currentNightMode = getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
         return currentNightMode == Configuration.UI_MODE_NIGHT_YES;
     }
 
-    //---------------------------- INIT DIALOGS ----------------------------------//
+
+    /**
+     * Muestra el diálogo principal.
+     */
     private void showDialog() {
         mainDialog = new Dialog(this);
         mainDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
@@ -194,6 +233,11 @@ public class ImageChatScreen extends AppCompatActivity {
         mainDialog.getWindow().setGravity(Gravity.BOTTOM);
     }
 
+    /**
+     * Maneja el evento de clic en una opción del diálogo.
+     *
+     * @param linearLayout el layout de la opción clicada
+     */
     private void onClickOption(LinearLayout linearLayout) {
         int id = linearLayout.getId();
         if (id == R.id.ll_option_1) {
@@ -203,14 +247,16 @@ public class ImageChatScreen extends AppCompatActivity {
                 mainDialog.dismiss();
             }
             showChangeNameDialog();
-
-        } else if (id == R.id.ll_option_3){
+        } else if (id == R.id.ll_option_3) {
             showMessage("It doesn't work yet :((");
         } else {
             showMessage("Where is your honor trash");
         }
     }
 
+    /**
+     * Muestra el diálogo para cambiar el nombre.
+     */
     private void showChangeNameDialog() {
         String title = tvText.getText().toString().trim();
 
@@ -245,12 +291,10 @@ public class ImageChatScreen extends AppCompatActivity {
         });
     }
 
-    //---------------------------- FINISH DIALOGS ----------------------------------//
-
     private final IImageResponse iImageResponse = new IImageResponse() {
         @Override
         public void didFetch(ImageResponse imageResponse, String msg) {
-            if (imageResponse != null && imageResponse.data != null && !imageResponse.data.isEmpty())  {
+            if (imageResponse != null && imageResponse.data != null && !imageResponse.data.isEmpty()) {
                 ImageData imageData = imageResponse.data.get(0);
                 String imageUrl = imageData.url;
                 Message messageObject = new Message(false, true, imageUrl);
@@ -267,11 +311,18 @@ public class ImageChatScreen extends AppCompatActivity {
         }
     };
 
+    /**
+     * Muestra un mensaje.
+     *
+     * @param msg el mensaje a mostrar
+     */
     private void showMessage(String msg) {
         Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
     }
 
-
+    /**
+     * Envía un mensaje.
+     */
     private void sendMessage() {
         String message = messageEditText.getText().toString().trim();
         if (!message.isEmpty()) {
@@ -298,5 +349,4 @@ public class ImageChatScreen extends AppCompatActivity {
         intent.putExtra("imageUrl", index);
         startActivity(intent);
     };
-
 }

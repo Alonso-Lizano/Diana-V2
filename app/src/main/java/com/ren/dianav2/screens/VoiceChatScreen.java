@@ -21,6 +21,9 @@ import androidx.core.view.WindowInsetsCompat;
 import com.airbnb.lottie.LottieAnimationView;
 import com.ren.dianav2.R;
 
+/**
+ * Pantalla de chat de voz que utiliza reconocimiento de voz para escuchar y procesar entradas de usuario.
+ */
 public class VoiceChatScreen extends AppCompatActivity {
 
     private LottieAnimationView lavVoice;
@@ -41,7 +44,7 @@ public class VoiceChatScreen extends AppCompatActivity {
         lavVoice = findViewById(R.id.lav_voice);
         lavVoiceLine = findViewById(R.id.lav_voice_line);
 
-        // Init permission
+        // Inicializa los permisos
         requestAudioPermission();
 
         speechRecognizer = SpeechRecognizer.createSpeechRecognizer(this);
@@ -109,6 +112,9 @@ public class VoiceChatScreen extends AppCompatActivity {
         }
     }
 
+    /**
+     * Solicita permisos de grabación de audio.
+     */
     private void requestAudioPermission() {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO)
                 != PackageManager.PERMISSION_GRANTED) {
@@ -130,10 +136,18 @@ public class VoiceChatScreen extends AppCompatActivity {
         }
     }
 
+    /**
+     * Muestra un mensaje en un Toast.
+     *
+     * @param msg el mensaje a mostrar
+     */
     private void showMessage(String msg) {
         Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
     }
 
+    /**
+     * Inicia la escucha de la entrada del usuario.
+     */
     private void startListeningForUserInput() {
         if (speechRecognizer != null) {
             speechRecognizer.startListening(new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH));

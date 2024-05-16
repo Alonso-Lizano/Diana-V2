@@ -36,6 +36,36 @@ import com.ren.dianav2.R;
 import com.ren.dianav2.listener.ICameraImagePermissionHandler;
 import com.ren.dianav2.listener.IGalleryPermissionHandler;
 
+import android.Manifest;
+import android.app.Activity;
+import android.app.Dialog;
+import android.content.ContentValues;
+import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.net.Uri;
+import android.os.Bundle;
+import android.provider.MediaStore;
+import android.util.Log;
+import android.view.View;
+import android.widget.Button;
+import android.widget.ImageButton;
+import android.widget.ImageView;
+
+import androidx.activity.result.ActivityResult;
+import androidx.activity.result.ActivityResultCallback;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
+import androidx.core.view.WindowInsetsCompat.Type;
+
+import com.ren.dianav2.R;
+
+/**
+ * Pantalla de edición de perfil donde el usuario puede tomar o subir una foto de perfil.
+ */
 public class EditProfileScreen extends AppCompatActivity {
 
     private static final String[] REQUIRED_PERMISSIONS = new String[]{
@@ -57,7 +87,7 @@ public class EditProfileScreen extends AppCompatActivity {
         EdgeToEdge.enable(this);
         setContentView(R.layout.edit_profile_screen);
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
-            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
+            Insets systemBars = insets.getInsets(Type.systemBars());
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
@@ -71,19 +101,35 @@ public class EditProfileScreen extends AppCompatActivity {
         onClickBackButton(backButton);
     }
 
+    /**
+     * Configura el evento de clic para el botón de tomar foto.
+     *
+     * @param button el botón de tomar foto
+     */
     private void onClickTakePhoto(Button button) {
         button.setOnClickListener(v ->
                 cameraImagePermissionHandler.requestStorageImageAndCameraPermission());
     }
 
+    /**
+     * Configura el evento de clic para el botón de subir foto.
+     *
+     * @param button el botón de subir foto
+     */
     private void onClickUploadPhoto(Button button) {
         button.setOnClickListener(v -> galleryPermissionHandler.requestGalleryPermission());
     }
 
+    /**
+     * Configura el evento de clic para el botón de retroceso.
+     *
+     * @param button el botón de retroceso
+     */
     private void onClickBackButton(ImageButton button) {
         button.setOnClickListener(v -> finish());
     }
-    //---------------------------- INIT PERMISSIONS ----------------------------------//
+
+    //---------------------------- INICIO PERMISOS ----------------------------------//
 
     private final ICameraImagePermissionHandler cameraImagePermissionHandler = () -> {
         if (!isStorageImagePermitted) {
@@ -105,8 +151,11 @@ public class EditProfileScreen extends AppCompatActivity {
         }
     };
 
-    //---------------------------- INIT OPEN CAMERA ----------------------------------//
 
+
+    /**
+     * Abre la cámara para tomar una foto.
+     */
     public void openCamera() {
         ContentValues contentValues = new ContentValues();
         contentValues.put(MediaStore.Images.Media.TITLE, "New Picture");
@@ -118,6 +167,9 @@ public class EditProfileScreen extends AppCompatActivity {
         launcherCamera.launch(intent);
     }
 
+    /**
+     * Solicita permiso para leer imágenes del almacenamiento.
+     */
     public void requestStorageImagePermission() {
         if (ContextCompat.checkSelfPermission(this, REQUIRED_PERMISSIONS[0]) ==
                 PackageManager.PERMISSION_GRANTED) {
@@ -129,6 +181,9 @@ public class EditProfileScreen extends AppCompatActivity {
         }
     }
 
+    /**
+     * Solicita permiso para usar la cámara.
+     */
     private void requestPermissionsCamera() {
         if (ContextCompat.checkSelfPermission(this, REQUIRED_PERMISSIONS[1]) ==
                 PackageManager.PERMISSION_GRANTED) {
@@ -172,9 +227,10 @@ public class EditProfileScreen extends AppCompatActivity {
                         }
                     });
 
-    //---------------------------- FINISH OPEN CAMERA ----------------------------------//
 
-    //---------------------------- INIT OPEN GALLERY ----------------------------------//
+    /**
+     * Abre la galería para seleccionar una imagen.
+     */
     private void openGallery() {
         Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
         intent.setType("image/*");
@@ -198,5 +254,4 @@ public class EditProfileScreen extends AppCompatActivity {
                 }
             });
 
-    //---------------------------- FINISH OPEN GALLERY ----------------------------------//
 }

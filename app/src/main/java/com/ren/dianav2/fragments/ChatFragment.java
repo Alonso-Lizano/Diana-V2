@@ -31,18 +31,16 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * A simple {@link Fragment} subclass.
- * Use the {@link ChatFragment#newInstance} factory method to
- * create an instance of this fragment.
+ * Un {@link Fragment} simple que muestra una lista de chats recientes y guardados.
+ * Utiliza el método de construccion {@link ChatFragment#newInstance} para crear una instancia de este fragmento.
  */
 public class ChatFragment extends Fragment {
 
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
+    // parámetros de inicialización del fragmento, p. ej., ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
 
-    // TODO: Rename and change types of parameters
+    // TODO: Renombrar y cambiar tipos de parámetros
     private String mParam1;
     private String mParam2;
     private RecyclerView recyclerViewChat;
@@ -55,19 +53,20 @@ public class ChatFragment extends Fragment {
     private FirebaseAuth mAuth;
     private FirebaseUser currentUser;
     private ImageView ivProfile;
+
     public ChatFragment() {
-        // Required empty public constructor
+        // Constructor público requerido
     }
 
     /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
+     * Utiliza este método de construccion para crear una nueva instancia de
+     * este fragmento utilizando los parámetros proporcionados.
      *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment ChatFragment.
+     * @param param1 Parámetro 1.
+     * @param param2 Parámetro 2.
+     * @return Una nueva instancia del fragmento ChatFragment.
      */
-    // TODO: Rename and change types and number of parameters
+    // TODO: Renombrar y cambiar tipos y número de parámetros
     public static ChatFragment newInstance(String param1, String param2) {
         ChatFragment fragment = new ChatFragment();
         Bundle args = new Bundle();
@@ -91,7 +90,7 @@ public class ChatFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
+        // carga el diseño para este fragmento
         View view = inflater.inflate(R.layout.fragment_chat, container, false);
 
         recyclerViewChat = view.findViewById(R.id.rv_recent);
@@ -116,7 +115,7 @@ public class ChatFragment extends Fragment {
         recyclerViewSaved.setAdapter(savedChatAdapter);
 
         setButtonListeners(view);
-        
+
         if (currentUser != null) {
             String profile = currentUser.getPhotoUrl().toString();
             Picasso.get().load(profile).into(ivProfile);
@@ -125,19 +124,27 @@ public class ChatFragment extends Fragment {
         return view;
     }
 
+    /**
+     * Agrega datos a las listas de chats recientes y guardados.
+     */
     private void addDataToList() {
         chatItems = new ArrayList<>();
         savedChatItems = new ArrayList<>();
 
-        chatItems.add(new ChatItem(R.drawable.round_chat_24, "Java code explanation"));
-        chatItems.add(new ChatItem(R.drawable.round_chat_24, "Resolution of mathematical exercises"));
-        chatItems.add(new ChatItem(R.drawable.round_chat_24, "Example of how to use your brain"));
+        chatItems.add(new ChatItem(R.drawable.round_chat_24, getString(R.string.java_code_explanation)));
+        chatItems.add(new ChatItem(R.drawable.round_chat_24, getString(R.string.math_exercises_resolution)));
+        chatItems.add(new ChatItem(R.drawable.round_chat_24, getString(R.string.use_your_brain_example)));
 
-        savedChatItems.add(new ChatItem(R.drawable.save_icon, "Java code explanation"));
-        savedChatItems.add(new ChatItem(R.drawable.save_icon, "Resolution of mathematical exercises"));
-        savedChatItems.add(new ChatItem(R.drawable.save_icon, "Example of how to use your brain"));
+        savedChatItems.add(new ChatItem(R.drawable.save_icon, getString(R.string.java_code_explanation)));
+        savedChatItems.add(new ChatItem(R.drawable.save_icon, getString(R.string.math_exercises_resolution)));
+        savedChatItems.add(new ChatItem(R.drawable.save_icon, getString(R.string.use_your_brain_example)));
     }
 
+    /**
+     * Configura los listeners de los botones.
+     *
+     * @param view la vista del fragmento
+     */
     private void setButtonListeners(View view) {
         Button button1 = view.findViewById(R.id.btn_option1);
         Button button2 = view.findViewById(R.id.btn_option2);
@@ -146,12 +153,17 @@ public class ChatFragment extends Fragment {
         button2.setOnClickListener(v -> onClickButton(button2));
     }
 
+    /**
+     * Maneja los clics de los botones.
+     *
+     * @param button el botón que fue clicado
+     */
     private void onClickButton(Button button) {
         if (button.getId() == R.id.btn_option1) {
             Intent intent = new Intent(getContext(), ChatScreen.class);
             startActivity(intent);
         } else if (button.getId() == R.id.btn_option2) {
-            Toast.makeText(getContext(), "Search chat", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getContext(), getString(R.string.search_chat), Toast.LENGTH_SHORT).show();
         }
     }
 }

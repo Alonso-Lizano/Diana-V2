@@ -31,6 +31,9 @@ import com.ren.dianav2.listener.IAssistantResponse;
 
 import java.util.ArrayList;
 
+/**
+ * Actividad principal que maneja la navegación entre los fragmentos Home, Chat y Profile.
+ */
 public class MainScreen extends AppCompatActivity {
 
     private BottomNavigationView bottomNavigationView;
@@ -55,20 +58,21 @@ public class MainScreen extends AppCompatActivity {
 
         if (savedInstanceState != null) {
             currentFragmentTag = savedInstanceState.getString("current_fragment_tag");
-            replaceFragment(getSupportFragmentManager().findFragmentByTag(currentFragmentTag)
-                    , currentFragmentTag);
+            replaceFragment(getSupportFragmentManager().findFragmentByTag(currentFragmentTag), currentFragmentTag);
         } else {
             replaceFragment(new HomeFragment(), "home");
         }
 
-        //createAssistant(requestManager);
-
         onClickItemBottomNavigation(bottomNavigationView);
     }
 
+    /**
+     * Configura el evento de clic para los elementos de la barra de navegación inferior.
+     *
+     * @param navigationView la vista de navegación inferior
+     */
     private void onClickItemBottomNavigation(BottomNavigationView navigationView) {
         navigationView.setOnItemSelectedListener(item -> {
-
             if (item.getItemId() == R.id.home) {
                 replaceFragment(new HomeFragment(), "home");
             } else if (item.getItemId() == R.id.new_chat) {
@@ -76,11 +80,16 @@ public class MainScreen extends AppCompatActivity {
             } else if (item.getItemId() == R.id.profile) {
                 replaceFragment(new ProfileFragment(), "profile");
             }
-
             return true;
         });
     }
 
+    /**
+     * Reemplaza el fragmento actual por uno nuevo.
+     *
+     * @param fragment el nuevo fragmento a mostrar
+     * @param tag      la etiqueta del fragmento
+     */
     private void replaceFragment(Fragment fragment, String tag) {
         currentFragmentTag = tag;
         FragmentManager fragmentManager = getSupportFragmentManager();
@@ -92,6 +101,7 @@ public class MainScreen extends AppCompatActivity {
         handler.postDelayed(() -> {
             switch (tag) {
                 case "home":
+                case "profile":
                     if (isDarkTheme()) {
                         onChangeStatusBarColor(R.color.sky_blue);
                     } else {
@@ -105,17 +115,9 @@ public class MainScreen extends AppCompatActivity {
                         onChangeStatusBarColor(R.color.white);
                     }
                     break;
-                case "profile":
-                    if (isDarkTheme()) {
-                        onChangeStatusBarColor(R.color.sky_blue);
-                    } else {
-                        onChangeStatusBarColor(R.color.blue);
-                    }
-                    break;
             }
         }, 100);
     }
-
 
     @Override
     protected void onSaveInstanceState(@NonNull Bundle outState) {
@@ -123,6 +125,11 @@ public class MainScreen extends AppCompatActivity {
         outState.putString("current_fragment_tag", currentFragmentTag);
     }
 
+    /**
+     * Muestra un mensaje en un Toast.
+     *
+     * @param message el mensaje a mostrar
+     */
     private void showMessage(String message) {
         Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
     }
@@ -138,17 +145,32 @@ public class MainScreen extends AppCompatActivity {
         }
     }
 
+    /**
+     * Verifica si el tema oscuro está habilitado.
+     *
+     * @return true si el tema oscuro está habilitado, false en caso contrario
+     */
     private boolean isDarkTheme() {
         int nightModeFlags = getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
         return nightModeFlags == Configuration.UI_MODE_NIGHT_YES;
     }
 
+    /**
+     * Cambia el color de la barra de estado.
+     *
+     * @param color el color a aplicar
+     */
     private void onChangeStatusBarColor(int color) {
         Window window = this.getWindow();
         window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
         window.setStatusBarColor(ContextCompat.getColor(this, color));
     }
 
+    /**
+     * Crea un nuevo asistente con la configuración especificada.
+     *
+     * @param requestManager el administrador de solicitudes
+     */
     private void createAssistant(RequestManager requestManager) {
         Tool tool = new Tool();
         tool.type = "code_interpreter";

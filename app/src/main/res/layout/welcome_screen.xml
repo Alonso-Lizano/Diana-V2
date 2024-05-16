@@ -35,7 +35,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:fontFamily="@font/poppins_extrabold"
-            android:text="Meet Diana, get closer to the future"
+            android:text="@string/meet_diana"
             android:textAlignment="center"
             android:textColor="@color/white"
             android:textSize="30sp" />
@@ -47,7 +47,7 @@
             android:layout_gravity="center_horizontal"
             android:layout_marginTop="10dp"
             android:fontFamily="@font/poppins"
-            android:text="Diana is always ready to answer your questions"
+            android:text="@string/diana_ready"
             android:textAlignment="center"
             android:textColor="@color/white"
             android:textSize="12sp" />
@@ -58,7 +58,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
             android:fontFamily="@font/poppins"
-            android:text="¡Write your message to her and she will give you the answer you are looking for!"
+            android:text="@string/write_message"
             android:textAlignment="center"
             android:textColor="@color/white"
             android:textSize="12sp" />
@@ -109,7 +109,7 @@
             android:drawableEnd="@drawable/enter_icon"
             android:drawableTint="@color/icon_color"
             android:fontFamily="@font/poppins"
-            android:text="Get Started"
+            android:text="@string/get_started"
             android:textColor="@color/button_color"
             android:textSize="18sp"
             android:textStyle="bold"

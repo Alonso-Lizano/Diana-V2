@@ -33,6 +33,9 @@ import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
+/**
+ * Administrador de solicitudes para interactuar con la API.
+ */
 public class RequestManager {
 
     private Context context;
@@ -41,10 +44,21 @@ public class RequestManager {
             .addConverterFactory(GsonConverterFactory.create())
             .build();
 
+    /**
+     * Constructor para RequestManager.
+     *
+     * @param context el contexto en el cual el administrador de solicitudes está operando
+     */
     public RequestManager(Context context) {
         this.context = context;
     }
 
+    /**
+     * Genera una imagen utilizando una solicitud de imagen.
+     *
+     * @param imageRequest la solicitud de imagen
+     * @param imageResponse el callback para manejar la respuesta de la imagen
+     */
     public void generateImage(ImageRequest imageRequest, final IImageResponse imageResponse) {
         IHttpRequest request = retrofit.create(IHttpRequest.class);
         Call<ImageResponse> call = request.generateImage(context.getString(R.string.api_key), imageRequest);
@@ -65,7 +79,15 @@ public class RequestManager {
         });
     }
 
-    //Assistants
+    // Asistentes
+
+    /**
+     * Crea un asistente utilizando una solicitud de asistente.
+     *
+     * @param beta la versión beta de la API
+     * @param assistantRequest la solicitud de asistente
+     * @param assistantResponse el callback para manejar la respuesta del asistente
+     */
     public void createAssistant(String beta, AssistantRequest assistantRequest, final IAssistantResponse assistantResponse) {
         IHttpRequest request = retrofit.create(IHttpRequest.class);
         Call<AssistantResponse> call = request.createAssistant(context.getString(R.string.api_key),
@@ -87,6 +109,12 @@ public class RequestManager {
         });
     }
 
+    /**
+     * Obtiene una lista de asistentes.
+     *
+     * @param beta la versión beta de la API
+     * @param iListAssistantResponse el callback para manejar la respuesta de la lista de asistentes
+     */
     public void getListAssistant(String beta, IListAssistantResponse iListAssistantResponse) {
         IHttpRequest request = retrofit.create(IHttpRequest.class);
         Call<ListAssistantResponse> call = request.getListAssistant(context.getString(R.string.api_key),
@@ -108,6 +136,13 @@ public class RequestManager {
         });
     }
 
+    /**
+     * Crea un hilo utilizando una solicitud de hilo.
+     *
+     * @param beta la versión beta de la API
+     * @param threadRequest la solicitud de hilo
+     * @param iThreadResponse el callback para manejar la respuesta del hilo
+     */
     public void createThread(String beta, ThreadRequest threadRequest, final IThreadResponse iThreadResponse) {
         IHttpRequest request = retrofit.create(IHttpRequest.class);
         Call<ThreadResponse> call = request.createThread(context.getString(R.string.api_key),
@@ -129,6 +164,14 @@ public class RequestManager {
         });
     }
 
+    /**
+     * Crea un mensaje utilizando una solicitud de mensaje.
+     *
+     * @param beta la versión beta de la API
+     * @param threadId el ID del hilo
+     * @param message la solicitud de mensaje
+     * @param iMessageResponse el callback para manejar la respuesta del mensaje
+     */
     public void createMessage(String beta, String threadId, MessageRequest message,
                               final IMessageResponse iMessageResponse) {
         IHttpRequest request = retrofit.create(IHttpRequest.class);
@@ -151,7 +194,15 @@ public class RequestManager {
         });
     }
 
-    public void createRun (String beta, String threadId, RunRequest runRequest, final IRunResponse iRunResponse) {
+    /**
+     * Crea una ejecución utilizando una solicitud de ejecución.
+     *
+     * @param beta la versión beta de la API
+     * @param threadId el ID del hilo
+     * @param runRequest la solicitud de ejecución
+     * @param iRunResponse el callback para manejar la respuesta de la ejecución
+     */
+    public void createRun(String beta, String threadId, RunRequest runRequest, final IRunResponse iRunResponse) {
         IHttpRequest request = retrofit.create(IHttpRequest.class);
         Call<RunResponse> call = request.createRun(context.getString(R.string.api_key),
                 beta, threadId, runRequest);
@@ -172,7 +223,15 @@ public class RequestManager {
         });
     }
 
-    //TODO Status not available
+    // TODO: El estado no está disponible
+    /**
+     * Obtiene el estado de una ejecución.
+     *
+     * @param beta la versión beta de la API
+     * @param threadId el ID del hilo
+     * @param runId el ID de la ejecución
+     * @param iRunStatusResponse el callback para manejar la respuesta del estado de la ejecución
+     */
     public void getRunStatus(String beta, String threadId, String runId,
                              final IRunStatusResponse iRunStatusResponse) {
         IHttpRequest request = retrofit.create(IHttpRequest.class);
@@ -195,6 +254,13 @@ public class RequestManager {
         });
     }
 
+    /**
+     * Obtiene una lista de mensajes.
+     *
+     * @param beta la versión beta de la API
+     * @param threadId el ID del hilo
+     * @param iListMessageResponse el callback para manejar la respuesta de la lista de mensajes
+     */
     public void getListMessage(String beta, String threadId, final IListMessageResponse iListMessageResponse) {
         IHttpRequest request = retrofit.create(IHttpRequest.class);
         Call<ListMessageResponse> call = request.getListMessage(context.getString(R.string.api_key),

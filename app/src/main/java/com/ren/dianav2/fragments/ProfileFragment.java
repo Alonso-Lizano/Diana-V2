@@ -1,7 +1,6 @@
 package com.ren.dianav2.fragments;
 
 import android.app.AlertDialog;
-import android.net.Uri;
 import android.os.Bundle;
 
 import androidx.appcompat.app.AppCompatDelegate;
@@ -19,6 +18,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.ren.dianav2.R;
 import com.ren.dianav2.adapters.ProfileOptionAdapter;
+import com.ren.dianav2.helpers.LanguageHelper;
 import com.ren.dianav2.listener.IThemeHandler;
 import com.ren.dianav2.models.OptionItem;
 import com.squareup.picasso.Picasso;
@@ -27,18 +27,16 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * A simple {@link Fragment} subclass.
- * Use the {@link ProfileFragment#newInstance} factory method to
- * create an instance of this fragment.
+ * Un {@link Fragment} simple que muestra las opciones del perfil del usuario.
+ * Metodo de construcción {@link ProfileFragment#newInstance} para crear una instancia de este fragmento.
  */
 public class ProfileFragment extends Fragment implements IThemeHandler {
 
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
+    // parámetros de inicialización del fragmento, p. ej., ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
 
-    // TODO: Rename and change types of parameters
+    // TODO: Renombrar y cambiar tipos de parámetros
     private String mParam1;
     private String mParam2;
     private RecyclerView recyclerView;
@@ -50,18 +48,17 @@ public class ProfileFragment extends Fragment implements IThemeHandler {
     private FirebaseUser currentUser;
 
     public ProfileFragment() {
-        // Required empty public constructor
+        // Constructor público requerido
     }
 
     /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
+     * Metodo de construcción para crear una nueva instancia de
+     * este fragmento utilizando los parámetros proporcionados.
      *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment ProfileFragment.
+     * @param param1 Parámetro 1.
+     * @param param2 Parámetro 2.
+     * @return Una nueva instancia del fragmento ProfileFragment.
      */
-    // TODO: Rename and change types and number of parameters
     public static ProfileFragment newInstance(String param1, String param2) {
         ProfileFragment fragment = new ProfileFragment();
         Bundle args = new Bundle();
@@ -85,7 +82,7 @@ public class ProfileFragment extends Fragment implements IThemeHandler {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
+        // Infla el diseño para este fragmento
         View view = inflater.inflate(R.layout.fragment_profile, container, false);
         recyclerView = view.findViewById(R.id.rv_option);
         ivProfile = view.findViewById(R.id.iv_profile);
@@ -108,31 +105,42 @@ public class ProfileFragment extends Fragment implements IThemeHandler {
         return view;
     }
 
+    /**
+     * Agrega datos a la lista de opciones del perfil.
+     */
     private void addDataToList() {
         optionItems = new ArrayList<>();
-
-        optionItems.add(new OptionItem("Edit photo", R.drawable.round_arrow_forward_ios_24));
-        optionItems.add(new OptionItem("Font size", R.drawable.round_arrow_forward_ios_24));
-        optionItems.add(new OptionItem("Theme", R.drawable.round_arrow_forward_ios_24));
-        optionItems.add(new OptionItem("Notification", R.drawable.round_arrow_forward_ios_24));
-        optionItems.add(new OptionItem("Privacy", R.drawable.round_arrow_forward_ios_24));
-        optionItems.add(new OptionItem("Add account", R.drawable.round_arrow_forward_ios_24));
-        optionItems.add(new OptionItem("Logout", R.drawable.round_arrow_forward_ios_24));
+        optionItems.add(new OptionItem(getString(R.string.edit_photo), R.drawable.round_arrow_forward_ios_24));
+        optionItems.add(new OptionItem(getString(R.string.font_size), R.drawable.round_arrow_forward_ios_24));
+        optionItems.add(new OptionItem(getString(R.string.theme), R.drawable.round_arrow_forward_ios_24));
+        optionItems.add(new OptionItem(getString(R.string.notification), R.drawable.round_arrow_forward_ios_24));
+        optionItems.add(new OptionItem(getString(R.string.language_change), R.drawable.round_arrow_forward_ios_24)); // Aquí está la nueva opción
+        optionItems.add(new OptionItem(getString(R.string.privacy), R.drawable.round_arrow_forward_ios_24));
+        optionItems.add(new OptionItem(getString(R.string.add_account), R.drawable.round_arrow_forward_ios_24));
+        optionItems.add(new OptionItem(getString(R.string.logout), R.drawable.round_arrow_forward_ios_24));
     }
 
+
+    /**
+     * Muestra un cuadro de diálogo para seleccionar el tema de la aplicación.
+     */
     @Override
     public void chooseTheme() {
         AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
-        builder.setTitle("Select theme")
-                .setItems(new CharSequence[]{"System", "Light Mode", "Dark Mode"}, (dialog, which) -> {
+        builder.setTitle(getString(R.string.select_theme))
+                .setItems(new CharSequence[]{
+                        getString(R.string.system),
+                        getString(R.string.light_mode),
+                        getString(R.string.dark_mode)
+                }, (dialog, which) -> {
                     switch (which) {
                         case 0: // System
                             AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM);
                             break;
-                        case 1: // Dark Mode
+                        case 1: // Light Mode
                             AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
                             break;
-                        case 2: // Light Mode
+                        case 2: // Dark Mode
                             AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
                             break;
                     }
@@ -140,5 +148,34 @@ public class ProfileFragment extends Fragment implements IThemeHandler {
                     dialog.dismiss();
                 });
         builder.create().show();
+    }
+
+    /**
+     * Muestra un cuadro de diálogo para seleccionar el idioma de la aplicación.
+     */
+    private void chooseLanguage() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+        builder.setTitle(getString(R.string.select_language))
+                .setItems(new CharSequence[]{
+                        getString(R.string.language_english),
+                        getString(R.string.language_spanish)
+                }, (dialog, which) -> {
+                    switch (which) {
+                        case 0: // English
+                            LanguageHelper.changeLanguage(getContext(), "en");
+                            break;
+                        case 1: // Spanish
+                            LanguageHelper.changeLanguage(getContext(), "es");
+                            break;
+                    }
+                    getActivity().recreate();
+                    dialog.dismiss();
+                });
+        builder.create().show();
+    }
+
+    // Llama a chooseLanguage() cuando el usuario selecciona la opción de cambio de idioma.
+    private void onLanguageOptionSelected() {
+        chooseLanguage();
     }
 }
