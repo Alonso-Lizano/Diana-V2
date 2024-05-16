@@ -1,6 +1,7 @@
 <resources>
     <string name="app_name">Diana V2</string>
-    <string name="api_key">Bearer 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</string>
+    <string name="api_key">Bearer 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</string>
+    <string name="Old_api_key">Bearer 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</string>
 
     <string name="default_web_client_id">149208891133-a62mmn30v8ec0pc8e55ies151031s54c.apps.googleusercontent.com</string>
 
