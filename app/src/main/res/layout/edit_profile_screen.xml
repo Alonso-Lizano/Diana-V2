@@ -22,7 +22,7 @@
         android:id="@+id/tv_title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Edit Profile"
+        android:text="Edit Photo"
         android:fontFamily="@font/poppins_extrabold"
         android:textSize="30sp"
         app:layout_constraintStart_toEndOf="@id/ib_back"
