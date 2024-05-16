@@ -86,9 +86,6 @@ public class EditProfileScreen extends AppCompatActivity {
     //---------------------------- INIT PERMISSIONS ----------------------------------//
 
     private final ICameraImagePermissionHandler cameraImagePermissionHandler = () -> {
-        if (!isStorageImagePermitted) {
-            requestStorageImagePermission();
-        }
         if (isCameraPermitted) {
             openCamera();
         } else {
