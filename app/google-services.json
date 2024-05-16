@@ -14,6 +14,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "149208891133-5fbhtjm8sgajfi86aeq3ieaf6i9f3ehq.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.ren.dianav2",
+            "certificate_hash": "ff3ea23387bed58d20d894fa189009f5dc257d55"
+          }
+        },
+        {
           "client_id": "149208891133-a62mmn30v8ec0pc8e55ies151031s54c.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
