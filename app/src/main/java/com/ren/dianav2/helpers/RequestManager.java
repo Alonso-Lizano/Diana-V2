@@ -20,13 +20,19 @@ import com.ren.dianav2.listener.IImageResponse;
 import com.ren.dianav2.listener.IListAssistantResponse;
 import com.ren.dianav2.listener.IListMessageResponse;
 import com.ren.dianav2.listener.IMessageResponse;
+import com.ren.dianav2.listener.IResponseBody;
 import com.ren.dianav2.listener.IRunResponse;
 import com.ren.dianav2.listener.IRunStatusResponse;
+import com.ren.dianav2.listener.ITextResponse;
 import com.ren.dianav2.listener.IThreadResponse;
 import com.ren.dianav2.models.Message;
 import com.ren.dianav2.models.request.images.ImageRequest;
 import com.ren.dianav2.models.response.images.ImageResponse;
+import com.ren.dianav2.models.speech.SpeechRequest;
+import com.ren.dianav2.models.text.TextRequest;
+import com.ren.dianav2.models.text.TextResponse;
 
+import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -41,6 +47,11 @@ public class RequestManager {
     private Context context;
     private Retrofit retrofit = new Retrofit.Builder()
             .baseUrl("https://api.openai.com/v1/")
+            .addConverterFactory(GsonConverterFactory.create())
+            .build();
+
+    private Retrofit elevenLabs = new Retrofit.Builder()
+            .baseUrl("https://api.elevenlabs.io/v1/")
             .addConverterFactory(GsonConverterFactory.create())
             .build();
 
@@ -278,6 +289,46 @@ public class RequestManager {
             @Override
             public void onFailure(Call<ListMessageResponse> call, Throwable throwable) {
                 iListMessageResponse.didError(throwable.getMessage());
+            }
+        });
+    }
+
+    public void sendMessage(TextRequest textRequest, final ITextResponse iChatResponse) {
+        IHttpRequest request = retrofit.create(IHttpRequest.class);
+        Call<TextResponse> call = request.generateMessage(context.getString(R.string.api_key), textRequest);
+        call.enqueue(new Callback<TextResponse>() {
+            @Override
+            public void onResponse(Call<TextResponse> call, Response<TextResponse> response) {
+                if (!response.isSuccessful()) {
+                    iChatResponse.didError(response.message());
+                    return;
+                }
+                iChatResponse.didFetch(response.body(), response.message());
+            }
+
+            @Override
+            public void onFailure(Call<TextResponse> call, Throwable throwable) {
+                iChatResponse.didError(throwable.getMessage());
+            }
+        });
+    }
+
+    public void generateSpeech(SpeechRequest speechRequest, final IResponseBody iResponseBody) {
+        IHttpRequest request = elevenLabs.create(IHttpRequest.class);
+        Call<ResponseBody> call = request.generateSpeech(speechRequest);
+        call.enqueue(new Callback<ResponseBody>() {
+            @Override
+            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                if (!response.isSuccessful()) {
+                    iResponseBody.didError(response.message());
+                    return;
+                }
+                iResponseBody.didFetch(response.body(), response.message());
+            }
+
+            @Override
+            public void onFailure(Call<ResponseBody> call, Throwable throwable) {
+                iResponseBody.didError(throwable.getMessage());
             }
         });
     }

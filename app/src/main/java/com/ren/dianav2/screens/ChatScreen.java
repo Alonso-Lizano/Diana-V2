@@ -8,6 +8,7 @@ import android.graphics.drawable.ColorDrawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.speech.RecognizerIntent;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
@@ -25,6 +26,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 import androidx.core.graphics.Insets;
@@ -54,11 +56,12 @@ import com.ren.dianav2.listener.IMessageResponse;
 import com.ren.dianav2.listener.IRunResponse;
 import com.ren.dianav2.listener.IRunStatusResponse;
 import com.ren.dianav2.listener.IThreadResponse;
-import com.ren.dianav2.models.Message;
+import com.ren.dianav2.models.text.Message;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
@@ -155,6 +158,8 @@ public class ChatScreen extends AppCompatActivity {
 
         requestManager = new RequestManager(this);
 
+        microphoneBtn.setOnClickListener(v -> sendVoiceToText());
+
         idAssistant = getIntent().getStringExtra("id");
         // Visibilidad del botón
         sendButton.setVisibility(View.GONE);
@@ -207,7 +212,7 @@ public class ChatScreen extends AppCompatActivity {
     private void onClickMicButton(ImageButton button) {
         button.setOnClickListener(v -> {
             Intent intent = new Intent(this, VoiceChatScreen.class);
-            startActivity(intent);
+            startActivityForResult(intent, 20);
         });
     }
 
@@ -278,7 +283,7 @@ public class ChatScreen extends AppCompatActivity {
             }
         });
     }
-    
+
 
     /**
      * Configura el evento de cambio de texto en el campo de edición de mensajes.
@@ -375,6 +380,10 @@ public class ChatScreen extends AppCompatActivity {
         if (!question.isEmpty()) {
             MessageRequest messageRequest = new MessageRequest("user", question);
             messages.add(messageRequest);
+
+            MessageRequest typingMessage = new MessageRequest(Message.TYPE_TYPING, "typing...");
+            messages.add(typingMessage);
+
             welcomeText.setVisibility(View.GONE);
             messageAdapter.notifyItemInserted(messages.size() - 1);
             rvTextChat.getRecycledViewPool().clear();
@@ -459,6 +468,7 @@ public class ChatScreen extends AppCompatActivity {
                     .filter(assistantMessage -> assistantMessage.role.equals("assistant"))
                     .collect(Collectors.toList());
             MessageRequest assistantMessageRequest = new MessageRequest("assistant", message.get(0).content.get(0).text.value);
+            removeTypingMessage();
             messages.add(assistantMessageRequest);
             messageAdapter.notifyItemInserted(messages.size() - 1);
             rvTextChat.smoothScrollToPosition(messages.size() - 1);
@@ -470,4 +480,68 @@ public class ChatScreen extends AppCompatActivity {
             showMessage("Error with list message: " + msg);
         }
     };
+
+    private void sendVoiceToText() {
+        Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
+        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
+        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, Locale.getDefault());
+        intent.putExtra(RecognizerIntent.EXTRA_PROMPT, "Tap to stop recording");
+
+        try {
+            startActivityForResult(intent, 10);
+        } catch (Exception e) {
+            showMessage(e.getMessage());
+        }
+    }
+
+    private void removeTypingMessage() {
+        for (int i = messages.size() - 1; i >= 0; i--) {
+            if (Objects.equals(messages.get(i).role, Message.TYPE_TYPING)) {
+                messages.remove(i);
+                messageAdapter.notifyItemRemoved(i);
+                break;
+            }
+        }
+    }
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        switch (requestCode) {
+            case 10: {
+                if (resultCode == RESULT_OK && null != data) {
+                    List<String> result = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
+                    messageEditText.setText(result.get(0));
+                }
+                break;
+            }
+            case 20: {
+                if (resultCode == RESULT_OK && data != null) {
+                    ArrayList<String> messages2 = data.getStringArrayListExtra("messages");
+                    String sender = data.getStringExtra("sender");
+                    int i = 1;
+                    if (messages2 != null && !messages2.isEmpty()) {
+                        for(String message : messages2){
+                            if(i%2 != 0){
+                                sender = "user";
+                            } else {
+                                sender = "AI";
+                            }
+                            MessageRequest messageRequest = new MessageRequest(sender, message);
+                            addMessage(messageRequest);
+                            i++;
+                        }
+                    }
+                }
+                break;
+            }
+        }
+    }
+
+    private void addMessage(MessageRequest message){
+        messages.add(message);
+        welcomeText.setVisibility(View.GONE);
+        messageAdapter.notifyItemInserted(messages.size() - 1);
+        rvTextChat.smoothScrollToPosition(messages.size() - 1);
+        messageAdapter.notifyDataSetChanged();
+    }
 }
