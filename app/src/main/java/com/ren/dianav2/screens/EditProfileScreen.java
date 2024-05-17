@@ -94,11 +94,11 @@ public class EditProfileScreen extends AppCompatActivity {
         takePhotoButton = findViewById(R.id.button_take_photo);
         uploadPhotoButton = findViewById(R.id.button_upload_photo);
         ivProfile = findViewById(R.id.iv_profile);
-        backButton = findViewById(R.id.ib_back);
+
 
         onClickTakePhoto(takePhotoButton);
         onClickUploadPhoto(uploadPhotoButton);
-        onClickBackButton(backButton);
+        //onClickBackButton(backButton);
     }
 
     /**
@@ -125,9 +125,9 @@ public class EditProfileScreen extends AppCompatActivity {
      *
      * @param button el botón de retroceso
      */
-    private void onClickBackButton(ImageButton button) {
+   /* private void onClickBackButton(ImageButton button) {
         button.setOnClickListener(v -> finish());
-    }
+    }*/
 
     //---------------------------- INICIO PERMISOS ----------------------------------//
 

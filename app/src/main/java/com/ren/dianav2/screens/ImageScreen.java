@@ -50,12 +50,12 @@ public class ImageScreen extends AppCompatActivity {
             return insets;
         });
 
-        ibBack = findViewById(R.id.ib_back);
+
         ibDownload = findViewById(R.id.ib_download);
 
         replaceFragment(new ImageFragment());
         onClickDownloadButton(ibDownload);
-        onClickBackButton(ibBack);
+
     }
 
     /**
@@ -129,9 +129,7 @@ public class ImageScreen extends AppCompatActivity {
      *
      * @param button el botón de retroceso
      */
-    private void onClickBackButton(ImageButton button) {
-        button.setOnClickListener(v -> finish());
-    }
+
 
     /**
      * Reemplaza el fragmento actual con un nuevo fragmento.
