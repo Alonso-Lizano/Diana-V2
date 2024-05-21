@@ -26,6 +26,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
@@ -35,11 +36,16 @@ import androidx.core.view.WindowInsetsCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FirebaseFirestore;
 import com.ren.dianav2.R;
 import com.ren.dianav2.adapters.MessageAdapter;
 import com.ren.dianav2.adapters.ReinforcedMessageAdapter;
+import com.ren.dianav2.assistants.models.Conversation;
 import com.ren.dianav2.assistants.models.request.MessageRequest;
 import com.ren.dianav2.assistants.models.request.RunRequest;
 import com.ren.dianav2.assistants.models.request.ThreadRequest;
@@ -134,6 +140,7 @@ public class ChatScreen extends AppCompatActivity {
     private Dialog changeNameDialog;
     private FirebaseAuth mAuth;
     private FirebaseUser currentUser;
+    private FirebaseFirestore db;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -153,6 +160,7 @@ public class ChatScreen extends AppCompatActivity {
 
         mAuth = FirebaseAuth.getInstance();
         currentUser = mAuth.getCurrentUser();
+        db = FirebaseFirestore.getInstance();
 
         messages = new ArrayList<>();
 
@@ -408,6 +416,10 @@ public class ChatScreen extends AppCompatActivity {
             idThread = threadResponse.id;
             Log.d("CHAT SCREEN", "Response Thread id: " + idThread);
             showMessage("Thread created with ID: " + idThread);
+
+            Conversation conversation = new Conversation(idThread, currentUser.getUid());
+            saveConversation(conversation);
+
         }
 
         @Override
@@ -543,5 +555,12 @@ public class ChatScreen extends AppCompatActivity {
         messageAdapter.notifyItemInserted(messages.size() - 1);
         rvTextChat.smoothScrollToPosition(messages.size() - 1);
         messageAdapter.notifyDataSetChanged();
+    }
+
+    private void saveConversation(Conversation conversation) {
+        db.collection("conversation")
+                .add(conversation)
+                .addOnSuccessListener(aVoid -> Log.d("CHAT SCREEN", "ConversationThread added to Firestore"))
+                .addOnFailureListener(e -> Log.e("CHAT SCREEN", "Error adding ConversationThread to Firestore", e));
     }
 }

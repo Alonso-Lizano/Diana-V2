@@ -90,6 +90,7 @@ public class LoginScreen extends AppCompatActivity {
 
         // Inicializar Facebook Sign-In
         callbackManager = CallbackManager.Factory.create();
+
         AppEventsLogger.activateApp(this.getApplication());
         changeBottomNavigationBar();
 
@@ -198,16 +199,13 @@ public class LoginScreen extends AppCompatActivity {
     private void firebaseAuthWithGoogle(String idToken) {
         AuthCredential credential = GoogleAuthProvider.getCredential(idToken, null);
         mAuth.signInWithCredential(credential)
-                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
-                    @Override
-                    public void onComplete(@NonNull Task<AuthResult> task) {
-                        if (task.isSuccessful()) {
-                            Log.d(GOOGLE_TAG, "signInWithCredential:success");
-                            currentUser = mAuth.getCurrentUser();
-                            updateUI(currentUser);
-                        } else {
-                            Log.w(GOOGLE_TAG, "signInWithCredential:failure", task.getException());
-                        }
+                .addOnCompleteListener(this, task -> {
+                    if (task.isSuccessful()) {
+                        Log.d(GOOGLE_TAG, "signInWithCredential:success");
+                        currentUser = mAuth.getCurrentUser();
+                        updateUI(currentUser);
+                    } else {
+                        Log.w(GOOGLE_TAG, "signInWithCredential:failure", task.getException());
                     }
                 });
     }
@@ -221,18 +219,15 @@ public class LoginScreen extends AppCompatActivity {
     }
 
     private final ActivityResultLauncher<Intent> activityResultLauncher = registerForActivityResult(
-            new ActivityResultContracts.StartActivityForResult(), new ActivityResultCallback<ActivityResult>() {
-                @Override
-                public void onActivityResult(ActivityResult o) {
-                    if (o.getResultCode() == RESULT_OK) {
-                        Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(o.getData());
-                        try {
-                            GoogleSignInAccount account = task.getResult(ApiException.class);
-                            Log.d(GOOGLE_TAG, "firebaseAuthWithGoogle:" + account.getId());
-                            firebaseAuthWithGoogle(account.getIdToken());
-                        } catch (ApiException e) {
-                            Log.w(GOOGLE_TAG, "Google sign in failed", e);
-                        }
+            new ActivityResultContracts.StartActivityForResult(), o -> {
+                if (o.getResultCode() == RESULT_OK) {
+                    Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(o.getData());
+                    try {
+                        GoogleSignInAccount account = task.getResult(ApiException.class);
+                        Log.d(GOOGLE_TAG, "firebaseAuthWithGoogle:" + account.getId());
+                        firebaseAuthWithGoogle(account.getIdToken());
+                    } catch (ApiException e) {
+                        Log.w(GOOGLE_TAG, "Google sign in failed", e);
                     }
                 }
             }

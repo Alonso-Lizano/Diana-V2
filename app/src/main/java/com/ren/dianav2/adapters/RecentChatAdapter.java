@@ -11,6 +11,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.ren.dianav2.R;
+import com.ren.dianav2.assistants.models.Conversation;
 import com.ren.dianav2.models.ChatItem;
 
 import java.util.List;
@@ -21,7 +22,7 @@ import java.util.List;
 public class RecentChatAdapter extends RecyclerView.Adapter<RecentChatViewHolder> {
 
     private Context context;
-    private List<ChatItem> items;
+    private List<Conversation> items;
 
     /**
      * Constructor para RecentChatAdapter.
@@ -29,7 +30,7 @@ public class RecentChatAdapter extends RecyclerView.Adapter<RecentChatViewHolder
      * @param context el contexto en el cual el adaptador está operando
      * @param items la lista de elementos de chat a mostrar
      */
-    public RecentChatAdapter(Context context, List<ChatItem> items) {
+    public RecentChatAdapter(Context context, List<Conversation> items) {
         this.context = context;
         this.items = items;
     }
@@ -57,8 +58,8 @@ public class RecentChatAdapter extends RecyclerView.Adapter<RecentChatViewHolder
      */
     @Override
     public void onBindViewHolder(@NonNull RecentChatViewHolder holder, int position) {
-        holder.getIvChat().setImageResource(items.get(position).getIvIcon());
-        holder.getTvTitle().setText(items.get(position).getTitle());
+        //holder.getIvChat().setImageResource(items.get(position).getIvIcon());
+        holder.getTvTitle().setText(items.get(position).getId());
     }
 
     /**

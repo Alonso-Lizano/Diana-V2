@@ -39,6 +39,7 @@ dependencies {
             "include" to listOf("*.aar", "*.jar"),
             "exclude" to listOf<String>()
     )))
+    implementation(libs.firebase.firestore)
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)

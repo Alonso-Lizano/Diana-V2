@@ -106,10 +106,10 @@ public class ChatFragment extends Fragment {
         recyclerViewSaved.setLayoutManager(new LinearLayoutManager(getContext(),
                 LinearLayoutManager.VERTICAL, false));
 
-        addDataToList();
+        //addDataToList();
 
-        recentChatAdapter = new RecentChatAdapter(getContext(), chatItems);
-        recyclerViewChat.setAdapter(recentChatAdapter);
+        //recentChatAdapter = new RecentChatAdapter(getContext(), chatItems);
+        //recyclerViewChat.setAdapter(recentChatAdapter);
 
         savedChatAdapter = new SavedChatAdapter(getContext(), savedChatItems);
         recyclerViewSaved.setAdapter(savedChatAdapter);

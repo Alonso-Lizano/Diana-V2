@@ -16,6 +16,7 @@ picasso = "2.71828"
 playServicesAuth = "21.1.1"
 retrofit = "2.11.0"
 googleGmsGoogleServices = "4.4.1"
+firebaseFirestore = "25.0.0"
 
 [libraries]
 animatoo = { module = "com.github.AtifSayings:Animatoo", version.ref = "animatoo" }
@@ -35,6 +36,7 @@ constraintlayout = { group = "androidx.constraintlayout", name = "constraintlayo
 picasso = { module = "com.squareup.picasso:picasso", version.ref = "picasso" }
 play-services-auth = { module = "com.google.android.gms:play-services-auth", version.ref = "playServicesAuth" }
 retrofit = { module = "com.squareup.retrofit2:retrofit", version.ref = "retrofit" }
+firebase-firestore = { group = "com.google.firebase", name = "firebase-firestore", version.ref = "firebaseFirestore" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

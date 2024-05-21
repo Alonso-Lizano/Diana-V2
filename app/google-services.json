@@ -14,35 +14,19 @@
       },
       "oauth_client": [
         {
+          "client_id": "149208891133-3ndl9ctfol2fgh40dl5pf3c91q8c5s0l.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.ren.dianav2",
+            "certificate_hash": "258ebfd51e185a57ac647d8c61311363acb0eaa3"
+          }
+        },
+        {
           "client_id": "149208891133-5fbhtjm8sgajfi86aeq3ieaf6i9f3ehq.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
             "package_name": "com.ren.dianav2",
             "certificate_hash": "ff3ea23387bed58d20d894fa189009f5dc257d55"
-          }
-        },
-        {
-          "client_id": "149208891133-a62mmn30v8ec0pc8e55ies151031s54c.apps.googleusercontent.com",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "com.ren.dianav2",
-            "certificate_hash": "df2abfed92f9ddf8b0f973142bce74c7650e5f27"
-          }
-        },
-        {
-          "client_id": "149208891133-gkeojt7kec1mqkopr8e5go5sufol3k1q.apps.googleusercontent.com",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "com.ren.dianav2",
-            "certificate_hash": "67010a80173f4789699d2141b7819bba396b4cda"
-          }
-        },
-        {
-          "client_id": "149208891133-sbrdor703gair1nmk2g2v53umtok0rda.apps.googleusercontent.com",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "com.ren.dianav2",
-            "certificate_hash": "caeb58254831804eb48ee1f4a8d56a5aa20d24a8"
           }
         },
         {

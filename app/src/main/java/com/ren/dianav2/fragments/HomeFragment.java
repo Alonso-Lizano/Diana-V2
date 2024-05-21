@@ -4,11 +4,13 @@ import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,11 +20,17 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.ren.dianav2.R;
 import com.ren.dianav2.adapters.ExplorerAdapter;
 import com.ren.dianav2.adapters.RecentChatAdapter;
+import com.ren.dianav2.assistants.models.Conversation;
 import com.ren.dianav2.assistants.models.response.AssistantData;
 import com.ren.dianav2.assistants.models.response.ListAssistantResponse;
 import com.ren.dianav2.helpers.RequestManager;
@@ -62,6 +70,7 @@ public class HomeFragment extends Fragment {
     private ImageView ivProfile;
     private FirebaseAuth mAuth;
     private FirebaseUser currentUser;
+    private FirebaseFirestore db;
 
     public HomeFragment() {
         // Constructor público requerido
@@ -94,6 +103,7 @@ public class HomeFragment extends Fragment {
         }
         mAuth = FirebaseAuth.getInstance();
         currentUser = mAuth.getCurrentUser();
+        db = FirebaseFirestore.getInstance();
     }
 
     @Override
@@ -112,17 +122,13 @@ public class HomeFragment extends Fragment {
         recyclerViewItem.setLayoutManager(new LinearLayoutManager(getContext(),
                 LinearLayoutManager.HORIZONTAL, false));
 
-        recyclerViewChat.setHasFixedSize(true);
-        recyclerViewChat.setLayoutManager(new LinearLayoutManager(getContext(),
-                LinearLayoutManager.VERTICAL, false));
 
         addDataToList();
 
         exploreAdapter = new ExplorerAdapter(getContext(), items, dataList, listener);
         recyclerViewItem.setAdapter(exploreAdapter);
 
-        recentChatAdapter = new RecentChatAdapter(getContext(), chatItems);
-        recyclerViewChat.setAdapter(recentChatAdapter);
+        loadConversation();
 
         if (currentUser != null) {
             String username = currentUser.getDisplayName();
@@ -149,9 +155,9 @@ public class HomeFragment extends Fragment {
 
         requestManager.getListAssistant("assistants=v2", iListAssistantResponse);
 
-        chatItems.add(new ChatItem(R.drawable.round_chat_24, getString(R.string.java_code_explanation)));
+        /*chatItems.add(new ChatItem(R.drawable.round_chat_24, getString(R.string.java_code_explanation)));
         chatItems.add(new ChatItem(R.drawable.round_chat_24, getString(R.string.math_exercises_resolution)));
-        chatItems.add(new ChatItem(R.drawable.round_chat_24, getString(R.string.use_your_brain_example)));
+        chatItems.add(new ChatItem(R.drawable.round_chat_24, getString(R.string.use_your_brain_example)));*/
     }
 
     private final IListAssistantResponse iListAssistantResponse = new IListAssistantResponse() {
@@ -174,6 +180,25 @@ public class HomeFragment extends Fragment {
         intent.putExtra("id", id);
         startActivity(intent);
     };
+
+    private void loadConversation() {
+        db.collection("conversation")
+                .whereEqualTo("userId", currentUser.getUid())
+                .get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    List<Conversation> conversations = new ArrayList<>();
+                    for (QueryDocumentSnapshot snapshot : queryDocumentSnapshots) {
+                        Conversation conversation = snapshot.toObject(Conversation.class);
+                        conversations.add(conversation);
+                    }
+                    recyclerViewChat.setHasFixedSize(true);
+                    recyclerViewChat.setLayoutManager(new LinearLayoutManager(getContext(),
+                            LinearLayoutManager.VERTICAL, false));
+                    recentChatAdapter = new RecentChatAdapter(getContext(), conversations);
+                    recyclerViewChat.setAdapter(recentChatAdapter);
+                })
+                .addOnFailureListener(e -> Log.d("HOME FRAGMENT", "conversation:onError", e));
+    }
 
     private void showMessage(String msg) {
         Toast.makeText(getContext(), msg, Toast.LENGTH_SHORT).show();
