@@ -60,6 +60,7 @@ public class RecentChatAdapter extends RecyclerView.Adapter<RecentChatViewHolder
     public void onBindViewHolder(@NonNull RecentChatViewHolder holder, int position) {
         //holder.getIvChat().setImageResource(items.get(position).getIvIcon());
         holder.getTvTitle().setText(items.get(position).getId());
+
     }
 
     /**

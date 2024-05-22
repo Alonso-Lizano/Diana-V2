@@ -17,22 +17,16 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -40,21 +34,19 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.ren.dianav2.R;
-import com.ren.dianav2.adapters.MessageAdapter;
 import com.ren.dianav2.adapters.ReinforcedMessageAdapter;
 import com.ren.dianav2.assistants.models.Conversation;
 import com.ren.dianav2.assistants.models.request.MessageRequest;
 import com.ren.dianav2.assistants.models.request.RunRequest;
 import com.ren.dianav2.assistants.models.request.ThreadRequest;
-import com.ren.dianav2.assistants.models.response.Content;
 import com.ren.dianav2.assistants.models.response.ListMessageResponse;
 import com.ren.dianav2.assistants.models.response.MessageResponse;
 import com.ren.dianav2.assistants.models.response.RunResponse;
 import com.ren.dianav2.assistants.models.response.RunStatusResponse;
-import com.ren.dianav2.assistants.models.response.Text;
 import com.ren.dianav2.assistants.models.response.ThreadResponse;
 import com.ren.dianav2.helpers.RequestManager;
 import com.ren.dianav2.listener.IListMessageResponse;
@@ -62,59 +54,10 @@ import com.ren.dianav2.listener.IMessageResponse;
 import com.ren.dianav2.listener.IRunResponse;
 import com.ren.dianav2.listener.IRunStatusResponse;
 import com.ren.dianav2.listener.IThreadResponse;
-import com.ren.dianav2.models.text.Message;
-import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
-import java.util.Objects;
-import java.util.stream.Collectors;
-
-import android.app.Dialog;
-import android.content.Intent;
-import android.content.res.Configuration;
-import android.graphics.Color;
-import android.graphics.drawable.ColorDrawable;
-import android.os.Build;
-import android.os.Bundle;
-import android.os.Handler;
-import android.util.Log;
-import android.view.Gravity;
-import android.view.View;
-import android.view.Window;
-import android.view.WindowManager;
-import android.widget.EditText;
-import android.widget.ImageButton;
-import android.widget.LinearLayout;
-import android.widget.TextView;
-import android.widget.Toast;
-
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.content.ContextCompat;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
-import com.ren.dianav2.R;
-import com.ren.dianav2.adapters.ReinforcedMessageAdapter;
-import com.ren.dianav2.assistants.models.request.MessageRequest;
-import com.ren.dianav2.assistants.models.request.RunRequest;
-import com.ren.dianav2.assistants.models.request.ThreadRequest;
-import com.ren.dianav2.assistants.models.response.MessageResponse;
-import com.ren.dianav2.assistants.models.response.RunResponse;
-import com.ren.dianav2.assistants.models.response.RunStatusResponse;
-import com.ren.dianav2.assistants.models.response.ThreadResponse;
-import com.ren.dianav2.helpers.RequestManager;
-import com.ren.dianav2.listener.IMessageResponse;
-import com.ren.dianav2.listener.IRunResponse;
-import com.ren.dianav2.listener.IRunStatusResponse;
-import com.ren.dianav2.listener.IListMessageResponse;
-import com.ren.dianav2.listener.IThreadResponse;
-
-import java.util.ArrayList;
-import java.util.List;
 import java.util.stream.Collectors;
 
 /**
@@ -180,9 +123,7 @@ public class ChatScreen extends AppCompatActivity {
         linearLayoutManager.setStackFromEnd(true);
         rvTextChat.setLayoutManager(linearLayoutManager);
 
-        // Inicializar la solicitud de hilo
-        ThreadRequest threadRequest = new ThreadRequest();
-        requestManager.createThread("assistants=v2", threadRequest, iThreadResponse);
+        checkIfThreadExists();
 
         onClickBackButton(ibBack);
         onEditTextChange(messageEditText);
@@ -194,6 +135,7 @@ public class ChatScreen extends AppCompatActivity {
     }
 
     //---------------------------- INICIO ONCLICK ----------------------------------//
+
     /**
      * Configura el evento de clic para el botón de retroceso.
      *
@@ -386,17 +328,19 @@ public class ChatScreen extends AppCompatActivity {
     private void sendMessage() {
         String question = messageEditText.getText().toString().trim();
         if (!question.isEmpty()) {
+
             MessageRequest messageRequest = new MessageRequest("user", question);
             messages.add(messageRequest);
 
-            MessageRequest typingMessage = new MessageRequest(Message.TYPE_TYPING, "typing...");
-            messages.add(typingMessage);
+            /*MessageRequest typingMessage = new MessageRequest(Message.TYPE_TYPING, "typing...");
+            messages.add(typingMessage);*/
 
             welcomeText.setVisibility(View.GONE);
             messageAdapter.notifyItemInserted(messages.size() - 1);
             rvTextChat.getRecycledViewPool().clear();
             rvTextChat.smoothScrollToPosition(messages.size() - 1);
             requestManager.createMessage("assistants=v2", idThread, messageRequest, iMessageResponse);
+
             messageEditText.setText("");
         }
     }
@@ -416,9 +360,6 @@ public class ChatScreen extends AppCompatActivity {
             idThread = threadResponse.id;
             Log.d("CHAT SCREEN", "Response Thread id: " + idThread);
             showMessage("Thread created with ID: " + idThread);
-
-            Conversation conversation = new Conversation(idThread, currentUser.getUid());
-            saveConversation(conversation);
 
         }
 
@@ -480,10 +421,13 @@ public class ChatScreen extends AppCompatActivity {
                     .filter(assistantMessage -> assistantMessage.role.equals("assistant"))
                     .collect(Collectors.toList());
             MessageRequest assistantMessageRequest = new MessageRequest("assistant", message.get(0).content.get(0).text.value);
-            removeTypingMessage();
             messages.add(assistantMessageRequest);
             messageAdapter.notifyItemInserted(messages.size() - 1);
             rvTextChat.smoothScrollToPosition(messages.size() - 1);
+
+            Conversation conversation = new Conversation(idThread, currentUser.getUid(), messages);
+            saveConversation(conversation);
+
             Log.d("CHAT SCREEN", "Assistant message: " + message);
         }
 
@@ -506,15 +450,6 @@ public class ChatScreen extends AppCompatActivity {
         }
     }
 
-    private void removeTypingMessage() {
-        for (int i = messages.size() - 1; i >= 0; i--) {
-            if (Objects.equals(messages.get(i).role, Message.TYPE_TYPING)) {
-                messages.remove(i);
-                messageAdapter.notifyItemRemoved(i);
-                break;
-            }
-        }
-    }
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -532,8 +467,8 @@ public class ChatScreen extends AppCompatActivity {
                     String sender = data.getStringExtra("sender");
                     int i = 1;
                     if (messages2 != null && !messages2.isEmpty()) {
-                        for(String message : messages2){
-                            if(i%2 != 0){
+                        for (String message : messages2) {
+                            if (i % 2 != 0) {
                                 sender = "user";
                             } else {
                                 sender = "AI";
@@ -549,7 +484,7 @@ public class ChatScreen extends AppCompatActivity {
         }
     }
 
-    private void addMessage(MessageRequest message){
+    private void addMessage(MessageRequest message) {
         messages.add(message);
         welcomeText.setVisibility(View.GONE);
         messageAdapter.notifyItemInserted(messages.size() - 1);
@@ -559,8 +494,77 @@ public class ChatScreen extends AppCompatActivity {
 
     private void saveConversation(Conversation conversation) {
         db.collection("conversation")
-                .add(conversation)
-                .addOnSuccessListener(aVoid -> Log.d("CHAT SCREEN", "ConversationThread added to Firestore"))
-                .addOnFailureListener(e -> Log.e("CHAT SCREEN", "Error adding ConversationThread to Firestore", e));
+                .document()
+                .get()
+                .addOnSuccessListener(documentSnapshot -> {
+                    if (documentSnapshot.exists()) {
+                        db.collection("conversation")
+                                .document(conversation.getId())
+                                .update("messages", conversation.getMessages())
+                                .addOnSuccessListener(aVoid -> {
+                                    Log.d("CHAT SCREEN", "ConversationThread updated in Firestore");
+                                })
+                                .addOnFailureListener(e -> Log.e("CHAT SCREEN", "Error updating ConversationThread in Firestore", e));
+                    } else {
+                        db.collection("conversation")
+                                .document(conversation.getId())
+                                .set(conversation)
+                                .addOnSuccessListener(aVoid -> {
+                                    Log.d("CHAT SCREEN", "ConversationThread added to Firestore");
+                                })
+                                .addOnFailureListener(e -> Log.e("CHAT SCREEN", "Error adding ConversationThread to Firestore", e));
+                    }
+                })
+                .addOnFailureListener(e -> Log.e("CHAT SCREEN", "Error getting ConversationThread from Firestore", e));
+    }
+
+
+
+
+    private void checkIfThreadExists() {
+        db.collection("conversation")
+                .whereEqualTo("userId", currentUser.getUid())
+                .get()
+                .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+                    @Override
+                    public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+                        if (!queryDocumentSnapshots.isEmpty()) {
+                            idThread = queryDocumentSnapshots.getDocuments().get(0).getId();
+                            loadMessages(idThread);
+                        } else {
+                            createThread();
+                        }
+                    }
+                }).addOnFailureListener(e -> Log.e("ChatScreen", "Error checking thread existence", e));
+    }
+
+    private void loadMessages(String threadId) {
+        db.collection("conversation")
+                .document(threadId)
+                .get()
+                .addOnSuccessListener(documentSnapshot -> {
+                    if (documentSnapshot.exists()) {
+                        Conversation conversation = documentSnapshot.toObject(Conversation.class);
+                        if (conversation != null) {
+                            List<MessageRequest> messages = conversation.getMessages();
+                            updateRecyclerView(messages);
+                        }
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    showMessage("Error al cargar los mensajes: " + e.getMessage());
+                });
+    }
+
+    private void updateRecyclerView(List<MessageRequest> messages) {
+        this.messages.clear();
+        this.messages.addAll(messages);
+        messageAdapter.notifyDataSetChanged();
+        rvTextChat.smoothScrollToPosition(messages.size() - 1);
+    }
+
+    private void createThread() {
+        ThreadRequest threadRequest = new ThreadRequest();
+        requestManager.createThread("assistants=v2", threadRequest, iThreadResponse);
     }
 }
