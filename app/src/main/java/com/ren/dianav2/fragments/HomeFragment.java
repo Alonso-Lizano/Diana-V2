@@ -2,6 +2,7 @@ package com.ren.dianav2.fragments;
 
 import android.content.Intent;
 import android.content.res.Configuration;
+import android.net.Uri;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -33,6 +34,7 @@ import com.ren.dianav2.adapters.RecentChatAdapter;
 import com.ren.dianav2.assistants.models.Conversation;
 import com.ren.dianav2.assistants.models.response.AssistantData;
 import com.ren.dianav2.assistants.models.response.ListAssistantResponse;
+import com.ren.dianav2.database.ImageDatabaseManager;
 import com.ren.dianav2.helpers.RequestManager;
 import com.ren.dianav2.listener.IAssistantClickListener;
 import com.ren.dianav2.listener.IListAssistantResponse;
@@ -71,6 +73,8 @@ public class HomeFragment extends Fragment {
     private FirebaseAuth mAuth;
     private FirebaseUser currentUser;
     private FirebaseFirestore db;
+
+    private ImageDatabaseManager miManager;
 
     public HomeFragment() {
         // Constructor público requerido
@@ -122,11 +126,13 @@ public class HomeFragment extends Fragment {
         recyclerViewItem.setLayoutManager(new LinearLayoutManager(getContext(),
                 LinearLayoutManager.HORIZONTAL, false));
 
-
+        miManager = new ImageDatabaseManager(getContext());
+        miManager.open();
         addDataToList();
 
         exploreAdapter = new ExplorerAdapter(getContext(), items, dataList, listener);
         recyclerViewItem.setAdapter(exploreAdapter);
+
 
         loadConversation();
 
@@ -134,11 +140,19 @@ public class HomeFragment extends Fragment {
             String username = currentUser.getDisplayName();
             String profile = currentUser.getPhotoUrl().toString();
             tvUsername.setText(username);
-            Picasso.get().load(profile).into(ivProfile);
+            if(miManager.getImageUri() != null){
+                loadSavedProfileImage();
+            }
+            else{
+                Picasso.get().load(profile).into(ivProfile);
+            }
+
         }
 
         return view;
     }
+
+
 
     /**
      * Agrega datos a las listas de elementos y chats.
@@ -175,6 +189,7 @@ public class HomeFragment extends Fragment {
         }
     };
 
+
     private final IAssistantClickListener listener = id -> {
         Intent intent = new Intent(HomeFragment.this.getContext(), ChatScreen.class);
         intent.putExtra("id", id);
@@ -202,5 +217,12 @@ public class HomeFragment extends Fragment {
 
     private void showMessage(String msg) {
         Toast.makeText(getContext(), msg, Toast.LENGTH_SHORT).show();
+    }
+    private void loadSavedProfileImage() {
+        String savedUriString = miManager.getImageUri();
+        if (savedUriString != null) {
+            Uri savedUri = Uri.parse(savedUriString);
+            ivProfile.setImageURI(savedUri);
+        }
     }
 }

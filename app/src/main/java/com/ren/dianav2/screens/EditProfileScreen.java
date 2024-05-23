@@ -2,24 +2,17 @@ package com.ren.dianav2.screens;
 
 import android.Manifest;
 import android.app.Activity;
-import android.app.Dialog;
 import android.content.ContentValues;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.graphics.Color;
-import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.util.Log;
-import android.view.Gravity;
-import android.view.ViewGroup;
-import android.view.Window;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.activity.result.ActivityResult;
@@ -33,35 +26,9 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 import com.ren.dianav2.R;
+import com.ren.dianav2.database.ImageDatabaseManager;
 import com.ren.dianav2.listener.ICameraImagePermissionHandler;
 import com.ren.dianav2.listener.IGalleryPermissionHandler;
-
-import android.Manifest;
-import android.app.Activity;
-import android.app.Dialog;
-import android.content.ContentValues;
-import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.net.Uri;
-import android.os.Bundle;
-import android.provider.MediaStore;
-import android.util.Log;
-import android.view.View;
-import android.widget.Button;
-import android.widget.ImageButton;
-import android.widget.ImageView;
-
-import androidx.activity.result.ActivityResult;
-import androidx.activity.result.ActivityResultCallback;
-import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContracts;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.content.ContextCompat;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
-import androidx.core.view.WindowInsetsCompat.Type;
-
-import com.ren.dianav2.R;
 
 /**
  * Pantalla de edición de perfil donde el usuario puede tomar o subir una foto de perfil.
@@ -73,6 +40,7 @@ public class EditProfileScreen extends AppCompatActivity {
             Manifest.permission.CAMERA
     };
     private static final String TAG = "Permission";
+
     private Button takePhotoButton;
     private Button uploadPhotoButton;
     private ImageButton backButton;
@@ -80,6 +48,7 @@ public class EditProfileScreen extends AppCompatActivity {
     private boolean isCameraPermitted = false;
     private Uri uri;
     private ImageView ivProfile;
+    private ImageDatabaseManager miManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -87,49 +56,44 @@ public class EditProfileScreen extends AppCompatActivity {
         EdgeToEdge.enable(this);
         setContentView(R.layout.edit_profile_screen);
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
-            Insets systemBars = insets.getInsets(Type.systemBars());
+            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
+
         takePhotoButton = findViewById(R.id.button_take_photo);
         uploadPhotoButton = findViewById(R.id.button_upload_photo);
         ivProfile = findViewById(R.id.iv_profile);
 
+        miManager = new ImageDatabaseManager(this);
+        miManager.open();
+
+        // Load the saved URI if it exists
+        String savedUriString = miManager.getImageUri();
+        if (savedUriString != null) {
+            uri = Uri.parse(savedUriString);
+            ivProfile.setImageURI(uri);
+        }
 
         onClickTakePhoto(takePhotoButton);
         onClickUploadPhoto(uploadPhotoButton);
         //onClickBackButton(backButton);
     }
 
-    /**
-     * Configura el evento de clic para el botón de tomar foto.
-     *
-     * @param button el botón de tomar foto
-     */
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        miManager.close();
+    }
+
     private void onClickTakePhoto(Button button) {
         button.setOnClickListener(v ->
                 cameraImagePermissionHandler.requestStorageImageAndCameraPermission());
     }
 
-    /**
-     * Configura el evento de clic para el botón de subir foto.
-     *
-     * @param button el botón de subir foto
-     */
     private void onClickUploadPhoto(Button button) {
         button.setOnClickListener(v -> galleryPermissionHandler.requestGalleryPermission());
     }
-
-    /**
-     * Configura el evento de clic para el botón de retroceso.
-     *
-     * @param button el botón de retroceso
-     */
-   /* private void onClickBackButton(ImageButton button) {
-        button.setOnClickListener(v -> finish());
-    }*/
-
-    //---------------------------- INICIO PERMISOS ----------------------------------//
 
     private final ICameraImagePermissionHandler cameraImagePermissionHandler = () -> {
         if (isCameraPermitted) {
@@ -148,25 +112,17 @@ public class EditProfileScreen extends AppCompatActivity {
         }
     };
 
-
-
-    /**
-     * Abre la cámara para tomar una foto.
-     */
     public void openCamera() {
         ContentValues contentValues = new ContentValues();
         contentValues.put(MediaStore.Images.Media.TITLE, "New Picture");
         contentValues.put(MediaStore.Images.Media.DESCRIPTION, "Captured by User name");
-        uri = getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
-                contentValues);
+        uri = getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, contentValues);
+
         Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         intent.putExtra(MediaStore.EXTRA_OUTPUT, uri);
         launcherCamera.launch(intent);
     }
 
-    /**
-     * Solicita permiso para leer imágenes del almacenamiento.
-     */
     public void requestStorageImagePermission() {
         if (ContextCompat.checkSelfPermission(this, REQUIRED_PERMISSIONS[0]) ==
                 PackageManager.PERMISSION_GRANTED) {
@@ -178,9 +134,6 @@ public class EditProfileScreen extends AppCompatActivity {
         }
     }
 
-    /**
-     * Solicita permiso para usar la cámara.
-     */
     private void requestPermissionsCamera() {
         if (ContextCompat.checkSelfPermission(this, REQUIRED_PERMISSIONS[1]) ==
                 PackageManager.PERMISSION_GRANTED) {
@@ -221,13 +174,10 @@ public class EditProfileScreen extends AppCompatActivity {
                     o -> {
                         if (o.getResultCode() == RESULT_OK) {
                             ivProfile.setImageURI(uri);
+                            saveUriToDatabase(uri);
                         }
                     });
 
-
-    /**
-     * Abre la galería para seleccionar una imagen.
-     */
     private void openGallery() {
         Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
         intent.setType("image/*");
@@ -245,10 +195,14 @@ public class EditProfileScreen extends AppCompatActivity {
                             uri = data.getData();
                             if (uri != null) {
                                 ivProfile.setImageURI(uri);
+                                saveUriToDatabase(uri);
                             }
                         }
                     }
                 }
             });
 
+    private void saveUriToDatabase(Uri uri) {
+        miManager.saveImageUri(uri.toString());
+    }
 }

@@ -1,6 +1,7 @@
 package com.ren.dianav2.fragments;
 
 import android.app.AlertDialog;
+import android.net.Uri;
 import android.os.Bundle;
 
 import androidx.appcompat.app.AppCompatDelegate;
@@ -18,6 +19,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.ren.dianav2.R;
 import com.ren.dianav2.adapters.ProfileOptionAdapter;
+import com.ren.dianav2.database.ImageDatabaseManager;
 import com.ren.dianav2.helpers.LanguageHelper;
 import com.ren.dianav2.listener.IThemeHandler;
 import com.ren.dianav2.models.OptionItem;
@@ -32,11 +34,9 @@ import java.util.List;
  */
 public class ProfileFragment extends Fragment implements IThemeHandler {
 
-    // parámetros de inicialización del fragmento, p. ej., ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
 
-    // TODO: Renombrar y cambiar tipos de parámetros
     private String mParam1;
     private String mParam2;
     private RecyclerView recyclerView;
@@ -46,6 +46,7 @@ public class ProfileFragment extends Fragment implements IThemeHandler {
     private TextView tvUsername;
     private FirebaseAuth mAuth;
     private FirebaseUser currentUser;
+    private ImageDatabaseManager miManager;
 
     public ProfileFragment() {
         // Constructor público requerido
@@ -96,13 +97,44 @@ public class ProfileFragment extends Fragment implements IThemeHandler {
         adapter = new ProfileOptionAdapter(getContext(), optionItems, this);
         recyclerView.setAdapter(adapter);
 
+        // Inicializa el ImageDatabaseManager y abre la base de datos
+        miManager = new ImageDatabaseManager(getContext());
+        miManager.open();
+
+        // Cargar la imagen guardada de la base de datos
+
+
         if (currentUser != null) {
             String username = currentUser.getDisplayName();
-            String profile = currentUser.getPhotoUrl().toString();
+            String profile = currentUser.getPhotoUrl() != null ? currentUser.getPhotoUrl().toString() : null;
             tvUsername.setText(username);
-            Picasso.get().load(profile).into(ivProfile);
+            if (profile != null) {
+                Picasso.get().load(profile).into(ivProfile);
+            }
         }
+        loadSavedProfileImage();
+
         return view;
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        // Cierra la base de datos cuando el fragmento se destruya
+        if (miManager != null) {
+            miManager.close();
+        }
+    }
+
+    /**
+     * Carga la imagen de perfil guardada desde la base de datos.
+     */
+    private void loadSavedProfileImage() {
+        String savedUriString = miManager.getImageUri();
+        if (savedUriString != null) {
+            Uri savedUri = Uri.parse(savedUriString);
+            ivProfile.setImageURI(savedUri);
+        }
     }
 
     /**
@@ -119,7 +151,6 @@ public class ProfileFragment extends Fragment implements IThemeHandler {
         optionItems.add(new OptionItem(getString(R.string.add_account), R.drawable.round_arrow_forward_ios_24));
         optionItems.add(new OptionItem(getString(R.string.logout), R.drawable.round_arrow_forward_ios_24));
     }
-
 
     /**
      * Muestra un cuadro de diálogo para seleccionar el tema de la aplicación.
