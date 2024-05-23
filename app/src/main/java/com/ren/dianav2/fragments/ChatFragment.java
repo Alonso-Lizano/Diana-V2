@@ -2,6 +2,7 @@ package com.ren.dianav2.fragments;
 
 import android.content.Intent;
 import android.content.res.Configuration;
+import android.net.Uri;
 import android.os.Bundle;
 
 import androidx.core.content.ContextCompat;
@@ -23,6 +24,7 @@ import com.google.firebase.auth.FirebaseUser;
 import com.ren.dianav2.R;
 import com.ren.dianav2.adapters.RecentChatAdapter;
 import com.ren.dianav2.adapters.SavedChatAdapter;
+import com.ren.dianav2.database.ImageDatabaseManager;
 import com.ren.dianav2.models.ChatItem;
 import com.ren.dianav2.screens.ChatScreen;
 import com.squareup.picasso.Picasso;
@@ -43,6 +45,7 @@ public class ChatFragment extends Fragment {
     // TODO: Renombrar y cambiar tipos de parámetros
     private String mParam1;
     private String mParam2;
+    private ImageDatabaseManager miManager;
     private RecyclerView recyclerViewChat;
     private RecentChatAdapter recentChatAdapter;
     private RecyclerView recyclerViewSaved;
@@ -115,13 +118,26 @@ public class ChatFragment extends Fragment {
         recyclerViewSaved.setAdapter(savedChatAdapter);
 
         setButtonListeners(view);
-
+    if(miManager.getImageUri() != null){
+        loadSavedProfileImage();
+    }
+    else{
         if (currentUser != null) {
             String profile = currentUser.getPhotoUrl().toString();
             Picasso.get().load(profile).into(ivProfile);
         }
-
+    }
         return view;
+    }
+    /**
+     * Carga la imagen de perfil guardada desde la base de datos.
+     */
+    private void loadSavedProfileImage() {
+        String savedUriString = miManager.getImageUri();
+        if (savedUriString != null) {
+            Uri savedUri = Uri.parse(savedUriString);
+            ivProfile.setImageURI(savedUri);
+        }
     }
 
     /**
