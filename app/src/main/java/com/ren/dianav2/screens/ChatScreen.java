@@ -32,6 +32,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.Timestamp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -54,10 +55,12 @@ import com.ren.dianav2.listener.IMessageResponse;
 import com.ren.dianav2.listener.IRunResponse;
 import com.ren.dianav2.listener.IRunStatusResponse;
 import com.ren.dianav2.listener.IThreadResponse;
+import com.ren.dianav2.models.text.Message;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -426,6 +429,7 @@ public class ChatScreen extends AppCompatActivity {
             rvTextChat.smoothScrollToPosition(messages.size() - 1);
 
             Conversation conversation = new Conversation(idThread, currentUser.getUid(), messages);
+            verConversation(conversation);
             saveConversation(conversation);
 
             Log.d("CHAT SCREEN", "Assistant message: " + message);
@@ -518,7 +522,59 @@ public class ChatScreen extends AppCompatActivity {
                 .addOnFailureListener(e -> Log.e("CHAT SCREEN", "Error getting ConversationThread from Firestore", e));
     }
 
+    private void verConversation(Conversation conversation) {
+        db.collection("conversation")
+                .document(conversation.getId())
+                .get()
+                .addOnSuccessListener(documentSnapshot -> {
+                    if (documentSnapshot.exists()) {
+                        // Acceder al campo 'messages' como una lista de mapas
+                        List<Map<String, Object>> messagesMapList = (List<Map<String, Object>>) documentSnapshot.get("messages");
+                        if (messagesMapList != null) {
+                            List<Message> messages = new ArrayList<>();
+                            for (Map<String, Object> messageMap : messagesMapList) {
+                                // Convertir cada mapa a una instancia de Message
+                                Message message = new Message();
+                                message.setContent((String) messageMap.get("content"));
+                                message.setSender((String) messageMap.get("sender"));
+                                message.setTimestamp((Timestamp) messageMap.get("timestamp"));
+                                messages.add(message);
+                            }
 
+                            // Procesar los mensajes como se desee
+                            for (Message message : messages) {
+                                Log.d("CHAT SCREEN", "Mensaje: " + message.getContent());
+                            }
+                        }
+
+                        // Actualizar el documento con nuevos mensajes
+                        db.collection("conversation")
+                                .document(conversation.getId())
+                                .update("messages", conversation.getMessages())
+                                .addOnSuccessListener(aVoid -> {
+                                    Log.d("CHAT SCREEN", "ConversationThread updated in Firestore");
+                                })
+                                .addOnFailureListener(e -> {
+                                    Log.e("CHAT SCREEN", "Error updating ConversationThread in Firestore", e);
+                                });
+                    } else {
+                        // Crear un nuevo documento
+                        db.collection("conversation")
+                                .document(conversation.getId())
+                                .set(conversation)
+                                .addOnSuccessListener(aVoid -> {
+                                    Log.d("CHAT SCREEN", "ConversationThread added to Firestore");
+                                })
+                                .addOnFailureListener(e -> {
+                                    Log.e("CHAT SCREEN", "Error adding ConversationThread to Firestore", e);
+                                });
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    Log.e("CHAT SCREEN", "Error getting ConversationThread from Firestore", e);
+                });
+
+    }
 
 
     private void checkIfThreadExists() {
@@ -567,4 +623,5 @@ public class ChatScreen extends AppCompatActivity {
         ThreadRequest threadRequest = new ThreadRequest();
         requestManager.createThread("assistants=v2", threadRequest, iThreadResponse);
     }
+
 }

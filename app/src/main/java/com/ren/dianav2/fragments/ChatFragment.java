@@ -10,6 +10,7 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,9 +22,12 @@ import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.ren.dianav2.R;
 import com.ren.dianav2.adapters.RecentChatAdapter;
 import com.ren.dianav2.adapters.SavedChatAdapter;
+import com.ren.dianav2.assistants.models.Conversation;
 import com.ren.dianav2.database.ImageDatabaseManager;
 import com.ren.dianav2.models.ChatItem;
 import com.ren.dianav2.screens.ChatScreen;
@@ -55,6 +59,7 @@ public class ChatFragment extends Fragment {
     private Button btnOption1;
     private FirebaseAuth mAuth;
     private FirebaseUser currentUser;
+    private FirebaseFirestore db;
     private ImageView ivProfile;
 
     public ChatFragment() {
@@ -88,6 +93,7 @@ public class ChatFragment extends Fragment {
         }
         mAuth = FirebaseAuth.getInstance();
         currentUser = mAuth.getCurrentUser();
+        db = FirebaseFirestore.getInstance();
     }
 
     @Override
@@ -109,26 +115,30 @@ public class ChatFragment extends Fragment {
         recyclerViewSaved.setLayoutManager(new LinearLayoutManager(getContext(),
                 LinearLayoutManager.VERTICAL, false));
 
+        loadConversation();
         //addDataToList();
 
         //recentChatAdapter = new RecentChatAdapter(getContext(), chatItems);
         //recyclerViewChat.setAdapter(recentChatAdapter);
 
+        miManager = new ImageDatabaseManager(this.getContext());
+        miManager.open();
+        savedChatItems = new ArrayList<>();
         savedChatAdapter = new SavedChatAdapter(getContext(), savedChatItems);
         recyclerViewSaved.setAdapter(savedChatAdapter);
 
         setButtonListeners(view);
-    if(miManager.getImageUri() != null){
-        loadSavedProfileImage();
-    }
-    else{
-        if (currentUser != null) {
-            String profile = currentUser.getPhotoUrl().toString();
-            Picasso.get().load(profile).into(ivProfile);
+        if (miManager.getImageUri() != null) {
+            loadSavedProfileImage();
+        } else {
+            if (currentUser != null) {
+                String profile = currentUser.getPhotoUrl().toString();
+                Picasso.get().load(profile).into(ivProfile);
+            }
         }
-    }
         return view;
     }
+
     /**
      * Carga la imagen de perfil guardada desde la base de datos.
      */
@@ -181,5 +191,24 @@ public class ChatFragment extends Fragment {
         } else if (button.getId() == R.id.btn_option2) {
             Toast.makeText(getContext(), getString(R.string.search_chat), Toast.LENGTH_SHORT).show();
         }
+    }
+
+    private void loadConversation() {
+        db.collection("conversation")
+                .whereEqualTo("userId", currentUser.getUid())
+                .get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    List<Conversation> conversations = new ArrayList<>();
+                    for (QueryDocumentSnapshot snapshot : queryDocumentSnapshots) {
+                        Conversation conversation = snapshot.toObject(Conversation.class);
+                        conversations.add(conversation);
+                    }
+                    recyclerViewChat.setHasFixedSize(true);
+                    recyclerViewChat.setLayoutManager(new LinearLayoutManager(getContext(),
+                            LinearLayoutManager.VERTICAL, false));
+                    recentChatAdapter = new RecentChatAdapter(getContext(), conversations);
+                    recyclerViewChat.setAdapter(recentChatAdapter);
+                })
+                .addOnFailureListener(e -> Log.d("HOME FRAGMENT", "conversation:onError", e));
     }
 }

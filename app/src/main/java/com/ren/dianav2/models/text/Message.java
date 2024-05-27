@@ -1,24 +1,23 @@
 package com.ren.dianav2.models.text;
 
+import com.google.firebase.Timestamp;
+
 public class Message {
-    public static String TYPE_TYPING = "typing";
-
-    private String role;
     private String content;
+    private String sender;
+    private Timestamp timestamp;
 
-    public Message(String message, String sentBy) {
-        this.content = message;
-        this.role = sentBy;
+    // Constructor vacío requerido por Firestore
+    public Message() {}
+
+    // Constructor completo
+    public Message(String content, String sender, Timestamp timestamp) {
+        this.content = content;
+        this.sender = sender;
+        this.timestamp = timestamp;
     }
 
-    public String getRole() {
-        return role;
-    }
-
-    public void setRole(String role) {
-        this.role = role;
-    }
-
+    // Getters y setters
     public String getContent() {
         return content;
     }
@@ -27,4 +26,19 @@ public class Message {
         this.content = content;
     }
 
+    public String getSender() {
+        return sender;
+    }
+
+    public void setSender(String sender) {
+        this.sender = sender;
+    }
+
+    public Timestamp getTimestamp() {
+        return timestamp;
+    }
+
+    public void setTimestamp(Timestamp timestamp) {
+        this.timestamp = timestamp;
+    }
 }

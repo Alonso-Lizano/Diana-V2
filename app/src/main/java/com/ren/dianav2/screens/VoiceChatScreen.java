@@ -24,6 +24,7 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 import com.airbnb.lottie.LottieAnimationView;
+import com.google.firebase.Timestamp;
 import com.ren.dianav2.R;
 import com.ren.dianav2.helpers.RequestManager;
 import com.ren.dianav2.listener.IResponseBody;
@@ -124,8 +125,8 @@ public class VoiceChatScreen extends AppCompatActivity {
 
             @Override
             public void onEndOfSpeech() {
-                lavVoice.pauseAnimation();
-                lavVoiceLine.pauseAnimation();
+                lavVoice.cancelAnimation();
+                lavVoiceLine.cancelAnimation();
             }
 
             @Override
@@ -192,7 +193,7 @@ public class VoiceChatScreen extends AppCompatActivity {
             ib_play.setVisibility(View.VISIBLE);
             isPaused = true;
             if (speechRecognizer != null) {
-                speechRecognizer.cancel();
+                speechRecognizer.stopListening();
             }
             if(mediaPlayer != null && mediaPlayer.isPlaying()){
                 mediaPlayer.release();
@@ -232,12 +233,13 @@ public class VoiceChatScreen extends AppCompatActivity {
             speechRecognizer.destroy();
         }
         if (mediaPlayer != null && mediaPlayer.isPlaying()) {
+            mediaPlayer.stop();
             mediaPlayer.release();
         }
     }
 
     private void sendMessageToAI(String userMessage) {
-        Message userMessageObj = new Message(userMessage, "user");
+        Message userMessageObj = new Message(userMessage, "user", Timestamp.now());
         TextRequest textRequest = new TextRequest("gpt-3.5-turbo-0125", Collections.singletonList(userMessageObj));
         requestManager.sendMessage(textRequest, iTextResponse);
     }
