@@ -117,6 +117,13 @@ public class ChatScreen extends AppCompatActivity {
         idAssistant = getIntent().getStringExtra("id");
         // Visibilidad del botón
         sendButton.setVisibility(View.GONE);
+        boolean chatExiste = getIntent().getBooleanExtra("Exists", false);
+
+        if(chatExiste){
+            System.out.println("Debería existir");
+        } else {
+            System.out.println("no exisete");
+        }
 
         // Configuración del RecyclerView
         messageAdapter = new ReinforcedMessageAdapter(this, messages, currentUser);
@@ -429,7 +436,7 @@ public class ChatScreen extends AppCompatActivity {
             rvTextChat.smoothScrollToPosition(messages.size() - 1);
 
             Conversation conversation = new Conversation(idThread, currentUser.getUid(), messages);
-            verConversation(conversation);
+            //verConversation(conversation);
             saveConversation(conversation);
 
             Log.d("CHAT SCREEN", "Assistant message: " + message);
@@ -522,6 +529,7 @@ public class ChatScreen extends AppCompatActivity {
                 .addOnFailureListener(e -> Log.e("CHAT SCREEN", "Error getting ConversationThread from Firestore", e));
     }
 
+    /*
     private void verConversation(Conversation conversation) {
         db.collection("conversation")
                 .document(conversation.getId())
@@ -574,7 +582,7 @@ public class ChatScreen extends AppCompatActivity {
                     Log.e("CHAT SCREEN", "Error getting ConversationThread from Firestore", e);
                 });
 
-    }
+    }*/
 
 
     private void checkIfThreadExists() {

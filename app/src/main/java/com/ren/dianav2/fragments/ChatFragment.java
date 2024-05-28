@@ -187,6 +187,7 @@ public class ChatFragment extends Fragment {
     private void onClickButton(Button button) {
         if (button.getId() == R.id.btn_option1) {
             Intent intent = new Intent(getContext(), ChatScreen.class);
+            intent.putExtra("Exists", false);
             startActivity(intent);
         } else if (button.getId() == R.id.btn_option2) {
             Toast.makeText(getContext(), getString(R.string.search_chat), Toast.LENGTH_SHORT).show();
