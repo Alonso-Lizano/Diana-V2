@@ -61,4 +61,8 @@ public class Conversation {
     public void setIdAssistant(String idAssistant) {
         this.idAssistant = idAssistant;
     }
+
+    public String toString(){
+        return "Conversation id: " + this.id + "; userId: " + this.userId + "; idAssistant: " + idAssistant + "; title: " + this.title + "; messages: " + this.messages;
+    }
 }

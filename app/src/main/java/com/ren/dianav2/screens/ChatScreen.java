@@ -17,6 +17,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
@@ -89,6 +90,7 @@ public class ChatScreen extends AppCompatActivity {
     private FirebaseAuth mAuth;
     private FirebaseUser currentUser;
     private FirebaseFirestore db;
+    private Conversation conversation;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -148,6 +150,8 @@ public class ChatScreen extends AppCompatActivity {
         rvTextChat.setLayoutManager(linearLayoutManager);
 
         checkIfThreadExists();
+        String titulo = "";
+        conversation = new Conversation(idThread, currentUser.getUid(), messages, idAssistant, titulo);
 
         onClickBackButton(ibBack);
         onEditTextChange(messageEditText);
@@ -230,7 +234,6 @@ public class ChatScreen extends AppCompatActivity {
                 mainDialog.dismiss();
             }
             showChangeNameDialog();
-
         } else if (id == R.id.ll_option_3) {
             showMessage("It doesn't work yet :((");
         } else {
@@ -242,9 +245,31 @@ public class ChatScreen extends AppCompatActivity {
      * Muestra el diálogo para cambiar el nombre.
      */
     private void showChangeNameDialog() {
+        String title = tvName.getText().toString().trim();
+
         changeNameDialog = new Dialog(this);
         changeNameDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
         changeNameDialog.setContentView(R.layout.bottom_sheet_change_name);
+
+
+        EditText etName = changeNameDialog.findViewById(R.id.et_name);
+        Button btnSave = changeNameDialog.findViewById(R.id.button_save);
+
+        etName.setText(title);
+        btnSave.setOnClickListener(v -> {
+            String name = etName.getText().toString().trim();
+            if (!name.isEmpty()) {
+                tvName.setText(name);
+                conversation.setTitle(name);
+                changeNameDialog.dismiss();
+                saveConversation();
+            } else {
+                conversation.setTitle(title);
+                etName.setText(title);
+                saveConversation();
+            }
+        });
+
         changeNameDialog.setCancelable(true);
         changeNameDialog.show();
         changeNameDialog.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
@@ -448,12 +473,11 @@ public class ChatScreen extends AppCompatActivity {
             messages.add(assistantMessageRequest);
             messageAdapter.notifyItemInserted(messages.size() - 1);
             rvTextChat.smoothScrollToPosition(messages.size() - 1);
-
             String titulo = tvName.getText().toString();
-            System.out.println(titulo);
-            Conversation conversation = new Conversation(idThread, currentUser.getUid(), messages, idAssistant, titulo);
+            conversation.setMessages(messages);
+            conversation.setTitle(titulo);
             //verConversation(conversation);
-            saveConversation(conversation);
+            saveConversation();
 
             Log.d("CHAT SCREEN", "Assistant message: " + message);
         }
@@ -519,7 +543,7 @@ public class ChatScreen extends AppCompatActivity {
         messageAdapter.notifyDataSetChanged();
     }
 
-    private void saveConversation(Conversation conversation) {
+    private void saveConversation() {
         db.collection("conversation")
                 .document()
                 .get()
@@ -527,7 +551,7 @@ public class ChatScreen extends AppCompatActivity {
                     if (documentSnapshot.exists()) {
                         db.collection("conversation")
                                 .document(conversation.getId())
-                                .update("messages", conversation.getMessages())
+                                .update("messages", conversation.getMessages(), "title", conversation.getTitle())
                                 .addOnSuccessListener(aVoid -> {
                                     Log.d("CHAT SCREEN", "ConversationThread updated in Firestore");
                                 })
@@ -625,11 +649,12 @@ public class ChatScreen extends AppCompatActivity {
                 .get()
                 .addOnSuccessListener(documentSnapshot -> {
                     if (documentSnapshot.exists()) {
-                        Conversation conversation = documentSnapshot.toObject(Conversation.class);
+                        conversation = documentSnapshot.toObject(Conversation.class);
                         if (conversation != null) {
                             List<MessageRequest> messages = conversation.getMessages();
                             updateRecyclerView(messages);
                         }
+                        tvName.setText(conversation.getTitle().toString());
                         welcomeText.setVisibility(View.GONE);
                     }
                 })
