@@ -56,6 +56,7 @@ import com.ren.dianav2.listener.IRunResponse;
 import com.ren.dianav2.listener.IRunStatusResponse;
 import com.ren.dianav2.listener.IThreadResponse;
 import com.ren.dianav2.models.text.Message;
+import com.ren.dianav2.models.text.TextRequest;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -69,6 +70,7 @@ import java.util.stream.Collectors;
 public class ChatScreen extends AppCompatActivity {
 
     private TextView welcomeText;
+    private TextView tvName;
     private EditText messageEditText;
     private ImageButton sendButton;
     private ImageButton micButton;
@@ -94,6 +96,7 @@ public class ChatScreen extends AppCompatActivity {
         setContentView(R.layout.chat_screen);
 
         welcomeText = findViewById(R.id.welcome_text);
+        tvName = findViewById(R.id.tv_text);
         messageEditText = findViewById(R.id.message_edit_text);
         sendButton = findViewById(R.id.send_btn);
         micButton = findViewById(R.id.mic_btn);
@@ -117,6 +120,24 @@ public class ChatScreen extends AppCompatActivity {
         idAssistant = getIntent().getStringExtra("id");
         // Visibilidad del botón
         sendButton.setVisibility(View.GONE);
+
+        /*
+        String origin = getIntent().getStringExtra("Origin");
+        if(origin.equals("NewChat")){
+            System.out.println("Debe mostrarse la pantalla para un nuevo chat");
+        } else if(origin.equals("NewChatScripted")) {
+            String script = getIntent().getStringExtra("script");
+            System.out.println("Debe mostrarse la pantalla para un nuevo chat con un string ya mandado");
+        } else if(origin.equals("RecentChat") || origin.equals("SavedChat")) {
+            System.out.println("Debe mostrarse el chat con la conversación ya lista para seguir");
+        } else if(origin.equals("Assistant")){
+            String assistant = getIntent().getStringExtra("assistant");
+            System.out.println("Debe mostrarse el chat con el asistente elegido");
+
+
+        }
+        */
+
 
         // Configuración del RecyclerView
         messageAdapter = new ReinforcedMessageAdapter(this, messages, currentUser);
@@ -428,8 +449,10 @@ public class ChatScreen extends AppCompatActivity {
             messageAdapter.notifyItemInserted(messages.size() - 1);
             rvTextChat.smoothScrollToPosition(messages.size() - 1);
 
-            Conversation conversation = new Conversation(idThread, currentUser.getUid(), messages);
-            verConversation(conversation);
+            String titulo = tvName.getText().toString();
+            System.out.println(titulo);
+            Conversation conversation = new Conversation(idThread, currentUser.getUid(), messages, idAssistant, titulo);
+            //verConversation(conversation);
             saveConversation(conversation);
 
             Log.d("CHAT SCREEN", "Assistant message: " + message);
@@ -518,10 +541,12 @@ public class ChatScreen extends AppCompatActivity {
                                 })
                                 .addOnFailureListener(e -> Log.e("CHAT SCREEN", "Error adding ConversationThread to Firestore", e));
                     }
+                    System.out.println("EL TITULO ES: " + conversation.getTitle());
                 })
                 .addOnFailureListener(e -> Log.e("CHAT SCREEN", "Error getting ConversationThread from Firestore", e));
     }
 
+    /*
     private void verConversation(Conversation conversation) {
         db.collection("conversation")
                 .document(conversation.getId())
@@ -574,7 +599,7 @@ public class ChatScreen extends AppCompatActivity {
                     Log.e("CHAT SCREEN", "Error getting ConversationThread from Firestore", e);
                 });
 
-    }
+    }*/
 
 
     private void checkIfThreadExists() {
@@ -605,6 +630,7 @@ public class ChatScreen extends AppCompatActivity {
                             List<MessageRequest> messages = conversation.getMessages();
                             updateRecyclerView(messages);
                         }
+                        welcomeText.setVisibility(View.GONE);
                     }
                 })
                 .addOnFailureListener(e -> {
