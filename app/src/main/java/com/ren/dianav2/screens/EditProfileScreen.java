@@ -2,6 +2,7 @@ package com.ren.dianav2.screens;
 
 import android.Manifest;
 import android.app.Activity;
+import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
@@ -12,9 +13,11 @@ import android.provider.MediaStore;
 import android.util.Log;
 import android.view.Window;
 import android.view.WindowManager;
+import android.webkit.MimeTypeMap;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.activity.result.ActivityResult;
@@ -27,6 +30,11 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.auth.UserProfileChangeRequest;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 import com.ren.dianav2.R;
 import com.ren.dianav2.database.ImageDatabaseManager;
 import com.ren.dianav2.listener.ICameraImagePermissionHandler;
@@ -51,6 +59,11 @@ public class EditProfileScreen extends AppCompatActivity {
     private Uri uri;
     private ImageView ivProfile;
     private ImageDatabaseManager miManager;
+    private FirebaseAuth mAuth;
+    private FirebaseUser currentUser;
+    private StorageReference reference;
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,7 +73,9 @@ public class EditProfileScreen extends AppCompatActivity {
         takePhotoButton = findViewById(R.id.button_take_photo);
         uploadPhotoButton = findViewById(R.id.button_upload_photo);
         ivProfile = findViewById(R.id.iv_profile);
-
+        mAuth = FirebaseAuth.getInstance();
+        currentUser = mAuth.getCurrentUser();
+        reference = FirebaseStorage.getInstance().getReference("user_images");
         miManager = new ImageDatabaseManager(this);
         miManager.open();
 
@@ -73,7 +88,7 @@ public class EditProfileScreen extends AppCompatActivity {
 
         onClickTakePhoto(takePhotoButton);
         onClickUploadPhoto(uploadPhotoButton);
-        //onClickBackButton(backButton);
+
     }
 
     @Override
@@ -170,6 +185,7 @@ public class EditProfileScreen extends AppCompatActivity {
                     o -> {
                         if (o.getResultCode() == RESULT_OK) {
                             ivProfile.setImageURI(uri);
+                            saveUserImage();
                             saveUriToDatabase(uri);
                         }
                     });
@@ -191,6 +207,7 @@ public class EditProfileScreen extends AppCompatActivity {
                             uri = data.getData();
                             if (uri != null) {
                                 ivProfile.setImageURI(uri);
+                                saveUserImage();
                                 saveUriToDatabase(uri);
                             }
                         }
@@ -200,5 +217,38 @@ public class EditProfileScreen extends AppCompatActivity {
 
     private void saveUriToDatabase(Uri uri) {
         miManager.saveImageUri(uri.toString());
+    }
+    private void saveUserImage(){
+        if (uri != null) {
+            StorageReference storageReference = reference.child(mAuth.getCurrentUser().getUid() +
+                    "." + getFileExtension(uri));
+
+            storageReference.putFile(uri).addOnSuccessListener(taskSnapshot -> {
+                storageReference.getDownloadUrl().addOnSuccessListener(uri -> {
+                    currentUser = mAuth.getCurrentUser();
+
+                    UserProfileChangeRequest request = new UserProfileChangeRequest.Builder()
+                            .setPhotoUri(uri).build();
+
+                    currentUser.updateProfile(request).addOnCompleteListener(task -> {
+                        if (task.isSuccessful()) {
+                            finish();
+                        } else {
+                            showMessage("Error with the user image");
+                        }
+                    });
+                });
+            });
+        }
+    }
+
+    private String getFileExtension(Uri uri) {
+        ContentResolver contentResolver = getContentResolver();
+        MimeTypeMap typeMap = MimeTypeMap.getSingleton();
+        return typeMap.getExtensionFromMimeType(contentResolver.getType(uri));
+    }
+
+    private void showMessage(String message) {
+        Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
     }
 }

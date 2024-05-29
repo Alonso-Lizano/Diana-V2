@@ -140,7 +140,12 @@ public class HomeFragment extends Fragment {
         if (currentUser != null) {
             String username = currentUser.getDisplayName();
             String profile = currentUser.getPhotoUrl().toString();
-            tvUsername.setText(username);
+            String[] arrayPocho=username.split(" ");
+            if(arrayPocho[1]==null){
+                arrayPocho[1]="";
+            }
+            String nombrePocho=arrayPocho[0]+" "+arrayPocho[1];
+            tvUsername.setText(nombrePocho);
             if(miManager.getImageUri() != null){
                 loadSavedProfileImage();
             }

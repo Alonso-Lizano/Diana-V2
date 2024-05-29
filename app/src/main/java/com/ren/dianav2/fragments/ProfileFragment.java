@@ -106,8 +106,13 @@ public class ProfileFragment extends Fragment implements IThemeHandler {
 
         if (currentUser != null) {
             String username = currentUser.getDisplayName();
+            String [] arrayPocho = username.split(" ");
+            if(arrayPocho[1]==null){
+                arrayPocho[1]="";
+            }
+            String nombrePocho=arrayPocho[0]+" "+arrayPocho[1];
             String profile = currentUser.getPhotoUrl() != null ? currentUser.getPhotoUrl().toString() : null;
-            tvUsername.setText(username);
+            tvUsername.setText(nombrePocho);
             if (profile != null) {
                 Picasso.get().load(profile).into(ivProfile);
             }
