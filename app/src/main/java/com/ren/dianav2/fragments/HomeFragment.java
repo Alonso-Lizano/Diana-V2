@@ -37,6 +37,7 @@ import com.ren.dianav2.assistants.models.response.ListAssistantResponse;
 import com.ren.dianav2.database.ImageDatabaseManager;
 import com.ren.dianav2.helpers.RequestManager;
 import com.ren.dianav2.listener.IAssistantClickListener;
+import com.ren.dianav2.listener.IChatClickListener;
 import com.ren.dianav2.listener.IListAssistantResponse;
 import com.ren.dianav2.models.ChatItem;
 import com.ren.dianav2.models.Item;
@@ -196,6 +197,12 @@ public class HomeFragment extends Fragment {
         startActivity(intent);
     };
 
+    private final IChatClickListener chatClickListener = id -> {
+        Intent intent = new Intent(HomeFragment.this.getContext(), ChatScreen.class);
+        intent.putExtra("id", id);
+        startActivity(intent);
+    };
+
     private void loadConversation() {
         db.collection("conversation")
                 .whereEqualTo("userId", currentUser.getUid())
@@ -209,7 +216,7 @@ public class HomeFragment extends Fragment {
                     recyclerViewChat.setHasFixedSize(true);
                     recyclerViewChat.setLayoutManager(new LinearLayoutManager(getContext(),
                             LinearLayoutManager.VERTICAL, false));
-                    recentChatAdapter = new RecentChatAdapter(getContext(), conversations);
+                    recentChatAdapter = new RecentChatAdapter(getContext(), conversations, chatClickListener);
                     recyclerViewChat.setAdapter(recentChatAdapter);
                 })
                 .addOnFailureListener(e -> Log.d("HOME FRAGMENT", "conversation:onError", e));

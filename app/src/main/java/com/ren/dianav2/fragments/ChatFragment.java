@@ -29,6 +29,7 @@ import com.ren.dianav2.adapters.RecentChatAdapter;
 import com.ren.dianav2.adapters.SavedChatAdapter;
 import com.ren.dianav2.assistants.models.Conversation;
 import com.ren.dianav2.database.ImageDatabaseManager;
+import com.ren.dianav2.listener.IChatClickListener;
 import com.ren.dianav2.models.ChatItem;
 import com.ren.dianav2.screens.ChatScreen;
 import com.squareup.picasso.Picasso;
@@ -206,9 +207,15 @@ public class ChatFragment extends Fragment {
                     recyclerViewChat.setHasFixedSize(true);
                     recyclerViewChat.setLayoutManager(new LinearLayoutManager(getContext(),
                             LinearLayoutManager.VERTICAL, false));
-                    recentChatAdapter = new RecentChatAdapter(getContext(), conversations);
+                    recentChatAdapter = new RecentChatAdapter(getContext(), conversations, chatClickListener);
                     recyclerViewChat.setAdapter(recentChatAdapter);
                 })
                 .addOnFailureListener(e -> Log.d("HOME FRAGMENT", "conversation:onError", e));
     }
+
+    private final IChatClickListener chatClickListener = id -> {
+        Intent intent = new Intent(this.getContext(), ChatScreen.class);
+        intent.putExtra("id", id);
+        startActivity(intent);
+    };
 }

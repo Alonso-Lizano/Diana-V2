@@ -40,6 +40,7 @@ dependencies {
             "exclude" to listOf<String>()
     )))
     implementation(libs.firebase.firestore)
+    implementation(libs.firebase.storage)
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)

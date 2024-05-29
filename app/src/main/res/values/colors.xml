@@ -48,4 +48,6 @@
 
     <color name="assistant_chat_bubble_bg_color">#F2F7FF</color>"
     <color name="assistant_text_color_chat_bubble">#2A4ED1</color>
+
+    <color name="circuit_color">#2A4ED1</color>
 </resources>

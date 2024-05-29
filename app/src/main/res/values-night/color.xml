@@ -40,4 +40,6 @@
 
     <color name="assistant_chat_bubble_bg_color">#FF000000</color>"
     <color name="assistant_text_color_chat_bubble">#FFFFFFFF</color>
+
+    <color name="circuit_color">#56ABE9</color>
 </resources>

@@ -3,6 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/main"
+    style="@style/color_background_profile"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".screens.EditProfileScreen">
@@ -15,7 +16,7 @@
         android:src="@mipmap/circuito_removebg_preview"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@id/ll_edit_photo"
-        app:tint="@color/blue" />
+        app:tint="@color/circuit_color" />
 
     <ImageView
         android:id="@+id/iv_circuit"
@@ -25,7 +26,7 @@
         android:src="@mipmap/circuito_removebg_preview"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:tint="@color/blue" />
+        app:tint="@color/circuit_color" />
 
     <ImageView
         android:layout_width="wrap_content"
@@ -33,7 +34,7 @@
         android:src="@mipmap/circuito_removebg_preview"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toEndOf="@id/iv_circuit"
-        app:tint="@color/blue" />
+        app:tint="@color/circuit_color" />
 
     <LinearLayout
         android:id="@+id/ll_edit_photo"
@@ -96,7 +97,8 @@
             android:fontFamily="@font/poppins"
             android:text="Take a picture"
             android:textAlignment="center"
-            android:textSize="16sp"
+            android:textColor="@color/white"
+            android:textSize="14sp"
             app:backgroundTint="@null" />
 
         <Button
@@ -109,7 +111,8 @@
             android:fontFamily="@font/poppins"
             android:text="Upload photo"
             android:textAlignment="center"
-            android:textSize="16sp"
+            android:textColor="@color/white"
+            android:textSize="14sp"
             app:backgroundTint="@null" />
 
     </LinearLayout>
