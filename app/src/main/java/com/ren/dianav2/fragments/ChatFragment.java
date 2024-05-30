@@ -5,6 +5,7 @@ import android.content.res.Configuration;
 import android.net.Uri;
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -20,10 +21,13 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.ren.dianav2.R;
 import com.ren.dianav2.adapters.RecentChatAdapter;
 import com.ren.dianav2.adapters.SavedChatAdapter;
@@ -112,11 +116,12 @@ public class ChatFragment extends Fragment {
         recyclerViewChat.setLayoutManager(new LinearLayoutManager(getContext(),
                 LinearLayoutManager.VERTICAL, false));
 
-        recyclerViewSaved.setHasFixedSize(true);
+        /*recyclerViewSaved.setHasFixedSize(true);
         recyclerViewSaved.setLayoutManager(new LinearLayoutManager(getContext(),
-                LinearLayoutManager.VERTICAL, false));
+                LinearLayoutManager.VERTICAL, false));*/
 
         loadConversation();
+        loadSaved();
         //addDataToList();
 
         //recentChatAdapter = new RecentChatAdapter(getContext(), chatItems);
@@ -124,9 +129,9 @@ public class ChatFragment extends Fragment {
 
         miManager = new ImageDatabaseManager(this.getContext());
         miManager.open();
-        savedChatItems = new ArrayList<>();
-        savedChatAdapter = new SavedChatAdapter(getContext(), savedChatItems);
-        recyclerViewSaved.setAdapter(savedChatAdapter);
+        //savedChatItems = new ArrayList<>();
+        /*savedChatAdapter = new SavedChatAdapter(getContext(), savedChatItems);
+        recyclerViewSaved.setAdapter(savedChatAdapter);*/
 
         setButtonListeners(view);
         if (miManager.getImageUri() != null) {
@@ -212,6 +217,26 @@ public class ChatFragment extends Fragment {
                     recyclerViewChat.setAdapter(recentChatAdapter);
                 })
                 .addOnFailureListener(e -> Log.d("HOME FRAGMENT", "conversation:onError", e));
+    }
+
+    private void loadSaved() {
+        db.collection("users")
+                .document(currentUser.getUid())
+                .collection("favorites")
+                .get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    List<Conversation> conversations = new ArrayList<>();
+                    for (QueryDocumentSnapshot snapshot : queryDocumentSnapshots) {
+                        Conversation conversation = snapshot.toObject(Conversation.class);
+                        conversations.add(conversation);
+                    }
+                    recyclerViewSaved.setHasFixedSize(true);
+                    recyclerViewSaved.setLayoutManager(new LinearLayoutManager(requireContext(),
+                            LinearLayoutManager.VERTICAL, false));
+                    savedChatAdapter = new SavedChatAdapter(requireContext(), conversations, chatClickListener);
+                    recyclerViewSaved.setAdapter(savedChatAdapter);
+                })
+                .addOnFailureListener(e -> Log.e("ChatFragment", "Error loading saved chats", e));
     }
 
     private final IChatClickListener chatClickListener = id -> {

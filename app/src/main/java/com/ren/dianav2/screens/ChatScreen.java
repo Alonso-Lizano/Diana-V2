@@ -31,11 +31,14 @@ import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.Timestamp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
@@ -60,6 +63,7 @@ import com.ren.dianav2.models.text.Message;
 import com.ren.dianav2.models.text.TextRequest;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -91,6 +95,7 @@ public class ChatScreen extends AppCompatActivity {
     private FirebaseUser currentUser;
     private FirebaseFirestore db;
     private Conversation conversation;
+    private boolean isFavorite = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -150,8 +155,8 @@ public class ChatScreen extends AppCompatActivity {
         rvTextChat.setLayoutManager(linearLayoutManager);
 
         checkIfThreadExists();
-        String titulo = "";
-        conversation = new Conversation(idThread, currentUser.getUid(), messages, idAssistant, titulo);
+        String title = "";
+        conversation = new Conversation(idThread, currentUser.getUid(), messages, idAssistant, title);
 
         onClickBackButton(ibBack);
         onEditTextChange(messageEditText);
@@ -235,7 +240,7 @@ public class ChatScreen extends AppCompatActivity {
             }
             showChangeNameDialog();
         } else if (id == R.id.ll_option_3) {
-            showMessage("It doesn't work yet :((");
+            onClickSaveConversation();
         } else {
             showMessage("Where is your honor trash");
         }
@@ -474,9 +479,10 @@ public class ChatScreen extends AppCompatActivity {
             messageAdapter.notifyItemInserted(messages.size() - 1);
             rvTextChat.smoothScrollToPosition(messages.size() - 1);
             String titulo = tvName.getText().toString();
+            conversation.setId(idThread);
             conversation.setMessages(messages);
             conversation.setTitle(titulo);
-            //verConversation(conversation);
+
             saveConversation();
 
             Log.d("CHAT SCREEN", "Assistant message: " + message);
@@ -570,75 +576,16 @@ public class ChatScreen extends AppCompatActivity {
                 .addOnFailureListener(e -> Log.e("CHAT SCREEN", "Error getting ConversationThread from Firestore", e));
     }
 
-    /*
-    private void verConversation(Conversation conversation) {
-        db.collection("conversation")
-                .document(conversation.getId())
-                .get()
-                .addOnSuccessListener(documentSnapshot -> {
-                    if (documentSnapshot.exists()) {
-                        // Acceder al campo 'messages' como una lista de mapas
-                        List<Map<String, Object>> messagesMapList = (List<Map<String, Object>>) documentSnapshot.get("messages");
-                        if (messagesMapList != null) {
-                            List<Message> messages = new ArrayList<>();
-                            for (Map<String, Object> messageMap : messagesMapList) {
-                                // Convertir cada mapa a una instancia de Message
-                                Message message = new Message();
-                                message.setContent((String) messageMap.get("content"));
-                                message.setSender((String) messageMap.get("sender"));
-                                message.setTimestamp((Timestamp) messageMap.get("timestamp"));
-                                messages.add(message);
-                            }
-
-                            // Procesar los mensajes como se desee
-                            for (Message message : messages) {
-                                Log.d("CHAT SCREEN", "Mensaje: " + message.getContent());
-                            }
-                        }
-
-                        // Actualizar el documento con nuevos mensajes
-                        db.collection("conversation")
-                                .document(conversation.getId())
-                                .update("messages", conversation.getMessages())
-                                .addOnSuccessListener(aVoid -> {
-                                    Log.d("CHAT SCREEN", "ConversationThread updated in Firestore");
-                                })
-                                .addOnFailureListener(e -> {
-                                    Log.e("CHAT SCREEN", "Error updating ConversationThread in Firestore", e);
-                                });
-                    } else {
-                        // Crear un nuevo documento
-                        db.collection("conversation")
-                                .document(conversation.getId())
-                                .set(conversation)
-                                .addOnSuccessListener(aVoid -> {
-                                    Log.d("CHAT SCREEN", "ConversationThread added to Firestore");
-                                })
-                                .addOnFailureListener(e -> {
-                                    Log.e("CHAT SCREEN", "Error adding ConversationThread to Firestore", e);
-                                });
-                    }
-                })
-                .addOnFailureListener(e -> {
-                    Log.e("CHAT SCREEN", "Error getting ConversationThread from Firestore", e);
-                });
-
-    }*/
-
-
     private void checkIfThreadExists() {
         db.collection("conversation")
                 .whereEqualTo("userId", currentUser.getUid())
                 .get()
-                .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
-                    @Override
-                    public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
-                        if (!queryDocumentSnapshots.isEmpty()) {
-                            idThread = queryDocumentSnapshots.getDocuments().get(0).getId();
-                            loadMessages(idThread);
-                        } else {
-                            createThread();
-                        }
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    if (!queryDocumentSnapshots.isEmpty()) {
+                        idThread = queryDocumentSnapshots.getDocuments().get(0).getId();
+                        loadMessages(idThread);
+                    } else {
+                        createThread();
                     }
                 }).addOnFailureListener(e -> Log.e("ChatScreen", "Error checking thread existence", e));
     }
@@ -656,6 +603,7 @@ public class ChatScreen extends AppCompatActivity {
                         }
                         tvName.setText(conversation.getTitle().toString());
                         welcomeText.setVisibility(View.GONE);
+
                     }
                 })
                 .addOnFailureListener(e -> {
@@ -673,6 +621,71 @@ public class ChatScreen extends AppCompatActivity {
     private void createThread() {
         ThreadRequest threadRequest = new ThreadRequest();
         requestManager.createThread("assistants=v2", threadRequest, iThreadResponse);
+    }
+
+    private void onClickSaveConversation() {
+        if (currentUser != null) {
+            DocumentReference documentReference = db.collection("users")
+                    .document(currentUser.getUid())
+                    .collection("favorites")
+                    .document(idThread);
+
+            documentReference.get().addOnCompleteListener(task -> {
+                if (task.isSuccessful()) {
+                    DocumentSnapshot documentSnapshot = task.getResult();
+                    if (documentSnapshot.exists()) {
+                        documentReference.delete()
+                                .addOnSuccessListener(unused ->
+                                        showMessage("Conversation removed"))
+                                .addOnFailureListener(e ->
+                                        showMessage("Error removing conversation"));
+                    } else {
+                        Map<String, Object> data = new HashMap<>();
+                        data.put("id", conversation.getId());
+                        data.put("title", conversation.getTitle());
+                        data.put("messages", conversation.getMessages());
+                        data.put("userId", currentUser.getUid());
+                        data.put("timestamp", Timestamp.now());
+
+                        documentReference.set(data)
+                                .addOnSuccessListener(unused ->
+                                        showMessage("Conversation saved"))
+                                .addOnFailureListener(e ->
+                                        showMessage("Error saving conversation"));
+                    }
+                } else {
+                    showMessage("Error checking saved status: " + task.getException()
+                            .getMessage());
+                }
+            });
+
+        }
+    }
+
+    private void checkIfFavorite() {
+        Log.d("CHAT SCREEN", "THREAD ID: " + idThread);
+        DocumentReference favoriteRef = db.collection("users")
+                .document(currentUser.getUid())
+                .collection("favorites")
+                .document(idThread);
+
+        favoriteRef.get().addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                isFavorite = task.getResult().exists();
+                updateFavoriteButtonAppearance();
+            } else {
+                Log.e("RecipeScreen", "Error checking favorite status: " +
+                        task.getException().getMessage());
+            }
+        });
+    }
+
+    private void updateFavoriteButtonAppearance() {
+        /*if (isFavorite) {
+            favoriteBtn.setImageResource(R.drawable.favorite_select_icon);
+        } else {
+            favoriteBtn.setImageResource(R.drawable.favorite_unselect_icon);
+        }*/
     }
 
 }

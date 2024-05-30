@@ -11,6 +11,8 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.ren.dianav2.R;
+import com.ren.dianav2.assistants.models.Conversation;
+import com.ren.dianav2.listener.IChatClickListener;
 import com.ren.dianav2.models.ChatItem;
 
 import java.util.List;
@@ -21,17 +23,19 @@ import java.util.List;
 public class SavedChatAdapter extends RecyclerView.Adapter<SavedChatViewHolder> {
 
     private Context context;
-    private List<ChatItem> chatItems;
+    private List<Conversation> items;
+    private IChatClickListener listener;
 
     /**
      * Constructor para SavedChatAdapter.
      *
      * @param context el contexto en el cual el adaptador está operando
-     * @param chatItems la lista de elementos de chat guardados a mostrar
+     * @param items la lista de elementos de chat guardados a mostrar
      */
-    public SavedChatAdapter(Context context, List<ChatItem> chatItems) {
+    public SavedChatAdapter(Context context, List<Conversation> items, IChatClickListener listener) {
         this.context = context;
-        this.chatItems = chatItems;
+        this.items = items;
+        this.listener = listener;
     }
 
     /**
@@ -58,8 +62,13 @@ public class SavedChatAdapter extends RecyclerView.Adapter<SavedChatViewHolder> 
      */
     @Override
     public void onBindViewHolder(@NonNull SavedChatViewHolder holder, int position) {
-        holder.getTvTitle().setText(chatItems.get(position).getTitle());
-        holder.getIvChat().setImageResource(chatItems.get(position).getIvIcon());
+        holder.getTvTitle().setText(items.get(position).getTitle());
+        holder.itemView.setOnClickListener(v -> {
+            if (listener != null) {
+                listener.onRecentChatClicked(items.get(position).getId());
+            }
+        });
+        //holder.getIvChat().setImageResource(chatItems.get(position).getIvIcon());
     }
 
     /**
@@ -69,7 +78,7 @@ public class SavedChatAdapter extends RecyclerView.Adapter<SavedChatViewHolder> 
      */
     @Override
     public int getItemCount() {
-        return chatItems.size();
+        return items.size();
     }
 }
 

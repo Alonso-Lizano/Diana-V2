@@ -140,16 +140,15 @@ public class HomeFragment extends Fragment {
         if (currentUser != null) {
             String username = currentUser.getDisplayName();
             String profile = currentUser.getPhotoUrl().toString();
-            String[] arrayPocho=username.split(" ");
-            if(arrayPocho[1]==null){
-                arrayPocho[1]="";
+            String[] arrayPocho = username.split(" ");
+            if (arrayPocho[1] == null) {
+                arrayPocho[1] = "";
             }
-            String nombrePocho=arrayPocho[0]+" "+arrayPocho[1];
+            String nombrePocho = arrayPocho[0] + " " + arrayPocho[1];
             tvUsername.setText(nombrePocho);
-            if(miManager.getImageUri() != null){
+            if (miManager.getImageUri() != null) {
                 loadSavedProfileImage();
-            }
-            else{
+            } else {
                 Picasso.get().load(profile).into(ivProfile);
             }
 
@@ -157,7 +156,6 @@ public class HomeFragment extends Fragment {
 
         return view;
     }
-
 
 
     /**
@@ -230,6 +228,7 @@ public class HomeFragment extends Fragment {
     private void showMessage(String msg) {
         Toast.makeText(getContext(), msg, Toast.LENGTH_SHORT).show();
     }
+
     private void loadSavedProfileImage() {
         String savedUriString = miManager.getImageUri();
         if (savedUriString != null) {
