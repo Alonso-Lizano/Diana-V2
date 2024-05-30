@@ -1,9 +1,9 @@
-package com.ren.dianav2.database;
+package com.ren.dianav2.database_SQLITE;
 
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-
+/*
 public class DatabaseHelper extends SQLiteOpenHelper {
     private static final String DATABASE_NAME = "images.db";
     private static final int DATABASE_VERSION = 1;
@@ -31,3 +31,4 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         onCreate(db);
     }
 }
+*/

@@ -1,11 +1,11 @@
-package com.ren.dianav2.database;
+package com.ren.dianav2.database_SQLITE;
 
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
-
+/*
 public class ImageDatabaseManager {
     private DatabaseHelper dbHelper;
     private SQLiteDatabase database;
@@ -49,3 +49,4 @@ public class ImageDatabaseManager {
         }
     }
 }
+*/

@@ -4,31 +4,24 @@ import android.Manifest;
 import android.app.Activity;
 import android.content.ContentResolver;
 import android.content.ContentValues;
-import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.util.Log;
-import android.view.Window;
-import android.view.WindowManager;
 import android.webkit.MimeTypeMap;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.Toast;
 
-import androidx.activity.EdgeToEdge;
 import androidx.activity.result.ActivityResult;
 import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -36,9 +29,10 @@ import com.google.firebase.auth.UserProfileChangeRequest;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.ren.dianav2.R;
-import com.ren.dianav2.database.ImageDatabaseManager;
+//import com.ren.dianav2.database_SQLITE.ImageDatabaseManager;
 import com.ren.dianav2.listener.ICameraImagePermissionHandler;
 import com.ren.dianav2.listener.IGalleryPermissionHandler;
+import com.squareup.picasso.Picasso;
 
 /**
  * Pantalla de edición de perfil donde el usuario puede tomar o subir una foto de perfil.
@@ -58,7 +52,7 @@ public class EditProfileScreen extends AppCompatActivity {
     private boolean isCameraPermitted = false;
     private Uri uri;
     private ImageView ivProfile;
-    private ImageDatabaseManager miManager;
+    //private ImageDatabaseManager miManager;
     private FirebaseAuth mAuth;
     private FirebaseUser currentUser;
     private StorageReference reference;
@@ -76,6 +70,8 @@ public class EditProfileScreen extends AppCompatActivity {
         mAuth = FirebaseAuth.getInstance();
         currentUser = mAuth.getCurrentUser();
         reference = FirebaseStorage.getInstance().getReference("user_images");
+
+        /*
         miManager = new ImageDatabaseManager(this);
         miManager.open();
 
@@ -86,15 +82,19 @@ public class EditProfileScreen extends AppCompatActivity {
             ivProfile.setImageURI(uri);
         }
 
+
+*/
+        String profile = currentUser.getPhotoUrl() != null ? currentUser.getPhotoUrl().toString() : null;
+        if(profile!=null){
+            Picasso.get().load(profile).into(ivProfile);
+        }
         onClickTakePhoto(takePhotoButton);
         onClickUploadPhoto(uploadPhotoButton);
-
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        miManager.close();
     }
 
     private void onClickTakePhoto(Button button) {
@@ -186,7 +186,7 @@ public class EditProfileScreen extends AppCompatActivity {
                         if (o.getResultCode() == RESULT_OK) {
                             ivProfile.setImageURI(uri);
                             saveUserImage();
-                            saveUriToDatabase(uri);
+                            //saveUriToDatabase(uri);
                         }
                     });
 
@@ -208,16 +208,16 @@ public class EditProfileScreen extends AppCompatActivity {
                             if (uri != null) {
                                 ivProfile.setImageURI(uri);
                                 saveUserImage();
-                                saveUriToDatabase(uri);
+                                //saveUriToDatabase(uri);
                             }
                         }
                     }
                 }
             });
 
-    private void saveUriToDatabase(Uri uri) {
+   /* private void saveUriToDatabase(Uri uri) {
         miManager.saveImageUri(uri.toString());
-    }
+    }*/
     private void saveUserImage(){
         if (uri != null) {
             StorageReference storageReference = reference.child(mAuth.getCurrentUser().getUid() +

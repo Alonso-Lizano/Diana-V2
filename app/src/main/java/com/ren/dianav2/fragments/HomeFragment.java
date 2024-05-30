@@ -1,12 +1,9 @@
 package com.ren.dianav2.fragments;
 
 import android.content.Intent;
-import android.content.res.Configuration;
 import android.net.Uri;
 import android.os.Bundle;
 
-import androidx.annotation.NonNull;
-import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -15,26 +12,20 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.Window;
-import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
-import com.google.firebase.firestore.QuerySnapshot;
 import com.ren.dianav2.R;
 import com.ren.dianav2.adapters.ExplorerAdapter;
 import com.ren.dianav2.adapters.RecentChatAdapter;
 import com.ren.dianav2.assistants.models.Conversation;
 import com.ren.dianav2.assistants.models.response.AssistantData;
 import com.ren.dianav2.assistants.models.response.ListAssistantResponse;
-import com.ren.dianav2.database.ImageDatabaseManager;
 import com.ren.dianav2.helpers.RequestManager;
 import com.ren.dianav2.listener.IAssistantClickListener;
 import com.ren.dianav2.listener.IChatClickListener;
@@ -46,7 +37,6 @@ import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 /**
  * Un {@link Fragment} simple que muestra una lista de exploración y chats recientes.
@@ -75,7 +65,7 @@ public class HomeFragment extends Fragment {
     private FirebaseUser currentUser;
     private FirebaseFirestore db;
 
-    private ImageDatabaseManager miManager;
+    //private ImageDatabaseManager miManager;
 
     public HomeFragment() {
         // Constructor público requerido
@@ -127,8 +117,8 @@ public class HomeFragment extends Fragment {
         recyclerViewItem.setLayoutManager(new LinearLayoutManager(getContext(),
                 LinearLayoutManager.HORIZONTAL, false));
 
-        miManager = new ImageDatabaseManager(getContext());
-        miManager.open();
+        /*miManager = new ImageDatabaseManager(getContext());
+        miManager.open();*/
         addDataToList();
 
         exploreAdapter = new ExplorerAdapter(getContext(), items, dataList, listener);
@@ -139,20 +129,25 @@ public class HomeFragment extends Fragment {
 
         if (currentUser != null) {
             String username = currentUser.getDisplayName();
-            String profile = currentUser.getPhotoUrl().toString();
+            //String profile = currentUser.getPhotoUrl().toString();
             String[] arrayPocho=username.split(" ");
             if(arrayPocho[1]==null){
                 arrayPocho[1]="";
             }
             String nombrePocho=arrayPocho[0]+" "+arrayPocho[1];
             tvUsername.setText(nombrePocho);
+            String profile = currentUser.getPhotoUrl() != null ? currentUser.getPhotoUrl().toString() : null;
+           if(profile!=null){
+               Picasso.get().load(profile).into(ivProfile);
+           }
+            /*
             if(miManager.getImageUri() != null){
                 loadSavedProfileImage();
             }
             else{
-                Picasso.get().load(profile).into(ivProfile);
-            }
 
+            }
+*/
         }
 
         return view;
@@ -230,11 +225,11 @@ public class HomeFragment extends Fragment {
     private void showMessage(String msg) {
         Toast.makeText(getContext(), msg, Toast.LENGTH_SHORT).show();
     }
-    private void loadSavedProfileImage() {
+    /*private void loadSavedProfileImage() {
         String savedUriString = miManager.getImageUri();
         if (savedUriString != null) {
             Uri savedUri = Uri.parse(savedUriString);
             ivProfile.setImageURI(savedUri);
         }
-    }
+    }*/
 }
