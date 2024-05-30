@@ -19,7 +19,6 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.ren.dianav2.R;
 import com.ren.dianav2.adapters.ProfileOptionAdapter;
-import com.ren.dianav2.database.ImageDatabaseManager;
 import com.ren.dianav2.helpers.LanguageHelper;
 import com.ren.dianav2.listener.IThemeHandler;
 import com.ren.dianav2.models.OptionItem;
@@ -46,7 +45,7 @@ public class ProfileFragment extends Fragment implements IThemeHandler {
     private TextView tvUsername;
     private FirebaseAuth mAuth;
     private FirebaseUser currentUser;
-    private ImageDatabaseManager miManager;
+    //private ImageDatabaseManager miManager;
 
     public ProfileFragment() {
         // Constructor público requerido
@@ -97,9 +96,9 @@ public class ProfileFragment extends Fragment implements IThemeHandler {
         adapter = new ProfileOptionAdapter(getContext(), optionItems, this);
         recyclerView.setAdapter(adapter);
 
-        // Inicializa el ImageDatabaseManager y abre la base de datos
+        /* Inicializa el ImageDatabaseManager y abre la base de datos
         miManager = new ImageDatabaseManager(getContext());
-        miManager.open();
+        miManager.open();*/
 
         // Cargar la imagen guardada de la base de datos
 
@@ -117,7 +116,7 @@ public class ProfileFragment extends Fragment implements IThemeHandler {
                 Picasso.get().load(profile).into(ivProfile);
             }
         }
-        loadSavedProfileImage();
+        //loadSavedProfileImage();
 
         return view;
     }
@@ -125,23 +124,23 @@ public class ProfileFragment extends Fragment implements IThemeHandler {
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        // Cierra la base de datos cuando el fragmento se destruya
+        /* Cierra la base de datos cuando el fragmento se destruya
         if (miManager != null) {
             miManager.close();
-        }
+        }*/
     }
 
     /**
      * Carga la imagen de perfil guardada desde la base de datos.
      */
-    private void loadSavedProfileImage() {
+    /*private void loadSavedProfileImage() {
         String savedUriString = miManager.getImageUri();
         if (savedUriString != null) {
             Uri savedUri = Uri.parse(savedUriString);
             ivProfile.setImageURI(savedUri);
         }
     }
-
+*/
     /**
      * Agrega datos a la lista de opciones del perfil.
      */
