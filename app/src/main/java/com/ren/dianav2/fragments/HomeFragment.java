@@ -139,7 +139,6 @@ public class HomeFragment extends Fragment {
 
         if (currentUser != null) {
             String username = currentUser.getDisplayName();
-            String profile = currentUser.getPhotoUrl().toString();
             String[] arrayPocho = username.split(" ");
             if (arrayPocho[1] == null) {
                 arrayPocho[1] = "";
@@ -153,6 +152,10 @@ public class HomeFragment extends Fragment {
                 Picasso.get().load(profile).into(ivProfile);
             }*/
 
+            String profile = currentUser.getPhotoUrl() != null ? currentUser.getPhotoUrl().toString() : null;
+            if(profile!=null){
+                Picasso.get().load(profile).into(ivProfile);
+            }
         }
 
         return view;

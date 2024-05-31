@@ -123,6 +123,11 @@ public class ChatFragment extends Fragment {
         loadRecentConversation();
         loadSavedConversation();
         setButtonListeners(view);
+
+        String profile = currentUser.getPhotoUrl() != null ? currentUser.getPhotoUrl().toString() : null;
+        if(profile!=null){
+            Picasso.get().load(profile).into(ivProfile);
+        }
         //addDataToList();
 
         //recentChatAdapter = new RecentChatAdapter(getContext(), chatItems);
