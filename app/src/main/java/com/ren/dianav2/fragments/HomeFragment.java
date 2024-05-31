@@ -33,8 +33,8 @@ import com.ren.dianav2.adapters.ExplorerAdapter;
 import com.ren.dianav2.adapters.RecentChatAdapter;
 import com.ren.dianav2.assistants.models.Conversation;
 import com.ren.dianav2.assistants.models.response.AssistantData;
-import com.ren.dianav2.assistants.models.response.ListAssistantResponse;
-import com.ren.dianav2.database.ImageDatabaseManager;
+import com.ren.dianav2.assistants.models.response.ListAssistantResponse;/*
+import com.ren.dianav2.database.ImageDatabaseManager;*/
 import com.ren.dianav2.helpers.RequestManager;
 import com.ren.dianav2.listener.IAssistantClickListener;
 import com.ren.dianav2.listener.IChatClickListener;
@@ -61,9 +61,9 @@ public class HomeFragment extends Fragment {
     // TODO: Renombrar y cambiar tipos de parámetros
     private String mParam1;
     private String mParam2;
-    private RecyclerView recyclerViewItem;
+    private RecyclerView rv_explore;
     private ExplorerAdapter exploreAdapter;
-    private RecyclerView recyclerViewChat;
+    private RecyclerView rv_recent_chat;
     private RecentChatAdapter recentChatAdapter;
     private List<Item> items;
     private List<ChatItem> chatItems;
@@ -74,8 +74,8 @@ public class HomeFragment extends Fragment {
     private FirebaseAuth mAuth;
     private FirebaseUser currentUser;
     private FirebaseFirestore db;
-
-    private ImageDatabaseManager miManager;
+/*
+    private ImageDatabaseManager miManager;*/
 
     public HomeFragment() {
         // Constructor público requerido
@@ -116,24 +116,24 @@ public class HomeFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Infla el diseño para este fragmento
         View view = inflater.inflate(R.layout.fragment_home, container, false);
-        recyclerViewItem = view.findViewById(R.id.rv_explore);
-        recyclerViewChat = view.findViewById(R.id.rv_recent_chat);
+        rv_explore = view.findViewById(R.id.rv_explore);
+        rv_recent_chat = view.findViewById(R.id.rv_recent_chat);
         tvUsername = view.findViewById(R.id.tv_username);
         ivProfile = view.findViewById(R.id.iv_profile);
 
         requestManager = new RequestManager(requireContext());
 
-        recyclerViewItem.setHasFixedSize(true);
-        recyclerViewItem.setLayoutManager(new LinearLayoutManager(getContext(),
+        rv_explore.setHasFixedSize(true);
+        rv_explore.setLayoutManager(new LinearLayoutManager(getContext(),
                 LinearLayoutManager.HORIZONTAL, false));
 
+        /*
         miManager = new ImageDatabaseManager(getContext());
-        miManager.open();
+        miManager.open();*/
         addDataToList();
 
         exploreAdapter = new ExplorerAdapter(getContext(), items, dataList, listener);
-        recyclerViewItem.setAdapter(exploreAdapter);
-
+        rv_explore.setAdapter(exploreAdapter);
 
         loadConversation();
 
@@ -146,11 +146,12 @@ public class HomeFragment extends Fragment {
             }
             String nombrePocho = arrayPocho[0] + " " + arrayPocho[1];
             tvUsername.setText(nombrePocho);
+            /*
             if (miManager.getImageUri() != null) {
                 loadSavedProfileImage();
             } else {
                 Picasso.get().load(profile).into(ivProfile);
-            }
+            }*/
 
         }
 
@@ -196,13 +197,15 @@ public class HomeFragment extends Fragment {
 
     private final IAssistantClickListener listener = id -> {
         Intent intent = new Intent(HomeFragment.this.getContext(), ChatScreen.class);
-        intent.putExtra("id", id);
+        intent.putExtra("Origin", "NewChat");
+        intent.putExtra("IdAssistant", id);
         startActivity(intent);
     };
 
     private final IChatClickListener chatClickListener = id -> {
         Intent intent = new Intent(HomeFragment.this.getContext(), ChatScreen.class);
-        intent.putExtra("id", id);
+        intent.putExtra("Origin", "ExistingChat");
+        intent.putExtra("IdThread", id);
         startActivity(intent);
     };
 
@@ -216,11 +219,11 @@ public class HomeFragment extends Fragment {
                         Conversation conversation = snapshot.toObject(Conversation.class);
                         conversations.add(conversation);
                     }
-                    recyclerViewChat.setHasFixedSize(true);
-                    recyclerViewChat.setLayoutManager(new LinearLayoutManager(getContext(),
+                    rv_recent_chat.setHasFixedSize(true);
+                    rv_recent_chat.setLayoutManager(new LinearLayoutManager(getContext(),
                             LinearLayoutManager.VERTICAL, false));
                     recentChatAdapter = new RecentChatAdapter(getContext(), conversations, chatClickListener);
-                    recyclerViewChat.setAdapter(recentChatAdapter);
+                    rv_recent_chat.setAdapter(recentChatAdapter);
                 })
                 .addOnFailureListener(e -> Log.d("HOME FRAGMENT", "conversation:onError", e));
     }
@@ -228,12 +231,12 @@ public class HomeFragment extends Fragment {
     private void showMessage(String msg) {
         Toast.makeText(getContext(), msg, Toast.LENGTH_SHORT).show();
     }
-
+/*
     private void loadSavedProfileImage() {
         String savedUriString = miManager.getImageUri();
         if (savedUriString != null) {
             Uri savedUri = Uri.parse(savedUriString);
             ivProfile.setImageURI(savedUri);
         }
-    }
+    }*/
 }

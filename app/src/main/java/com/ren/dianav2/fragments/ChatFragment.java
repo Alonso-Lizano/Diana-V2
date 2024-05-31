@@ -32,7 +32,7 @@ import com.ren.dianav2.R;
 import com.ren.dianav2.adapters.RecentChatAdapter;
 import com.ren.dianav2.adapters.SavedChatAdapter;
 import com.ren.dianav2.assistants.models.Conversation;
-import com.ren.dianav2.database.ImageDatabaseManager;
+//import com.ren.dianav2.database.ImageDatabaseManager;
 import com.ren.dianav2.listener.IChatClickListener;
 import com.ren.dianav2.models.ChatItem;
 import com.ren.dianav2.screens.ChatScreen;
@@ -54,7 +54,7 @@ public class ChatFragment extends Fragment {
     // TODO: Renombrar y cambiar tipos de parámetros
     private String mParam1;
     private String mParam2;
-    private ImageDatabaseManager miManager;
+    //private ImageDatabaseManager miManager;
     private RecyclerView recyclerViewChat;
     private RecentChatAdapter recentChatAdapter;
     private RecyclerView recyclerViewSaved;
@@ -120,41 +120,42 @@ public class ChatFragment extends Fragment {
         recyclerViewSaved.setLayoutManager(new LinearLayoutManager(getContext(),
                 LinearLayoutManager.VERTICAL, false));*/
 
-        loadConversation();
-        loadSaved();
+        loadRecentConversation();
+        loadSavedConversation();
+        setButtonListeners(view);
         //addDataToList();
 
         //recentChatAdapter = new RecentChatAdapter(getContext(), chatItems);
         //recyclerViewChat.setAdapter(recentChatAdapter);
 
+        /*
         miManager = new ImageDatabaseManager(this.getContext());
         miManager.open();
         //savedChatItems = new ArrayList<>();
         /*savedChatAdapter = new SavedChatAdapter(getContext(), savedChatItems);
-        recyclerViewSaved.setAdapter(savedChatAdapter);*/
+        recyclerViewSaved.setAdapter(savedChatAdapter);
 
-        setButtonListeners(view);
         if (miManager.getImageUri() != null) {
-            loadSavedProfileImage();
+            loadSavedConversationProfileImage();
         } else {
             if (currentUser != null) {
                 String profile = currentUser.getPhotoUrl().toString();
                 Picasso.get().load(profile).into(ivProfile);
             }
-        }
+        }*/
         return view;
     }
 
     /**
      * Carga la imagen de perfil guardada desde la base de datos.
-     */
-    private void loadSavedProfileImage() {
+     *//*
+    private void loadSavedConversationProfileImage() {
         String savedUriString = miManager.getImageUri();
         if (savedUriString != null) {
             Uri savedUri = Uri.parse(savedUriString);
             ivProfile.setImageURI(savedUri);
         }
-    }
+    }*/
 
     /**
      * Agrega datos a las listas de chats recientes y guardados.
@@ -200,7 +201,7 @@ public class ChatFragment extends Fragment {
         }
     }
 
-    private void loadConversation() {
+    private void loadRecentConversation() {
         db.collection("conversation")
                 .whereEqualTo("userId", currentUser.getUid())
                 .get()
@@ -219,7 +220,7 @@ public class ChatFragment extends Fragment {
                 .addOnFailureListener(e -> Log.d("HOME FRAGMENT", "conversation:onError", e));
     }
 
-    private void loadSaved() {
+    private void loadSavedConversation() {
         db.collection("users")
                 .document(currentUser.getUid())
                 .collection("favorites")
@@ -241,7 +242,8 @@ public class ChatFragment extends Fragment {
 
     private final IChatClickListener chatClickListener = id -> {
         Intent intent = new Intent(this.getContext(), ChatScreen.class);
-        intent.putExtra("id", id);
+        intent.putExtra("Origin", "ExistingChat");
+        intent.putExtra("IdThread", id);
         startActivity(intent);
     };
 }

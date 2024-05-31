@@ -123,27 +123,29 @@ public class ChatScreen extends AppCompatActivity {
         requestManager = new RequestManager(this);
 
         microphoneBtn.setOnClickListener(v -> sendVoiceToText());
-
-        idAssistant = getIntent().getStringExtra("id");
         // Visibilidad del botón
         sendButton.setVisibility(View.GONE);
 
-        /*
         String origin = getIntent().getStringExtra("Origin");
-        if(origin.equals("NewChat")){
+        System.out.println("ORIGEN: " + origin);
+        if (origin.equals("NewChat")) {
+            idAssistant = "asst_Kq8380zEKAB8F5J6oKOfwKc0";
+            createThread();
             System.out.println("Debe mostrarse la pantalla para un nuevo chat");
-        } else if(origin.equals("NewChatScripted")) {
+        } else if (origin.equals("NewChatScripted")) {
             String script = getIntent().getStringExtra("script");
+            idAssistant = "asst_Kq8380zEKAB8F5J6oKOfwKc0";
+            createThread();
             System.out.println("Debe mostrarse la pantalla para un nuevo chat con un string ya mandado");
-        } else if(origin.equals("RecentChat") || origin.equals("SavedChat")) {
+        } else if (origin.equals("ExistingChat")) {
+            idThread = getIntent().getStringExtra("IdThread");
             System.out.println("Debe mostrarse el chat con la conversación ya lista para seguir");
-        } else if(origin.equals("Assistant")){
-            String assistant = getIntent().getStringExtra("assistant");
+            Toast.makeText(this, "ID OBTENIDO: " + idThread, Toast.LENGTH_SHORT).show();
+        } else if (origin.equals("Assistant")) {
+            idAssistant = getIntent().getStringExtra("IdAssistant");
+            Toast.makeText(this, "ID OBTENIDO: " + idAssistant, Toast.LENGTH_SHORT).show();
             System.out.println("Debe mostrarse el chat con el asistente elegido");
-
-
         }
-        */
 
 
         // Configuración del RecyclerView
@@ -414,7 +416,6 @@ public class ChatScreen extends AppCompatActivity {
             idThread = threadResponse.id;
             Log.d("CHAT SCREEN", "Response Thread id: " + idThread);
             showMessage("Thread created with ID: " + idThread);
-
         }
 
         @Override
@@ -582,8 +583,18 @@ public class ChatScreen extends AppCompatActivity {
                 .get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
                     if (!queryDocumentSnapshots.isEmpty()) {
-                        idThread = queryDocumentSnapshots.getDocuments().get(0).getId();
-                        loadMessages(idThread);
+                        boolean threadExists = false;
+                        for (int i = 0; i < queryDocumentSnapshots.getDocuments().size(); i++) {
+                            if (queryDocumentSnapshots.getDocuments().get(i).getId().equals(idThread)) {
+                                System.out.println("entraaaaaaaaaaaa________________");
+                                threadExists = true;
+                                i = queryDocumentSnapshots.getDocuments().size() + 1;
+                                loadMessages(idThread);
+                            }
+                        }
+                        if (!threadExists) {
+                            Log.e("ChatScreeen", "Error, thread doesn't exists");
+                        }
                     } else {
                         createThread();
                     }
@@ -603,7 +614,6 @@ public class ChatScreen extends AppCompatActivity {
                         }
                         tvName.setText(conversation.getTitle().toString());
                         welcomeText.setVisibility(View.GONE);
-
                     }
                 })
                 .addOnFailureListener(e -> {
