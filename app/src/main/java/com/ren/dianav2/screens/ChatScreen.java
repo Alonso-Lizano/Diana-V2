@@ -137,6 +137,10 @@ public class ChatScreen extends AppCompatActivity {
             idAssistant = "asst_Kq8380zEKAB8F5J6oKOfwKc0";
             createThread();
             System.out.println("Debe mostrarse la pantalla para un nuevo chat con un string ya mandado");
+        } else if (origin.equals("NewChatExplore")) {
+            idAssistant = getIntent().getStringExtra("IdAssistant");
+            createThread();
+            System.out.println("Debe mostrarse la pantalla para un nuevo chat con un asistente escogido");
         } else if (origin.equals("ExistingChat")) {
             idThread = getIntent().getStringExtra("IdThread");
             System.out.println("Debe mostrarse el chat con la conversación ya lista para seguir");
@@ -146,7 +150,6 @@ public class ChatScreen extends AppCompatActivity {
             Toast.makeText(this, "ID OBTENIDO: " + idAssistant, Toast.LENGTH_SHORT).show();
             System.out.println("Debe mostrarse el chat con el asistente elegido");
         }
-
 
         // Configuración del RecyclerView
         messageAdapter = new ReinforcedMessageAdapter(this, messages, currentUser);

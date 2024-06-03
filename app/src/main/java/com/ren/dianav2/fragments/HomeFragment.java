@@ -200,7 +200,7 @@ public class HomeFragment extends Fragment {
 
     private final IAssistantClickListener listener = id -> {
         Intent intent = new Intent(HomeFragment.this.getContext(), ChatScreen.class);
-        intent.putExtra("Origin", "NewChat");
+        intent.putExtra("Origin", "NewChatExplore");
         intent.putExtra("IdAssistant", id);
         startActivity(intent);
     };
