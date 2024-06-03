@@ -245,10 +245,18 @@ public class ChatFragment extends Fragment {
                 .addOnFailureListener(e -> Log.e("ChatFragment", "Error loading saved chats", e));
     }
 
-    private final IChatClickListener chatClickListener = id -> {
-        Intent intent = new Intent(this.getContext(), ChatScreen.class);
-        intent.putExtra("Origin", "ExistingChat");
-        intent.putExtra("IdThread", id);
-        startActivity(intent);
+    private final IChatClickListener chatClickListener = new IChatClickListener() {
+        @Override
+        public void onRecentChatClicked(String id) {
+            Intent intent = new Intent(ChatFragment.this.getContext(), ChatScreen.class);
+            intent.putExtra("Origin", "ExistingChat");
+            intent.putExtra("IdThread", id);
+            startActivity(intent);
+        }
+
+        @Override
+        public void onDeleteChatClicked(String id) {
+            //TODO Not implemented yet
+        }
     };
 }

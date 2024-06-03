@@ -153,7 +153,7 @@ public class HomeFragment extends Fragment {
             }*/
 
             String profile = currentUser.getPhotoUrl() != null ? currentUser.getPhotoUrl().toString() : null;
-            if(profile!=null){
+            if (profile != null) {
                 Picasso.get().load(profile).into(ivProfile);
             }
         }
@@ -205,12 +205,28 @@ public class HomeFragment extends Fragment {
         startActivity(intent);
     };
 
-    private final IChatClickListener chatClickListener = id -> {
-        Intent intent = new Intent(HomeFragment.this.getContext(), ChatScreen.class);
-        intent.putExtra("Origin", "ExistingChat");
-        intent.putExtra("IdThread", id);
-        startActivity(intent);
+    private final IChatClickListener chatClickListener = new IChatClickListener() {
+        @Override
+        public void onRecentChatClicked(String id) {
+            Intent intent = new Intent(HomeFragment.this.getContext(), ChatScreen.class);
+            intent.putExtra("Origin", "ExistingChat");
+            intent.putExtra("IdThread", id);
+            startActivity(intent);
+        }
+
+        @Override
+        public void onDeleteChatClicked(String id) {
+            deleteChat(id);
+        }
     };
+
+    private void deleteChat(String id) {
+        db.collection("conversation").document(id)
+                .delete()
+                .addOnSuccessListener(unused -> loadConversation())
+                .addOnFailureListener(e -> Log.e("HomeFragment", "Error when deleting element: "
+                        + e.getMessage()));
+    }
 
     private void loadConversation() {
         db.collection("conversation")
@@ -227,6 +243,7 @@ public class HomeFragment extends Fragment {
                             LinearLayoutManager.VERTICAL, false));
                     recentChatAdapter = new RecentChatAdapter(getContext(), conversations, chatClickListener);
                     rv_recent_chat.setAdapter(recentChatAdapter);
+                    
                 })
                 .addOnFailureListener(e -> Log.d("HOME FRAGMENT", "conversation:onError", e));
     }

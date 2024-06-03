@@ -1,6 +1,7 @@
 package com.ren.dianav2.adapters;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -8,6 +9,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.ren.dianav2.R;
@@ -68,6 +70,10 @@ public class RecentChatAdapter extends RecyclerView.Adapter<RecentChatViewHolder
                 listener.onRecentChatClicked(items.get(position).getId());
             }
         });
+        holder.itemView.setOnLongClickListener(v -> {
+            deleteChatPosition(items.get(position).getId());
+            return true;
+        });
 
     }
 
@@ -79,6 +85,19 @@ public class RecentChatAdapter extends RecyclerView.Adapter<RecentChatViewHolder
     @Override
     public int getItemCount() {
         return items.size();
+    }
+
+    private void deleteChatPosition(String id) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        builder.setTitle("Delete Chat");
+        builder.setMessage("Are you sure you want to delete the chat?");
+        builder.setPositiveButton("Delete", (dialog, which) -> {
+            if (listener != null) {
+                listener.onDeleteChatClicked(id);
+            }
+        });
+        builder.setNegativeButton("Cancel", (dialog, which) -> dialog.dismiss());
+        builder.create().show();
     }
 }
 

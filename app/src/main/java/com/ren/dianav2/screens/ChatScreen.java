@@ -608,6 +608,8 @@ public class ChatScreen extends AppCompatActivity {
                 .addOnSuccessListener(documentSnapshot -> {
                     if (documentSnapshot.exists()) {
                         conversation = documentSnapshot.toObject(Conversation.class);
+                        idThread = conversation.getId();
+                        idAssistant = conversation.getIdAssistant();
                         if (conversation != null) {
                             List<MessageRequest> messages = conversation.getMessages();
                             updateRecyclerView(messages);
