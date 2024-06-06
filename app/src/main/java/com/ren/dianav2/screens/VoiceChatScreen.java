@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.media.MediaPlayer;
 import android.os.Bundle;
+import android.os.Handler;
 import android.speech.RecognitionListener;
 import android.speech.RecognizerIntent;
 import android.speech.SpeechRecognizer;
@@ -26,8 +27,18 @@ import androidx.core.view.WindowInsetsCompat;
 import com.airbnb.lottie.LottieAnimationView;
 import com.google.firebase.Timestamp;
 import com.ren.dianav2.R;
+import com.ren.dianav2.assistants.models.request.MessageRequest;
+import com.ren.dianav2.assistants.models.request.RunRequest;
+import com.ren.dianav2.assistants.models.response.ListMessageResponse;
+import com.ren.dianav2.assistants.models.response.MessageResponse;
+import com.ren.dianav2.assistants.models.response.RunResponse;
+import com.ren.dianav2.assistants.models.response.RunStatusResponse;
 import com.ren.dianav2.helpers.RequestManager;
+import com.ren.dianav2.listener.IListMessageResponse;
+import com.ren.dianav2.listener.IMessageResponse;
 import com.ren.dianav2.listener.IResponseBody;
+import com.ren.dianav2.listener.IRunResponse;
+import com.ren.dianav2.listener.IRunStatusResponse;
 import com.ren.dianav2.listener.ITextResponse;
 import com.ren.dianav2.models.speech.SpeechRequest;
 import com.ren.dianav2.models.speech.VoiceSettings;
@@ -45,6 +56,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
+import java.util.stream.Collectors;
 
 import okhttp3.ResponseBody;
 
@@ -62,6 +74,10 @@ public class VoiceChatScreen extends AppCompatActivity {
     private ImageButton ib_play;
     private ImageButton ib_cancel;
     private boolean isPaused = false;
+
+    private String idAssistant;
+    private List<MessageRequest> messages;
+    private String idThread;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -100,6 +116,11 @@ public class VoiceChatScreen extends AppCompatActivity {
         Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
         intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
         intent.putExtra(RecognizerIntent.EXTRA_CALLING_PACKAGE, this.getPackageName());
+
+        idAssistant = getIntent().getStringExtra("IdAssistant");
+        idThread = getIntent().getStringExtra("IdThread");
+        messages = new ArrayList<>();
+
 
         speechRecognizer.setRecognitionListener(new RecognitionListener() {
             @Override
@@ -195,7 +216,7 @@ public class VoiceChatScreen extends AppCompatActivity {
             if (speechRecognizer != null) {
                 speechRecognizer.stopListening();
             }
-            if(mediaPlayer != null && mediaPlayer.isPlaying()){
+            if (mediaPlayer != null && mediaPlayer.isPlaying()) {
                 mediaPlayer.release();
             }
         }
@@ -239,40 +260,91 @@ public class VoiceChatScreen extends AppCompatActivity {
     }
 
     private void sendMessageToAI(String userMessage) {
-        Message userMessageObj = new Message(userMessage, "user", Timestamp.now());
-        TextRequest textRequest = new TextRequest("gpt-3.5-turbo-0125", Collections.singletonList(userMessageObj));
-        requestManager.sendMessage(textRequest, iTextResponse);
+        MessageRequest messageRequest = new MessageRequest("user", userMessage);
+        messages.add(messageRequest);
+
+        requestManager.createMessage("assistants=v2", idThread, messageRequest, iMessageResponse);
     }
 
-    private List<String> Responses = new ArrayList<>();
-    private final ITextResponse iTextResponse = new ITextResponse() {
+    private final IMessageResponse iMessageResponse = new IMessageResponse() {
         @Override
-        public void didFetch(TextResponse text, String msg) {
-            List<Choice> choices = text.getChoices();
-            if (!choices.isEmpty()) {
-                Message aiMessage = choices.get(0).getMessage();
-                String aiResponse = aiMessage.getContent();
-                conversationBuilder.append("AI: ").append(aiResponse).append("\n");
+        public void didFetch(MessageResponse messageResponse, String msg) {
+            showMessage("Message added to thread");
+            RunRequest runRequest = new RunRequest(idAssistant);
+            requestManager.createRun("assistants=v2", idThread, runRequest, iRunResponse);
+        }
 
-                generateVoice(aiResponse);
+        @Override
+        public void didError(String msg) {
+            showMessage("Error creating message: " + msg);
+        }
+    };
 
-                //Agrega la respuesta de la IA a la lista
-                Responses.add(aiResponse);
+    private final IRunResponse iRunResponse = new IRunResponse() {
+        @Override
+        public void didFetch(RunResponse runResponse, String msg) {
+            requestManager.getRunStatus("assistants=v2", idThread, runResponse.id, iRunStateResponse);
+        }
 
-                // Devuelve el mensaje a ChatScreen
-                Intent resultIntent = new Intent();
-                resultIntent.putExtra("messages", new ArrayList<>(Responses));
-                resultIntent.putExtra("sender", "AI");
-                setResult(RESULT_OK, resultIntent);
+        @Override
+        public void didError(String msg) {
+            showMessage("Error with run: " + msg);
+        }
+    };
+
+    private final IRunStatusResponse iRunStateResponse = new IRunStatusResponse() {
+        @Override
+        public void didFetch(RunStatusResponse runResponse, String msg) {
+            if ("completed".equals(runResponse.status)) {
+                requestManager.getListMessage("assistants=v2", idThread, iListMessageResponse);
+            } else {
+                new Handler().postDelayed(() -> requestManager.getRunStatus(
+                        "assistants=v2", idThread, runResponse.id, this), 500);
+                showMessage(runResponse.status);
+                Log.d("CHAT SCREEN", "Run status: " + runResponse.last_error);
             }
         }
 
         @Override
         public void didError(String msg) {
-            showMessage("Error: " + msg);
+            showMessage("Error with run status: " + msg);
         }
     };
 
+    private final IListMessageResponse iListMessageResponse = new IListMessageResponse() {
+        @Override
+        public void didFetch(ListMessageResponse listMessageResponse, String msg) {
+            List<MessageResponse> message = listMessageResponse.data.stream()
+                    .filter(assistantMessage -> assistantMessage.role.equals("assistant"))
+                    .collect(Collectors.toList());
+            MessageRequest assistantMessageRequest = new MessageRequest("assistant", message.get(0).content.get(0).text.value);
+            messages.add(assistantMessageRequest);
+
+            String aiResponse = assistantMessageRequest.content;
+            conversationBuilder.append("AI: ").append(aiResponse).append("\n");
+
+            generateVoice(aiResponse);
+
+            //Agrega la respuesta de la IA a la lista
+            Responses.add(aiResponse);
+
+            // Devuelve el mensaje a ChatScreen
+            Intent resultIntent = new Intent();
+            resultIntent.putExtra("messages", new ArrayList<>(Responses));
+            resultIntent.putExtra("sender", "AI");
+            setResult(RESULT_OK, resultIntent);
+
+
+            Log.d("CHAT SCREEN", "Assistant message: " + message);
+        }
+
+        @Override
+        public void didError(String msg) {
+            showMessage("Error with list message: " + msg);
+        }
+    };
+
+    private List<String> Responses = new ArrayList<>();
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
@@ -354,7 +426,6 @@ public class VoiceChatScreen extends AppCompatActivity {
             showMessage("Error en la conexión a SevenLabs: " + msg);
         }
     };
-
 
     private File writeResponseBodyToDisk(ResponseBody body) {
         try {

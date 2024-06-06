@@ -122,10 +122,6 @@ public class ChatScreen extends AppCompatActivity {
 
         requestManager = new RequestManager(this);
 
-        microphoneBtn.setOnClickListener(v -> sendVoiceToText());
-        // Visibilidad del botón
-        sendButton.setVisibility(View.GONE);
-
         String origin = getIntent().getStringExtra("Origin");
         System.out.println("ORIGEN: " + origin);
         if (origin.equals("NewChat")) {
@@ -149,7 +145,17 @@ public class ChatScreen extends AppCompatActivity {
             idAssistant = getIntent().getStringExtra("IdAssistant");
             Toast.makeText(this, "ID OBTENIDO: " + idAssistant, Toast.LENGTH_SHORT).show();
             System.out.println("Debe mostrarse el chat con el asistente elegido");
+        } else {
+            Toast.makeText(this, "ID OBTENIDO EN EL RESTO: " + idAssistant, Toast.LENGTH_SHORT).show();
         }
+
+        checkIfThreadExists();
+        String title = tvName.getText().toString();
+        conversation = new Conversation(idThread, currentUser.getUid(), messages, idAssistant, title);
+
+        microphoneBtn.setOnClickListener(v -> sendVoiceToText());
+        // Visibilidad del botón
+        sendButton.setVisibility(View.GONE);
 
         // Configuración del RecyclerView
         messageAdapter = new ReinforcedMessageAdapter(this, messages, currentUser);
@@ -158,10 +164,6 @@ public class ChatScreen extends AppCompatActivity {
         linearLayoutManager = new LinearLayoutManager(this);
         linearLayoutManager.setStackFromEnd(true);
         rvTextChat.setLayoutManager(linearLayoutManager);
-
-        checkIfThreadExists();
-        String title = "";
-        conversation = new Conversation(idThread, currentUser.getUid(), messages, idAssistant, title);
 
         onClickBackButton(ibBack);
         onEditTextChange(messageEditText);
@@ -199,7 +201,10 @@ public class ChatScreen extends AppCompatActivity {
      */
     private void onClickMicButton(ImageButton button) {
         button.setOnClickListener(v -> {
+            System.out.println(conversation.toString());
             Intent intent = new Intent(this, VoiceChatScreen.class);
+            intent.putExtra("IdThread", conversation.getId());
+            intent.putExtra("IdAssistant", conversation.getIdAssistant());
             startActivityForResult(intent, 20);
         });
     }
@@ -260,7 +265,6 @@ public class ChatScreen extends AppCompatActivity {
         changeNameDialog = new Dialog(this);
         changeNameDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
         changeNameDialog.setContentView(R.layout.bottom_sheet_change_name);
-
 
         EditText etName = changeNameDialog.findViewById(R.id.et_name);
         Button btnSave = changeNameDialog.findViewById(R.id.button_save);
@@ -417,6 +421,7 @@ public class ChatScreen extends AppCompatActivity {
         @Override
         public void didFetch(ThreadResponse threadResponse, String msg) {
             idThread = threadResponse.id;
+            conversation.setId(idThread);
             Log.d("CHAT SCREEN", "Response Thread id: " + idThread);
             showMessage("Thread created with ID: " + idThread);
         }
@@ -538,6 +543,7 @@ public class ChatScreen extends AppCompatActivity {
                             addMessage(messageRequest);
                             i++;
                         }
+                        saveConversation();
                     }
                 }
                 break;
@@ -589,7 +595,6 @@ public class ChatScreen extends AppCompatActivity {
                         boolean threadExists = false;
                         for (int i = 0; i < queryDocumentSnapshots.getDocuments().size(); i++) {
                             if (queryDocumentSnapshots.getDocuments().get(i).getId().equals(idThread)) {
-                                System.out.println("entraaaaaaaaaaaa________________");
                                 threadExists = true;
                                 i = queryDocumentSnapshots.getDocuments().size() + 1;
                                 loadMessages(idThread);

@@ -328,7 +328,7 @@ public class RequestManager {
 
             @Override
             public void onFailure(Call<ResponseBody> call, Throwable throwable) {
-                iResponseBody.didError(throwable.getMessage());
+                iResponseBody.didError("Error generateSpeech(): " + throwable.getMessage());
             }
         });
     }
