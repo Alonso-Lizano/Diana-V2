@@ -5,6 +5,7 @@
     <string name="new_chat">Nuevo chat</string>
     <string name="change_chat_name">Cambiar nombre del chat</string>
     <string name="save_chat">Guardar chat</string>
+    <string name="all_chats">Todos los chats</string>
     <string name="delete">Eliminar</string>
     <string name="rename">Renombrar</string>
     <string name="chat_name">Nombre del chat</string>

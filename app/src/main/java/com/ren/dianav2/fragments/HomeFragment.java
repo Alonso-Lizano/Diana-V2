@@ -1,12 +1,8 @@
 package com.ren.dianav2.fragments;
 
 import android.content.Intent;
-import android.content.res.Configuration;
-import android.net.Uri;
 import android.os.Bundle;
 
-import androidx.annotation.NonNull;
-import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -15,19 +11,15 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.Window;
-import android.view.WindowManager;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
-import com.google.firebase.firestore.QuerySnapshot;
 import com.ren.dianav2.R;
 import com.ren.dianav2.adapters.ExplorerAdapter;
 import com.ren.dianav2.adapters.RecentChatAdapter;
@@ -41,12 +33,12 @@ import com.ren.dianav2.listener.IChatClickListener;
 import com.ren.dianav2.listener.IListAssistantResponse;
 import com.ren.dianav2.models.ChatItem;
 import com.ren.dianav2.models.Item;
+import com.ren.dianav2.screens.AllChatsScreen;
 import com.ren.dianav2.screens.ChatScreen;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 /**
  * Un {@link Fragment} simple que muestra una lista de exploración y chats recientes.
@@ -74,6 +66,8 @@ public class HomeFragment extends Fragment {
     private FirebaseAuth mAuth;
     private FirebaseUser currentUser;
     private FirebaseFirestore db;
+    private EditText et_ScriptedMessage;
+    private TextView tv_AllChats;
 /*
     private ImageDatabaseManager miManager;*/
 
@@ -118,8 +112,10 @@ public class HomeFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_home, container, false);
         rv_explore = view.findViewById(R.id.rv_explore);
         rv_recent_chat = view.findViewById(R.id.rv_recent_chat);
-        tvUsername = view.findViewById(R.id.tv_username);
+        tvUsername = view.findViewById(R.id.tv_typeChat);
         ivProfile = view.findViewById(R.id.iv_profile);
+        et_ScriptedMessage = view.findViewById(R.id.et_ScriptedMessage);
+        tv_AllChats = view.findViewById(R.id.tv_see_all);
 
         requestManager = new RequestManager(requireContext());
 
@@ -158,9 +154,12 @@ public class HomeFragment extends Fragment {
             }
         }
 
+        sendScriptedMessage();
+
+        setOnClickAllChats();
+
         return view;
     }
-
 
     /**
      * Agrega datos a las listas de elementos y chats.
@@ -243,13 +242,25 @@ public class HomeFragment extends Fragment {
                             LinearLayoutManager.VERTICAL, false));
                     recentChatAdapter = new RecentChatAdapter(getContext(), conversations, chatClickListener);
                     rv_recent_chat.setAdapter(recentChatAdapter);
-                    
+
                 })
                 .addOnFailureListener(e -> Log.d("HOME FRAGMENT", "conversation:onError", e));
     }
 
     private void showMessage(String msg) {
         Toast.makeText(getContext(), msg, Toast.LENGTH_SHORT).show();
+    }
+
+    private void sendScriptedMessage() {
+
+    }
+
+    private void setOnClickAllChats() {
+        tv_AllChats.setOnClickListener(v -> {
+            Intent intent = new Intent(getContext(), AllChatsScreen.class);
+            intent.putExtra("Type", "Recent");
+            startActivity(intent);
+        });
     }
 /*
     private void loadSavedProfileImage() {

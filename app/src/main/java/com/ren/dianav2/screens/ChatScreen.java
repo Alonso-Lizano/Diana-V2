@@ -96,6 +96,8 @@ public class ChatScreen extends AppCompatActivity {
     private FirebaseFirestore db;
     private Conversation conversation;
     private boolean isFavorite = false;
+    private boolean isScripted = false;
+    private String script = "";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -125,13 +127,16 @@ public class ChatScreen extends AppCompatActivity {
         String origin = getIntent().getStringExtra("Origin");
         System.out.println("ORIGEN: " + origin);
         if (origin.equals("NewChat")) {
-            idAssistant = "asst_Kq8380zEKAB8F5J6oKOfwKc0";
+            idAssistant = "asst_frUYck2uPf2O7yjl2aqpRQl1";
+            isScripted = false;
             createThread();
             System.out.println("Debe mostrarse la pantalla para un nuevo chat");
         } else if (origin.equals("NewChatScripted")) {
-            String script = getIntent().getStringExtra("script");
-            idAssistant = "asst_Kq8380zEKAB8F5J6oKOfwKc0";
+            script = getIntent().getStringExtra("script");
+            idAssistant = "asst_frUYck2uPf2O7yjl2aqpRQl1";
+            isScripted = true;
             createThread();
+            sendMessage();
             System.out.println("Debe mostrarse la pantalla para un nuevo chat con un string ya mandado");
         } else if (origin.equals("NewChatExplore")) {
             idAssistant = getIntent().getStringExtra("IdAssistant");
@@ -389,7 +394,12 @@ public class ChatScreen extends AppCompatActivity {
      * Envía un mensaje.
      */
     private void sendMessage() {
-        String question = messageEditText.getText().toString().trim();
+        String question = "";
+        if(!isScripted){
+            question = messageEditText.getText().toString().trim();
+        } else {
+            question = script;
+        }
         if (!question.isEmpty()) {
 
             MessageRequest messageRequest = new MessageRequest("user", question);
@@ -405,6 +415,7 @@ public class ChatScreen extends AppCompatActivity {
             requestManager.createMessage("assistants=v2", idThread, messageRequest, iMessageResponse);
 
             messageEditText.setText("");
+            isScripted = false;
         }
     }
 
@@ -707,5 +718,4 @@ public class ChatScreen extends AppCompatActivity {
             favoriteBtn.setImageResource(R.drawable.favorite_unselect_icon);
         }*/
     }
-
 }

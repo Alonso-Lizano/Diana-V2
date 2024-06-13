@@ -11,6 +11,7 @@
     <string name="new_chat">New chat</string>
     <string name="change_chat_name">Change chat name</string>
     <string name="save_chat">Save chat</string>
+    <string name="all_chats">All chats</string>
     <string name="delete">Delete</string>
         <string name="rename">Rename</string>
         <string name="chat_name">Chat name</string>

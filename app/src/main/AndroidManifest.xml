@@ -30,6 +30,9 @@
             android:name=".screens.EditProfileScreen"
             android:exported="false" />
         <activity
+            android:name=".screens.AllChatsScreen"
+            android:exported="false" />
+        <activity
             android:name=".screens.ImageScreen"
             android:exported="false" />
         <activity

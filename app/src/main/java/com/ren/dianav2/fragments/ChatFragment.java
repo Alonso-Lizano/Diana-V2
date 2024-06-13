@@ -19,6 +19,7 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnFailureListener;
@@ -35,6 +36,7 @@ import com.ren.dianav2.assistants.models.Conversation;
 //import com.ren.dianav2.database.ImageDatabaseManager;
 import com.ren.dianav2.listener.IChatClickListener;
 import com.ren.dianav2.models.ChatItem;
+import com.ren.dianav2.screens.AllChatsScreen;
 import com.ren.dianav2.screens.ChatScreen;
 import com.squareup.picasso.Picasso;
 
@@ -66,6 +68,8 @@ public class ChatFragment extends Fragment {
     private FirebaseUser currentUser;
     private FirebaseFirestore db;
     private ImageView ivProfile;
+    private TextView tvSeeAllSaved;
+    private TextView tvSeeAllRecent;
 
     public ChatFragment() {
         // Constructor público requerido
@@ -112,6 +116,9 @@ public class ChatFragment extends Fragment {
         btnOption1 = view.findViewById(R.id.btn_option1);
         ivProfile = view.findViewById(R.id.iv_profile);
 
+        tvSeeAllSaved = view.findViewById(R.id.tv_see_all);
+        tvSeeAllRecent = view.findViewById(R.id.tv_see_all_recent);
+
         recyclerViewChat.setHasFixedSize(true);
         recyclerViewChat.setLayoutManager(new LinearLayoutManager(getContext(),
                 LinearLayoutManager.VERTICAL, false));
@@ -148,6 +155,9 @@ public class ChatFragment extends Fragment {
                 Picasso.get().load(profile).into(ivProfile);
             }
         }*/
+
+        setOnClickAllChats();
+
         return view;
     }
 
@@ -259,4 +269,17 @@ public class ChatFragment extends Fragment {
             //TODO Not implemented yet
         }
     };
+
+    private void setOnClickAllChats() {
+        tvSeeAllSaved.setOnClickListener(v -> {
+            Intent intent = new Intent(getContext(), AllChatsScreen.class);
+            intent.putExtra("Type", "Saved");
+            startActivity(intent);
+        });
+        tvSeeAllRecent.setOnClickListener(v -> {
+            Intent intent = new Intent(getContext(), AllChatsScreen.class);
+            intent.putExtra("Type", "Recent");
+            startActivity(intent);
+        });
+    }
 }
