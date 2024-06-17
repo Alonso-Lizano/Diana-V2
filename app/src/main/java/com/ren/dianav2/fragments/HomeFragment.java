@@ -12,6 +12,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -68,6 +69,7 @@ public class HomeFragment extends Fragment {
     private FirebaseFirestore db;
     private EditText et_ScriptedMessage;
     private TextView tv_AllChats;
+    private ImageButton ib_send;
 /*
     private ImageDatabaseManager miManager;*/
 
@@ -116,6 +118,7 @@ public class HomeFragment extends Fragment {
         ivProfile = view.findViewById(R.id.iv_profile);
         et_ScriptedMessage = view.findViewById(R.id.et_ScriptedMessage);
         tv_AllChats = view.findViewById(R.id.tv_see_all);
+        ib_send = view.findViewById(R.id.send_btn);
 
         requestManager = new RequestManager(requireContext());
 
@@ -252,7 +255,16 @@ public class HomeFragment extends Fragment {
     }
 
     private void sendScriptedMessage() {
-
+        ib_send.setOnClickListener(v -> {
+            if (!et_ScriptedMessage.getText().toString().isEmpty()) {
+                Intent intent = new Intent(getContext(), ChatScreen.class);
+                intent.putExtra("Origin", "NewChatScripted");
+                intent.putExtra("Script", et_ScriptedMessage.getText().toString());
+                startActivity(intent);
+            } else {
+                Toast.makeText(getContext(), "Debe introducir algo", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     private void setOnClickAllChats() {

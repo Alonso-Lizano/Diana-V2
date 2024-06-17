@@ -17,6 +17,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
+import android.webkit.WebStorage;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -132,11 +133,10 @@ public class ChatScreen extends AppCompatActivity {
             createThread();
             System.out.println("Debe mostrarse la pantalla para un nuevo chat");
         } else if (origin.equals("NewChatScripted")) {
-            script = getIntent().getStringExtra("script");
+            script = getIntent().getStringExtra("Script");
             idAssistant = "asst_frUYck2uPf2O7yjl2aqpRQl1";
             isScripted = true;
             createThread();
-            sendMessage();
             System.out.println("Debe mostrarse la pantalla para un nuevo chat con un string ya mandado");
         } else if (origin.equals("NewChatExplore")) {
             idAssistant = getIntent().getStringExtra("IdAssistant");
@@ -170,6 +170,14 @@ public class ChatScreen extends AppCompatActivity {
         linearLayoutManager.setStackFromEnd(true);
         rvTextChat.setLayoutManager(linearLayoutManager);
 
+        if(origin.equals("NewChatScripted")){
+            try {
+                Thread.sleep(1000);
+                sendMessage();
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+        }
         onClickBackButton(ibBack);
         onEditTextChange(messageEditText);
         changeStatusBarColor();

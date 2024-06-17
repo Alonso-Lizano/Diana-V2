@@ -2,8 +2,10 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    style="@style/color_background_chat_screen"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+    android:layout_height="match_parent"
+    tools:context=".screens.AllChatsScreen">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/cl"
@@ -31,7 +33,7 @@
                 android:id="@+id/et_ScriptedMessage"
                 android:layout_width="348dp"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="10dp"
+                android:layout_marginStart="10dp"
                 android:elegantTextHeight="true"
                 android:gravity="center_vertical"
                 android:hint="@string/ask_hint" />
@@ -58,7 +60,7 @@
             android:layout_marginStart="10dp"
             android:fontFamily="@font/poppins_extrabold"
             android:text="@string/saved"
-            android:textColor="@color/blue"
+            android:textColor="@color/text_color"
             android:textSize="30sp"
             app:layout_constraintBottom_toBottomOf="@id/ib_back"
             app:layout_constraintStart_toEndOf="@id/ib_back"

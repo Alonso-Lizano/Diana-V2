@@ -1,12 +1,15 @@
 package com.ren.dianav2.screens;
 
 import android.os.Bundle;
+import android.widget.Button;
+import android.widget.ImageButton;
 import android.util.Log;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -31,6 +34,7 @@ public class AllChatsScreen extends AppCompatActivity {
 
     private String typeChats;
     private TextView tvTypeChats;
+    private ImageButton ibBack;
     private RecyclerView rvExplore;
 
     private FirebaseAuth mAuth;
@@ -47,6 +51,7 @@ public class AllChatsScreen extends AppCompatActivity {
         setContentView(R.layout.all_chats_screen);
 
         tvTypeChats = findViewById(R.id.tv_typeChat);
+        ibBack = findViewById(R.id.ib_back);
         typeChats = getIntent().getStringExtra("Type");
         rvExplore = findViewById(R.id.rv_explore);
         ivProfile = findViewById(R.id.iv_profile);
@@ -55,6 +60,7 @@ public class AllChatsScreen extends AppCompatActivity {
         db = FirebaseFirestore.getInstance();
 
         setLayoutTitle();
+        onClickBackButton(ibBack);
         loadConversations();
         String profile = currentUser.getPhotoUrl() != null ? currentUser.getPhotoUrl().toString() : null;
         if (profile != null) {
@@ -68,6 +74,15 @@ public class AllChatsScreen extends AppCompatActivity {
         } else {
             tvTypeChats.setText(R.string.recents);
         }
+    }
+
+    /**
+     * Configura el evento de clic para el botón de retroceso.
+     *
+     * @param button el botón de retroceso
+     */
+    private void onClickBackButton(ImageButton button) {
+        button.setOnClickListener(v -> finish());
     }
 
     private void loadConversations() {
