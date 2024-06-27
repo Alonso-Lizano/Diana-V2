@@ -6,6 +6,7 @@
     <string name="facebook_app_id">1162959638176136</string>
     <string name="fb_login_protocol_scheme">fb1234</string>
     <string name="facebook_client_token">56789</string>
+    <string name="admin">Admin</string>
     <!-- ingles  -->
     <string name="options">Options</string>
     <string name="new_chat">New chat</string>

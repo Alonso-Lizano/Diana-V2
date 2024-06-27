@@ -1,34 +1,29 @@
 package com.ren.dianav2.fragments;
 
 import android.content.Intent;
-import android.content.res.Configuration;
-import android.net.Uri;
 import android.os.Bundle;
 
-import androidx.annotation.NonNull;
-import androidx.core.content.ContextCompat;
+import androidx.appcompat.widget.SearchView;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.Window;
-import android.view.WindowManager;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
-import com.google.firebase.firestore.QuerySnapshot;
 import com.ren.dianav2.R;
 import com.ren.dianav2.adapters.RecentChatAdapter;
 import com.ren.dianav2.adapters.SavedChatAdapter;
@@ -63,13 +58,19 @@ public class ChatFragment extends Fragment {
     private SavedChatAdapter savedChatAdapter;
     private List<ChatItem> chatItems;
     private List<ChatItem> savedChatItems;
-    private Button btnOption1;
+    private Button btnNewChat;
+    private Button btnSearchChat;
     private FirebaseAuth mAuth;
     private FirebaseUser currentUser;
     private FirebaseFirestore db;
     private ImageView ivProfile;
     private TextView tvSeeAllSaved;
     private TextView tvSeeAllRecent;
+    private EditText etSearchChats;
+    private ArrayList<Conversation> conversationsRecent = new ArrayList<>();
+    private ArrayList<Conversation> conversationsSaved = new ArrayList<>();
+    private ArrayList<Conversation> conversationsListR = new ArrayList<>();
+    private ArrayList<Conversation> conversationsListS = new ArrayList<>();
 
     public ChatFragment() {
         // Constructor público requerido
@@ -113,7 +114,9 @@ public class ChatFragment extends Fragment {
 
         recyclerViewChat = view.findViewById(R.id.rv_recent);
         recyclerViewSaved = view.findViewById(R.id.rv_saved);
-        btnOption1 = view.findViewById(R.id.btn_option1);
+        btnNewChat = view.findViewById(R.id.btn_newChat);
+        btnSearchChat = view.findViewById(R.id.btn_searchChat);
+        etSearchChats = view.findViewById(R.id.et_searchChats);
         ivProfile = view.findViewById(R.id.iv_profile);
 
         tvSeeAllSaved = view.findViewById(R.id.tv_see_all);
@@ -123,54 +126,20 @@ public class ChatFragment extends Fragment {
         recyclerViewChat.setLayoutManager(new LinearLayoutManager(getContext(),
                 LinearLayoutManager.VERTICAL, false));
 
-        /*recyclerViewSaved.setHasFixedSize(true);
-        recyclerViewSaved.setLayoutManager(new LinearLayoutManager(getContext(),
-                LinearLayoutManager.VERTICAL, false));*/
-
         loadRecentConversation();
         loadSavedConversation();
         setButtonListeners(view);
 
         String profile = currentUser.getPhotoUrl() != null ? currentUser.getPhotoUrl().toString() : null;
-        if(profile!=null){
+        if (profile != null) {
             Picasso.get().load(profile).into(ivProfile);
         }
-        //addDataToList();
-
-        //recentChatAdapter = new RecentChatAdapter(getContext(), chatItems);
-        //recyclerViewChat.setAdapter(recentChatAdapter);
-
-        /*
-        miManager = new ImageDatabaseManager(this.getContext());
-        miManager.open();
-        //savedChatItems = new ArrayList<>();
-        /*savedChatAdapter = new SavedChatAdapter(getContext(), savedChatItems);
-        recyclerViewSaved.setAdapter(savedChatAdapter);
-
-        if (miManager.getImageUri() != null) {
-            loadSavedConversationProfileImage();
-        } else {
-            if (currentUser != null) {
-                String profile = currentUser.getPhotoUrl().toString();
-                Picasso.get().load(profile).into(ivProfile);
-            }
-        }*/
 
         setOnClickAllChats();
+        setOnSearchListener();
 
         return view;
     }
-
-    /**
-     * Carga la imagen de perfil guardada desde la base de datos.
-     *//*
-    private void loadSavedConversationProfileImage() {
-        String savedUriString = miManager.getImageUri();
-        if (savedUriString != null) {
-            Uri savedUri = Uri.parse(savedUriString);
-            ivProfile.setImageURI(savedUri);
-        }
-    }*/
 
     /**
      * Agrega datos a las listas de chats recientes y guardados.
@@ -194,11 +163,11 @@ public class ChatFragment extends Fragment {
      * @param view la vista del fragmento
      */
     private void setButtonListeners(View view) {
-        Button button1 = view.findViewById(R.id.btn_option1);
-        Button button2 = view.findViewById(R.id.btn_option2);
+        Button btnNewChat = view.findViewById(R.id.btn_newChat);
+        Button btnSearchChat = view.findViewById(R.id.btn_searchChat);
 
-        button1.setOnClickListener(v -> onClickButton(button1));
-        button2.setOnClickListener(v -> onClickButton(button2));
+        btnNewChat.setOnClickListener(v -> onClickButton(btnNewChat));
+        btnSearchChat.setOnClickListener(v -> onClickButton(btnSearchChat));
     }
 
     /**
@@ -207,12 +176,14 @@ public class ChatFragment extends Fragment {
      * @param button el botón que fue clicado
      */
     private void onClickButton(Button button) {
-        if (button.getId() == R.id.btn_option1) {
+        if (button.getId() == R.id.btn_newChat) {
             Intent intent = new Intent(getContext(), ChatScreen.class);
             intent.putExtra("Origin", "NewChat");
             startActivity(intent);
-        } else if (button.getId() == R.id.btn_option2) {
-            Toast.makeText(getContext(), getString(R.string.search_chat), Toast.LENGTH_SHORT).show();
+        } else if (button.getId() == R.id.btn_searchChat) {
+            btnNewChat.setVisibility(View.GONE);
+            btnSearchChat.setVisibility(View.GONE);
+            etSearchChats.setVisibility(View.VISIBLE);
         }
     }
 
@@ -221,15 +192,16 @@ public class ChatFragment extends Fragment {
                 .whereEqualTo("userId", currentUser.getUid())
                 .get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
-                    List<Conversation> conversations = new ArrayList<>();
                     for (QueryDocumentSnapshot snapshot : queryDocumentSnapshots) {
                         Conversation conversation = snapshot.toObject(Conversation.class);
-                        conversations.add(conversation);
+                        conversationsListR.add(conversation);
                     }
+                    conversationsRecent.clear();
+                    conversationsRecent.addAll(conversationsListR);
                     recyclerViewChat.setHasFixedSize(true);
                     recyclerViewChat.setLayoutManager(new LinearLayoutManager(getContext(),
                             LinearLayoutManager.VERTICAL, false));
-                    recentChatAdapter = new RecentChatAdapter(getContext(), conversations, chatClickListener);
+                    recentChatAdapter = new RecentChatAdapter(getContext(), conversationsRecent, chatClickListener);
                     recyclerViewChat.setAdapter(recentChatAdapter);
                 })
                 .addOnFailureListener(e -> Log.d("HOME FRAGMENT", "conversation:onError", e));
@@ -241,15 +213,16 @@ public class ChatFragment extends Fragment {
                 .collection("favorites")
                 .get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
-                    List<Conversation> conversations = new ArrayList<>();
                     for (QueryDocumentSnapshot snapshot : queryDocumentSnapshots) {
                         Conversation conversation = snapshot.toObject(Conversation.class);
-                        conversations.add(conversation);
+                        conversationsListS.add(conversation);
                     }
+                    conversationsSaved.clear();
+                    conversationsSaved.addAll(conversationsListS);
                     recyclerViewSaved.setHasFixedSize(true);
                     recyclerViewSaved.setLayoutManager(new LinearLayoutManager(requireContext(),
                             LinearLayoutManager.VERTICAL, false));
-                    savedChatAdapter = new SavedChatAdapter(requireContext(), conversations, chatClickListener);
+                    savedChatAdapter = new SavedChatAdapter(requireContext(), conversationsSaved, chatClickListener);
                     recyclerViewSaved.setAdapter(savedChatAdapter);
                 })
                 .addOnFailureListener(e -> Log.e("ChatFragment", "Error loading saved chats", e));
@@ -281,5 +254,72 @@ public class ChatFragment extends Fragment {
             intent.putExtra("Type", "Recent");
             startActivity(intent);
         });
+    }
+
+    private String query = "";
+
+    private void setOnSearchListener() {
+        etSearchChats.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                checkChatExists(s.toString(), conversationsRecent, conversationsListR, "Recent");
+                checkChatExists(s.toString(), conversationsSaved, conversationsListS, "Saved");
+
+                recentChatAdapter = new RecentChatAdapter(ChatFragment.this.getContext(), conversationsRecent, chatClickListener);
+                recyclerViewChat.setAdapter(recentChatAdapter);
+
+                savedChatAdapter = new SavedChatAdapter(ChatFragment.this.getContext(), conversationsSaved, chatClickListener);
+                recyclerViewSaved.setAdapter(savedChatAdapter);
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+
+            }
+
+            private void checkChatExists(String inputText, ArrayList<Conversation> conversationsVisible, ArrayList<Conversation> conversationsComparable, String type) {
+
+                if (query.length() == inputText.length()) {
+                    conversationsVisible = conversationsComparable;
+                } else if (query.trim().length() > inputText.trim().length()) {
+                    System.out.println("Entraa");
+                    ArrayList<Conversation> conversations1 = conversationsVisible;
+                    for (Conversation conver : conversations1) {
+                        System.out.println("CONVERSACIONES: " + conver.getTitle());
+                        if (conver.getTitle().toLowerCase().contains(inputText.toLowerCase())) {
+                            if (!conversationsVisible.contains(conver)) {
+                                System.out.println("AÑADIR: " + conver.getTitle());
+                                conversationsVisible.add(conver);
+                            }
+                        }
+                    }
+                } else {
+                    ArrayList<Conversation> conversations1 = conversationsComparable;
+                    for (Conversation conver : conversations1) {
+                        if (!conver.getTitle().toLowerCase().contains(inputText.toLowerCase())) {
+                            System.out.println("BORRAR " + conver.getTitle());
+                            conversationsVisible.remove(conver);
+                        } else if (conver.getTitle().toLowerCase().contains(inputText.toLowerCase())) {
+                            System.out.println("NO BORRAR: " + conver.getTitle());
+                        }
+                    }
+                }
+                query = inputText;
+
+                if(type.equals("Recent")){
+                    System.out.println("ENTRA RECENT:=)");
+                    conversationsRecent = conversationsVisible;
+                } else {
+                    System.out.println("ENTRA SAVEDDDD:=)");
+                    conversationsSaved = conversationsVisible;
+                }
+            }
+        });
+
     }
 }

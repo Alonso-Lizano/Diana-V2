@@ -9,6 +9,7 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.SearchView;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -28,6 +29,7 @@ import com.ren.dianav2.listener.IChatClickListener;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 public class AllChatsScreen extends AppCompatActivity {
@@ -44,6 +46,9 @@ public class AllChatsScreen extends AppCompatActivity {
     private SavedChatAdapter savedChatAdapter;
 
     private ImageView ivProfile;
+    private SearchView sv_searchChats;
+    private ArrayList<Conversation> conversations = new ArrayList<>();
+    private ArrayList<Conversation> conversationsList = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,6 +63,7 @@ public class AllChatsScreen extends AppCompatActivity {
         mAuth = FirebaseAuth.getInstance();
         currentUser = mAuth.getCurrentUser();
         db = FirebaseFirestore.getInstance();
+        sv_searchChats = findViewById(R.id.sv_searchChats);
 
         setLayoutTitle();
         onClickBackButton(ibBack);
@@ -66,6 +72,7 @@ public class AllChatsScreen extends AppCompatActivity {
         if (profile != null) {
             Picasso.get().load(profile).into(ivProfile);
         }
+        setOnSearchListener();
     }
 
     private void setLayoutTitle() {
@@ -97,27 +104,20 @@ public class AllChatsScreen extends AppCompatActivity {
         db.collection("conversation")
                 .whereEqualTo("userId", currentUser.getUid())
                 .get()
-                .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
-                    @Override
-                    public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
-                        List<Conversation> conversations = new ArrayList<>();
-                        for (QueryDocumentSnapshot snapshot : queryDocumentSnapshots) {
-                            Conversation conversation = snapshot.toObject(Conversation.class);
-                            conversations.add(conversation);
-                        }
-                        rvExplore.setHasFixedSize(true);
-                        rvExplore.setLayoutManager(new LinearLayoutManager(AllChatsScreen.this,
-                                LinearLayoutManager.VERTICAL, false));
-                        recentChatAdapter = new RecentChatAdapter(AllChatsScreen.this, conversations, chatClickListener);
-                        rvExplore.setAdapter(recentChatAdapter);
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    for (QueryDocumentSnapshot snapshot : queryDocumentSnapshots) {
+                        Conversation conversation = snapshot.toObject(Conversation.class);
+                        conversationsList.add(conversation);
                     }
+                    conversations.clear();
+                    conversations.addAll(conversationsList);
+                    rvExplore.setHasFixedSize(true);
+                    rvExplore.setLayoutManager(new LinearLayoutManager(AllChatsScreen.this,
+                            LinearLayoutManager.VERTICAL, false));
+                    recentChatAdapter = new RecentChatAdapter(AllChatsScreen.this, conversations, chatClickListener);
+                    rvExplore.setAdapter(recentChatAdapter);
                 })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Log.d("ALL_CHATS_SCREEN", "conversation:onError", e);
-                    }
-                });
+                .addOnFailureListener(e -> Log.d("ALL_CHATS_SCREEN", "conversation:onError", e));
     }
 
     private void loadSavedConversation() {
@@ -125,27 +125,20 @@ public class AllChatsScreen extends AppCompatActivity {
                 .document(currentUser.getUid())
                 .collection("favorites")
                 .get()
-                .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
-                    @Override
-                    public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
-                        List<Conversation> conversations = new ArrayList<>();
-                        for (QueryDocumentSnapshot snapshot : queryDocumentSnapshots) {
-                            Conversation conversation = snapshot.toObject(Conversation.class);
-                            conversations.add(conversation);
-                        }
-                        rvExplore.setHasFixedSize(true);
-                        rvExplore.setLayoutManager(new LinearLayoutManager(AllChatsScreen.this,
-                                LinearLayoutManager.VERTICAL, false));
-                        savedChatAdapter = new SavedChatAdapter(AllChatsScreen.this, conversations, chatClickListener);
-                        rvExplore.setAdapter(savedChatAdapter);
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    for (QueryDocumentSnapshot snapshot : queryDocumentSnapshots) {
+                        Conversation conversation = snapshot.toObject(Conversation.class);
+                        conversationsList.add(conversation);
                     }
+                    conversations.clear();
+                    conversations.addAll(conversationsList);
+                    rvExplore.setHasFixedSize(true);
+                    rvExplore.setLayoutManager(new LinearLayoutManager(AllChatsScreen.this,
+                            LinearLayoutManager.VERTICAL, false));
+                    savedChatAdapter = new SavedChatAdapter(AllChatsScreen.this, conversations, chatClickListener);
+                    rvExplore.setAdapter(savedChatAdapter);
                 })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Log.e("ALL_CHATS_SCREEN", "Error loading saved chats", e);
-                    }
-                });
+                .addOnFailureListener(e -> Log.e("ALL_CHATS_SCREEN", "Error loading saved chats", e));
     }
 
     private final IChatClickListener chatClickListener = new IChatClickListener() {
@@ -159,4 +152,53 @@ public class AllChatsScreen extends AppCompatActivity {
             // Implement your logic to handle chat deletion
         }
     };
+
+    private String query = "";
+
+    private void setOnSearchListener() {
+        sv_searchChats.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                for (int i = 0; i < conversationsList.size(); i++) {
+                    System.out.println("CONVERSACIONES " + i + ": " + conversationsList.get(i).getTitle());
+                }
+                return false;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+
+                if (query.length() == newText.length()) {
+                    conversations = conversationsList;
+                } else if (query.trim().length() > newText.trim().length()) {
+                    System.out.println("Entraa");
+                    ArrayList<Conversation> conversations1 = conversationsList;
+                    for (Conversation conver : conversations1) {
+                        System.out.println("CONVERSACIONES: " + conver.getTitle());
+                        if (conver.getTitle().toLowerCase().contains(newText.toLowerCase())) {
+                            if (!conversations.contains(conver)) {
+                                System.out.println("AÑADIR: " + conver.getTitle());
+                                conversations.add(conver);
+                            }
+                        }
+                    }
+                } else {
+                    ArrayList<Conversation> conversations1 = conversationsList;
+                    for (Conversation conver : conversations1) {
+                        if (!conver.getTitle().toLowerCase().contains(newText.toLowerCase())) {
+                            System.out.println("CONVERSATION " + conver.getTitle());
+                            conversations.remove(conver);
+                        } else if (conver.getTitle().contains(newText)) {
+                            System.out.println("NO BORRAR: " + conver.getTitle());
+                        }
+                    }
+                }
+                query = newText;
+
+                recentChatAdapter = new RecentChatAdapter(AllChatsScreen.this, conversations, chatClickListener);
+                rvExplore.setAdapter(recentChatAdapter);
+                return true;
+            }
+        });
+    }
 }

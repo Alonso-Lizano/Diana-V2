@@ -1,6 +1,7 @@
 package com.ren.dianav2.screens;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.util.Log;
@@ -38,6 +39,7 @@ import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.auth.AuthCredential;
@@ -118,9 +120,7 @@ public class LoginScreen extends AppCompatActivity {
      */
     private void onClickButtonEnter(Button button) {
         button.setOnClickListener(v -> {
-            Intent intent = new Intent(this, MainScreen.class);
-            startActivity(intent);
-            finish();
+            loginAnonymous();
         });
     }
 
@@ -209,6 +209,20 @@ public class LoginScreen extends AppCompatActivity {
                     }
                 });
     }
+
+    /**
+     * Autentica con Firebase usando el token de Google.
+     */
+    private void loginAnonymous() {
+        mAuth.signInAnonymously()
+                .addOnCompleteListener(this, task -> {
+                    if(task.isSuccessful()){
+                        FirebaseUser user = mAuth.getCurrentUser();
+                        startActivity(new Intent(LoginScreen.this, MainScreen.class));
+                    }
+                }).addOnFailureListener(e -> Toast.makeText(LoginScreen.this, "Error al acceder", Toast.LENGTH_SHORT).show());
+    }
+
 
     /**
      * Inicia el proceso de inicio de sesión con Google.

@@ -18,6 +18,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseAuthRegistrar;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
@@ -70,8 +71,6 @@ public class HomeFragment extends Fragment {
     private EditText et_ScriptedMessage;
     private TextView tv_AllChats;
     private ImageButton ib_send;
-/*
-    private ImageDatabaseManager miManager;*/
 
     public HomeFragment() {
         // Constructor público requerido
@@ -126,9 +125,6 @@ public class HomeFragment extends Fragment {
         rv_explore.setLayoutManager(new LinearLayoutManager(getContext(),
                 LinearLayoutManager.HORIZONTAL, false));
 
-        /*
-        miManager = new ImageDatabaseManager(getContext());
-        miManager.open();*/
         addDataToList();
 
         exploreAdapter = new ExplorerAdapter(getContext(), items, dataList, listener);
@@ -138,23 +134,23 @@ public class HomeFragment extends Fragment {
 
         if (currentUser != null) {
             String username = currentUser.getDisplayName();
-            String[] arrayPocho = username.split(" ");
-            if (arrayPocho[1] == null) {
-                arrayPocho[1] = "";
-            }
-            String nombrePocho = arrayPocho[0] + " " + arrayPocho[1];
-            tvUsername.setText(nombrePocho);
-            /*
-            if (miManager.getImageUri() != null) {
-                loadSavedProfileImage();
-            } else {
-                Picasso.get().load(profile).into(ivProfile);
-            }*/
 
-            String profile = currentUser.getPhotoUrl() != null ? currentUser.getPhotoUrl().toString() : null;
-            if (profile != null) {
-                Picasso.get().load(profile).into(ivProfile);
+            if(username != null){
+                String[] arrayPocho = username.split(" ");
+                if (arrayPocho.length == 1) {
+                    if(username.isEmpty()){
+                        username = String.valueOf(R.string.admin);
+                    }
+                    tvUsername.setText(username);
+                } else {
+                    tvUsername.setText(arrayPocho[0] + " " + arrayPocho[1]);
+                }
             }
+        }
+
+        String profile = currentUser.getPhotoUrl() != null ? currentUser.getPhotoUrl().toString() : null;
+        if (profile != null) {
+            Picasso.get().load(profile).into(ivProfile);
         }
 
         sendScriptedMessage();
@@ -178,10 +174,6 @@ public class HomeFragment extends Fragment {
                 getString(R.string.images_description)));
 
         requestManager.getListAssistant("assistants=v2", iListAssistantResponse);
-
-        /*chatItems.add(new ChatItem(R.drawable.round_chat_24, getString(R.string.java_code_explanation)));
-        chatItems.add(new ChatItem(R.drawable.round_chat_24, getString(R.string.math_exercises_resolution)));
-        chatItems.add(new ChatItem(R.drawable.round_chat_24, getString(R.string.use_your_brain_example)));*/
     }
 
     private final IListAssistantResponse iListAssistantResponse = new IListAssistantResponse() {
@@ -250,6 +242,10 @@ public class HomeFragment extends Fragment {
                 .addOnFailureListener(e -> Log.d("HOME FRAGMENT", "conversation:onError", e));
     }
 
+    private void addAnonimousUser(){
+        FirebaseAuthRegistrar dd = new FirebaseAuthRegistrar();
+    }
+
     private void showMessage(String msg) {
         Toast.makeText(getContext(), msg, Toast.LENGTH_SHORT).show();
     }
@@ -274,12 +270,4 @@ public class HomeFragment extends Fragment {
             startActivity(intent);
         });
     }
-/*
-    private void loadSavedProfileImage() {
-        String savedUriString = miManager.getImageUri();
-        if (savedUriString != null) {
-            Uri savedUri = Uri.parse(savedUriString);
-            ivProfile.setImageURI(savedUri);
-        }
-    }*/
 }

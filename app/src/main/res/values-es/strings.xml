@@ -1,6 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-
+    <string name="app_name">Diana V2</string>
+    <string name="api_key">Bearer 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</string>
+    <string name="Old_api_key">Bearer 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</string>
+    <string name="default_web_client_id">149208891133-42e54tjqjepit4hfv56g4kh3ss754b9v.apps.googleusercontent.com</string>
+    <string name="facebook_app_id">1162959638176136</string>
+    <string name="fb_login_protocol_scheme">fb1234</string>
+    <string name="facebook_client_token">56789</string>
+    <string name="admin">Admin</string>
     <string name="options">Opciones</string>
     <string name="new_chat">Nuevo chat</string>
     <string name="change_chat_name">Cambiar nombre del chat</string>

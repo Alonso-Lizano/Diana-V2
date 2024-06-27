@@ -102,19 +102,25 @@ public class ProfileFragment extends Fragment implements IThemeHandler {
 
         // Cargar la imagen guardada de la base de datos
 
-
         if (currentUser != null) {
             String username = currentUser.getDisplayName();
-            String [] arrayPocho = username.split(" ");
-            if(arrayPocho[1]==null){
-                arrayPocho[1]="";
+
+            if(username != null){
+                String[] arrayPocho = username.split(" ");
+                if (arrayPocho.length == 1) {
+                    if(username.isEmpty()){
+                        username = String.valueOf(R.string.admin);
+                    }
+                    tvUsername.setText(username);
+                } else {
+                    tvUsername.setText(arrayPocho[0] + " " + arrayPocho[1]);
+                }
             }
-            String nombrePocho=arrayPocho[0]+" "+arrayPocho[1];
-            String profile = currentUser.getPhotoUrl() != null ? currentUser.getPhotoUrl().toString() : null;
-            tvUsername.setText(nombrePocho);
-            if (profile != null) {
-                Picasso.get().load(profile).into(ivProfile);
-            }
+        }
+
+        String profile = currentUser.getPhotoUrl() != null ? currentUser.getPhotoUrl().toString() : null;
+        if (profile != null) {
+            Picasso.get().load(profile).into(ivProfile);
         }
         //loadSavedProfileImage();
 
